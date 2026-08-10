@@ -549,7 +549,7 @@ function QuestionWizard({ stage }: { stage: WjStage }) {
                   className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-1 motion-safe:duration-300"
                 >
                   <div className="flex gap-2.5">
-                    <span className="mt-0.5 shrink-0 font-mono text-sm text-wj-cinnabar">
+                    <span className="mt-0.5 shrink-0 text-[15px] leading-8 text-wj-cinnabar">
                       （{p.label}）
                     </span>
                     <p className="text-[15px] leading-8 text-wj-ink/85">
@@ -867,21 +867,23 @@ function ChoiceInput({
               aria-checked={active}
               disabled={disabled}
               onClick={() => commit(o.key, note)}
-              className={`flex w-full items-start gap-2.5 rounded border px-3 py-2 text-left text-sm leading-6 transition-colors disabled:opacity-60 ${
+              className={`flex w-full items-start gap-2.5 rounded border px-3 py-2 text-left text-[15px] leading-7 transition-colors disabled:opacity-60 ${
                 active
                   ? 'border-wj-cinnabar/60 bg-wj-cinnabar/5 text-wj-ink'
                   : 'border-wj-line bg-wj-raised text-wj-ink2 hover:border-wj-dim'
               }`}
             >
               <span
-                className={`mt-1 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border ${
+                className={`mt-1.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border ${
                   active ? 'border-wj-cinnabar' : 'border-wj-line'
                 }`}
               >
                 {active && <span className="h-1.5 w-1.5 rounded-full bg-wj-cinnabar" />}
               </span>
               <span>
-                <span className="font-mono">{o.key}.</span> {o.text}
+                <span className={active ? 'text-wj-cinnabar' : undefined}>{o.key}</span>
+                <span className="text-wj-dim"> · </span>
+                {o.text}
               </span>
             </button>
           );
@@ -937,21 +939,23 @@ function MultiInput({
               aria-checked={active}
               disabled={disabled}
               onClick={() => toggle(o.key)}
-              className={`flex w-full items-start gap-2.5 rounded border px-3 py-2 text-left text-sm leading-6 transition-colors disabled:opacity-60 ${
+              className={`flex w-full items-start gap-2.5 rounded border px-3 py-2 text-left text-[15px] leading-7 transition-colors disabled:opacity-60 ${
                 active
                   ? 'border-wj-cinnabar/60 bg-wj-cinnabar/5 text-wj-ink'
                   : 'border-wj-line bg-wj-raised text-wj-ink2 hover:border-wj-dim'
               }`}
             >
               <span
-                className={`mt-1 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm border ${
+                className={`mt-1.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm border ${
                   active ? 'border-wj-cinnabar' : 'border-wj-line'
                 }`}
               >
                 {active && <Check className="h-2.5 w-2.5 text-wj-cinnabar" />}
               </span>
               <span>
-                <span className="font-mono">{o.key}.</span> {o.text}
+                <span className={active ? 'text-wj-cinnabar' : undefined}>{o.key}</span>
+                <span className="text-wj-dim"> · </span>
+                {o.text}
               </span>
             </button>
           );
@@ -996,8 +1000,10 @@ function MatchingInput({
           key={l.key}
           className="flex flex-wrap items-center gap-2 rounded border border-wj-line bg-wj-raised px-3 py-2"
         >
-          <span className="min-w-40 flex-1 text-sm leading-6 text-wj-ink">
-            <span className="font-mono">{l.key}.</span> {l.text}
+          <span className="min-w-40 flex-1 text-[15px] leading-7 text-wj-ink">
+            <span className="text-wj-cinnabar">{l.key}</span>
+            <span className="text-wj-dim"> · </span>
+            {l.text}
           </span>
           <span className="flex shrink-0 gap-1.5">
             {right.map((r) => {
@@ -1009,7 +1015,7 @@ function MatchingInput({
                   aria-pressed={active}
                   disabled={disabled}
                   onClick={() => commit({ ...map, [l.key]: r.key })}
-                  className={`rounded border px-2 py-1 text-xs leading-5 transition-colors disabled:opacity-60 ${
+                  className={`rounded border px-2 py-1 text-sm leading-6 transition-colors disabled:opacity-60 ${
                     active
                       ? 'border-wj-cinnabar/60 bg-wj-cinnabar/10 text-wj-cinnabar'
                       : 'border-wj-line text-wj-dim hover:border-wj-dim hover:text-wj-ink2'
