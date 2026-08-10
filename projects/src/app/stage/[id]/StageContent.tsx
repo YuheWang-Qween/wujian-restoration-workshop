@@ -332,13 +332,7 @@ export function StageContent() {
               {/* 一题一答：同屏只出现当前这道题，作答后解锁下一题（key 保证换环节时进度归零重算） */}
               <QuestionWizard key={stage.id} stage={stage} />
 
-              {/* 完成机制的说明：没有手动按钮，要让学习者知道作答即完成 */}
-              {!isDone ? (
-                <p className="mt-5 flex items-center gap-1.5 text-xs text-wj-muted">
-                  <PenLine className="h-3.5 w-3.5" />
-                  在最后一道细问的答题框写下你的作答，本环节即自动标记为完成
-                </p>
-              ) : (
+              {isDone && (
                 <p className="mt-5 flex items-center gap-1.5 text-xs text-wj-bamboo">
                   <Check className="h-3.5 w-3.5" />
                   {next ? '本环节已完成，下一环节已解锁' : '本环节已完成——六道工序全部读完'}
