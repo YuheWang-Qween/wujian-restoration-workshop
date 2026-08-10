@@ -8,7 +8,7 @@ import 'server-only';
  * 合法入口只有两个：`prompt.ts`（/api/chat 助教对话）与
  * `grade-prompt.ts`（/api/grade AI 判对错），两者都只被 API 路由引用。
  *
- * key 形如 `环节编号-子问题 id`，例如 '1-q2'。
+ * key 形如 `环节编号-细问 id`，例如 '1-q2'。
  */
 export const RUBRICS: Record<string, string[]> = {
   '1-q1': [

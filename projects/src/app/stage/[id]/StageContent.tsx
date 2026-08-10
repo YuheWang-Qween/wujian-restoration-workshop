@@ -24,7 +24,7 @@ export function StageContent() {
   const revealPrevAct = useWorkshopStore((s) => s.revealPrevAct);
   const isDone = hydrated && completed.includes(stageId);
 
-  // 完成的判定：最后一道子问题「答完」——有小问的题要求每个小问都写了内容，
+  // 完成的判定：最后一道细问「答完」——有小问的题要求每个小问都写了内容，
   // 无小问的题要求整题答题框非空。只订阅布尔值，不随每次按键重渲染
   const lastQuestion = stage?.questions[stage.questions.length - 1];
   const lastAnswered = useWorkshopStore((s) =>
@@ -80,7 +80,7 @@ export function StageContent() {
             「{stage.name}」尚未解锁
           </h1>
           <p className="mt-3 text-sm leading-7 text-wj-muted">
-            六道工序按顺序进行。先答完{lockedPrev ? `「${lockedPrev.name}」` : '上一环节'}的最后一道子问题，
+            六道工序按顺序进行。先答完{lockedPrev ? `「${lockedPrev.name}」` : '上一环节'}的最后一道细问，
             这一环节才会打开。
           </p>
           <div className="mt-6 flex items-center justify-center gap-3">
@@ -316,7 +316,7 @@ export function StageContent() {
               </section>
             )}
 
-            {/* 三 · 子问题（最后一节，此时底部出现环节间导航） */}
+            {/* 三 · 细问（最后一节，此时底部出现环节间导航） */}
             {revealed === totalActs && (
             <section
               id="stage-act-questions"
@@ -338,7 +338,7 @@ export function StageContent() {
               {!isDone ? (
                 <p className="mt-5 flex items-center gap-1.5 text-xs text-wj-muted">
                   <PenLine className="h-3.5 w-3.5" />
-                  在最后一道子问题的答题框写下你的作答，本环节即自动标记为完成
+                  在最后一道细问的答题框写下你的作答，本环节即自动标记为完成
                 </p>
               ) : (
                 <p className="mt-5 flex items-center gap-1.5 text-xs text-wj-bamboo">
@@ -424,7 +424,7 @@ export function StageContent() {
                 ) : (
                   <span
                     aria-disabled="true"
-                    title="答完本环节最后一道子问题后解锁"
+                    title="答完本环节最后一道细问后解锁"
                     className="inline-flex h-9 min-w-0 cursor-not-allowed items-center gap-2 rounded border border-wj-line px-3 text-sm text-wj-dim"
                   >
                     <Lock className="h-4 w-4 shrink-0" />
@@ -457,7 +457,7 @@ function renderRich(text: string) {
   );
 }
 
-/** 节标题：环节资料按「节」推进——工序说明 → 关键数据 → 子问题；首节无小标，后两节只留标题不编序号 */
+/** 节标题：环节资料按「节」推进——工序说明 → 关键数据 → 细问；首节无小标，后两节只留标题不编序号 */
 function SectionHeading({ title, note }: { title: string; note?: string }) {
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-wj-line pb-2.5">
@@ -483,7 +483,7 @@ function isQuestionAnswered(
 }
 
 /**
- * 子问题步进器：一题一答、题内一小问一答。同屏只渲染当前一道题，
+ * 细问步进器：一题一答、题内一小问一答。同屏只渲染当前一道题，
  * 题内的小问逐个展开（写完（a）才出（b）），顺序推进——
  * 第 i 题在前一题答完后解锁（与环节间的顺序解锁同一精神）；
  * 进度圆点可回看已答完的题；初始定位到第一道未答完的题。
@@ -503,7 +503,7 @@ function QuestionWizard({ stage }: { stage: WjStage }) {
   const [current, setCurrent] = useState(() => (firstOpen === -1 ? total - 1 : firstOpen));
 
   const q = stage.questions[current];
-  const label = `子问题 ${current + 1}`;
+  const label = `细问 ${current + 1}`;
 
   // 当前题各小问是否已作答：'10…' 原始值选择器，翻转才重渲染。
   // 小问逐个展开：已答的全部保留，再多露一个未答的
@@ -543,8 +543,8 @@ function QuestionWizard({ stage }: { stage: WjStage }) {
               onClick={() => goTo(i)}
               disabled={!enterable || isCurrent}
               aria-current={isCurrent ? 'step' : undefined}
-              aria-label={`子问题 ${i + 1}${answered[i] ? '（已作答）' : enterable ? '' : '（作答上一题后解锁）'}`}
-              title={enterable ? `子问题 ${i + 1}` : '作答上一题后解锁'}
+              aria-label={`细问 ${i + 1}${answered[i] ? '（已作答）' : enterable ? '' : '（作答上一题后解锁）'}`}
+              title={enterable ? `细问 ${i + 1}` : '作答上一题后解锁'}
               className={`flex size-8 items-center justify-center rounded-full border font-mono text-sm transition-colors ${
                 isCurrent
                   ? 'border-wj-cinnabar bg-wj-cinnabar text-wj-cinnabar-ink'

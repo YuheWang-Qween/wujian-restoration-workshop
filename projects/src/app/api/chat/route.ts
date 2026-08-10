@@ -139,7 +139,7 @@ function sanitizeMessages(raw: unknown): ChatMessage[] {
 function describeError(err: unknown): string {
   const msg = err instanceof Error ? err.message : String(err);
   if (/credential|api[_ ]?key|unauthor|401/i.test(msg)) {
-    return '小简未接通：当前环境没有模型凭据（部署到 Coze 运行时会自动注入）。环节资料与子问题不受影响，仍可正常阅读。';
+    return '小简未接通：当前环境没有模型凭据（部署到 Coze 运行时会自动注入）。环节资料与细问不受影响，仍可正常阅读。';
   }
   return '小简暂时没接通，请重试。';
 }

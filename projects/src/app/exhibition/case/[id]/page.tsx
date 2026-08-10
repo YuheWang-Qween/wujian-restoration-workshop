@@ -11,7 +11,7 @@ import { DataTable } from '@/components/workshop/DataTable';
  *
  * 五个案例共用同一副骨架，按字段驱动顺序渲染：
  * 背景 → 释文 → 对照表 → 图版 → 程序链 → 解读 → 补记。
- * 纯阅读：没有子问题、没有答题框；小简不出场（她只在发掘篇环节页）。
+ * 纯阅读：没有细问、没有答题框；小简不出场（她只在发掘篇环节页）。
  */
 
 export function generateStaticParams() {

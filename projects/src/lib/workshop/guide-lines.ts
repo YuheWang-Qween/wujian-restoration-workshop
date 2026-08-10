@@ -33,7 +33,7 @@ export interface GuideContextInput {
   actsRevealed: Record<number, number>;
 }
 
-/** 每个环节三节的台词：why=第一节，data=第二节，question=子问题节（未完成），done=本环节已完成 */
+/** 每个环节三节的台词：why=第一节，data=第二节，question=细问节（未完成），done=本环节已完成 */
 interface StageLines {
   why: string;
   data: string;
@@ -55,7 +55,7 @@ const STAGE_LINES: Record<number, StageLines> = {
     data: '73631 枚、每枚 40～50 分钟。规模一旦换算成工时，「要多少人、洗多少年」就是一道能算出来的题。',
     question:
       '三代工具题：先把每一代具体的失败机制写出来，再说尼龙勾线笔为什么能同时解决前两代的问题。',
-    done: '那是六道工序里最轻的一环，只有两道子问题。',
+    done: '那是六道工序里最轻的一环，只有两道细问。',
   },
   3: {
     why: '这一环管「身份」：揭剥号记空间位置，脱色号记批次顺序，核对对的是两套编号之间的映射。',
@@ -95,7 +95,7 @@ function stageSpeech(stageId: number, ctx: GuideContextInput): GuideSpeech | nul
       where: whereBase,
       lines: [
         {
-          text: `这一环还锁着——先答完「${prev?.name}」的最后一道子问题，它就会自己打开。`,
+          text: `这一环还锁着——先答完「${prev?.name}」的最后一道细问，它就会自己打开。`,
           mood: 'thinking',
         },
       ],
@@ -104,7 +104,7 @@ function stageSpeech(stageId: number, ctx: GuideContextInput): GuideSpeech | nul
 
   // 节数口径统一走 content.stageActTitles（有关键数据内容为三节，否则两节；
   // 目前六个环节都是三节，含轻量的环节三）。不写死 3：若将来出现两节环节，
-  // 其「第二节」是子问题，按序号分支会错发关键数据台词，按标题分支不会
+  // 其「第二节」是细问，按序号分支会错发关键数据台词，按标题分支不会
   const actTitles = stageActTitles(stage);
   const totalActs = actTitles.length;
   const revealed = Math.min(ctx.actsRevealed[stageId] ?? 1, totalActs);
@@ -116,7 +116,7 @@ function stageSpeech(stageId: number, ctx: GuideContextInput): GuideSpeech | nul
   if (actTitle === ACT_WHY) return { where, lines: [{ text: lines.why, mood: 'pointing' }] };
   if (actTitle === ACT_DATA) return { where, lines: [{ text: lines.data, mood: 'pointing' }] };
 
-  // 子问题节
+  // 细问节
   if (isDone) {
     const next = getStage(stageId + 1);
     return {
@@ -133,7 +133,7 @@ function stageSpeech(stageId: number, ctx: GuideContextInput): GuideSpeech | nul
     where,
     lines: [
       { text: lines.question, mood: 'thinking' },
-      { text: '作答不用交卷，写在框里即存；最后一道子问题写下内容，这一环自动完成。', mood: 'default' },
+      { text: '作答不用交卷，写在框里即存；最后一道细问写下内容，这一环自动完成。', mood: 'default' },
     ],
   };
 }

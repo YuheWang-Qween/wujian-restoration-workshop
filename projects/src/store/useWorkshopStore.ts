@@ -3,9 +3,9 @@ import { persist } from 'zustand/middleware';
 
 interface WorkshopState {
   sessionId: string;
-  /** 已完成的环节编号（1–6）。完成是自动的：该环节最后一道子问题作答后标记，无手动入口 */
+  /** 已完成的环节编号（1–6）。完成是自动的：该环节最后一道细问作答后标记，无手动入口 */
   completed: number[];
-  /** 答题框里的内容，key 为 `环节编号-子问题 id`。随手保存，刷新不丢 */
+  /** 答题框里的内容，key 为 `环节编号-细问 id`。随手保存，刷新不丢 */
   answers: Record<string, string>;
   /** 各环节当前读到第几节（从 1 起；一节一屏，同屏只出现当前一节），key 为环节编号 */
   actsRevealed: Record<number, number>;
@@ -16,7 +16,7 @@ interface WorkshopState {
   hydrated: boolean;
 
   setHydrated: (v: boolean) => void;
-  /** 幂等：已完成过就原样返回。由环节页在「最后一道子问题已作答」时自动调用 */
+  /** 幂等：已完成过就原样返回。由环节页在「最后一道细问已作答」时自动调用 */
   markCompleted: (stageId: number) => void;
   setAnswer: (stageId: number, questionId: string, text: string, part?: string) => void;
   revealNextAct: (stageId: number, totalActs: number) => void;
@@ -33,7 +33,7 @@ export function answerKey(stageId: number, questionId: string, part?: string) {
 }
 
 /**
- * 顺序解锁：环节 1 常开；环节 N 在 N−1 答完最后一道子问题（自动完成）后解锁。
+ * 顺序解锁：环节 1 常开；环节 N 在 N−1 答完最后一道细问（自动完成）后解锁。
  * completed 未注入时（hydration 前）传空数组即可——此时只有环节 1 解锁，
  * 与大厅「persist 落定前按无进度渲染」的口径一致。
  */

@@ -5,15 +5,15 @@
 一个教学智能体，分两篇（`content.ts` 的 `SECTIONS`）：
 
 - **简牍发掘**：按走马楼三国吴简的**实际修复工序**组织成六个环节，每个环节一个独立入口，
-  学习者在环节页里读资料、做子问题，答题框草稿存在本机、自答自核。
+  学习者在环节页里读资料、做细问，答题框草稿存在本机、自答自核。
   六道工序：揭取 → 清洗 → 绑夹与核对 → 饱水保存 → 脱色 → 脱水。
-  其中「绑夹与核对」是轻量环节，只设两道子问题，不与其余环节强求对称。
+  其中「绑夹与核对」是轻量环节，只设两道细问，不与其余环节强求对称。
 - **简牍展示**：大厅「简牍展示」页签是展厅首页（`ExhibitionHall.tsx`）：篇头（含释文/图版
   转引声明）+ 五个板块入口卡。板块各自独立成页（服务端组件）：
   `/exhibition/discovery`（壹 · 发现与归属四说）、`/exhibition/forms`（贰 · 形制六类展签）、
   `/exhibition/themes`（叁 · 主题八类 + 丘里双轨）、`/exhibition/cases`（肆 · 案例入口）、
   `/exhibition/reference`（伍—捌 · 术语·出版·意义·来源）；五个案例精读在 `/exhibition/case/N`。
-  展示篇是**陈列阅读**：没有顺序解锁、没有子问题、没有答题框，小简也不出场。
+  展示篇是**陈列阅读**：没有顺序解锁、没有细问、没有答题框，小简也不出场。
 
 两块同属一个智能体、一个部署，不拆项目；大厅顶部同排页签切换，不要写成「上篇/下篇」。
 
@@ -37,9 +37,9 @@
 > 对话框（收起时弹回）；对话框里双方带头像交互——小简圆头像（立绘取头部）在左、
 > 学习者字母章（邮箱首字符）在右。
 > 上下文实时跟随学生位置：环节维度用 `key=环节id` 重挂重新开场；节维度订阅
-> `actsRevealed`（工序说明 / 关键数据 / 子问题），随每个请求把当前节名透传给
+> `actsRevealed`（工序说明 / 关键数据 / 细问），随每个请求把当前节名透传给
 > `/api/chat`（`body.act`，prompt.ts 据此注入「学习者当前位置」并按节开场——
-> 工序说明节提理解性问题、关键数据节问数据、子问题节才请作答子问题 1(a)），
+> 工序说明节提理解性问题、关键数据节问数据、细问节才请作答细问 1(a)），
 > 学生在节间翻动时自动补发 hidden 翻节通知（`noRag: true`，不做知识库检索）。
 > 对话框收起即卸载，重开重新开场（卸载即中止在途 SSE 流）。
 > 对话面板固定在顶栏（h-14）以下、视口右侧（lg+ 24rem 宽，<lg 全宽覆盖），顶栏全宽恒可见；
@@ -71,7 +71,7 @@ src/
 │   ├── api/grade/route.ts            # AI 判对错：SSE 流式判定（verdict 章 + 流式解析）
 │   ├── login/page.tsx、register/page.tsx  # 登录 / 注册（已登录访问自动跳回首页）
 │   ├── page.tsx                      # 工坊大厅：两篇页签（?tab=exhibition 落展示篇）+ 六个环节入口
-│   ├── stage/[id]/page.tsx           # 环节页：单栏资料 + 子问题 + 答题草稿框
+│   ├── stage/[id]/page.tsx           # 环节页：单栏资料 + 细问 + 答题草稿框
 │   ├── exhibition/{discovery,forms,themes,cases,reference}/page.tsx  # 展示篇五个板块独立页
 │   ├── exhibition/case/[id]/page.tsx # 展示篇案例精读页 ×5（服务端组件，字段驱动）
 │   ├── layout.tsx                    # 挂 AuthProvider（未登录访问业务页跳 /login）
@@ -90,7 +90,7 @@ src/
 │   ├── workshop/guide-lines.ts       # 小简的预设台词解析器（事实口径同 content.ts）
 │   ├── workshop/prompt.ts            # 助教系统提示词组装 —— 只走服务端
 │   ├── workshop/grade-prompt.ts      # 判分提示词组装（/api/grade 专用）—— 只走服务端
-│   ├── workshop/rubrics.ts           # 子问题评阅要点 —— 只走服务端，禁止进客户端包
+│   ├── workshop/rubrics.ts           # 细问评阅要点 —— 只走服务端，禁止进客户端包
 │   ├── workshop/knowledge.ts         # 知识库检索（wujian_knowledge 扫描页）—— 只走服务端
 │   ├── supabase-config-inject.tsx    # 配置注入 Provider（拉 /api/supabase-config）
 │   └── supabase-browser.ts           # 浏览器端 Supabase client
@@ -122,7 +122,7 @@ pnpm lint:style   # Stylelint
 
 六个环节依次解锁：环节 1 常开，环节 N 在 N−1 被读完后解锁（`isStageUnlocked`，
 唯一判定口径，大厅卡片、环节页守卫、环节页顶栏/底部导航都走它）。
-完成是自动的：环节页检测到「最后一道子问题的答题框已写入内容（非空白）」即调用
+完成是自动的：环节页检测到「最后一道细问的答题框已写入内容（非空白）」即调用
 `markCompleted` 标记，没有手动标记入口；persist 里恢复出的老答案也会自动补登。
 只有大厅的「重置进度」能清空完成记录。
 

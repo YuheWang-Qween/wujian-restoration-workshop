@@ -10,7 +10,7 @@ import { COLOPHON, EXH_META, EXH_NAV } from '@/lib/workshop/exhibition';
  * 只做索引：篇头 + 五个板块入口卡。板块内容各自独立成页
  * （/exhibition/discovery|forms|themes|cases|reference，案例精读 /exhibition/case/N），
  * 不把全部内容堆在一个页签里。
- * 展示篇是陈列阅读：没有顺序解锁、没有子问题、没有答题框，小简也不出场。
+ * 展示篇是陈列阅读：没有顺序解锁、没有细问、没有答题框，小简也不出场。
  */
 export function ExhibitionHall() {
   return (
