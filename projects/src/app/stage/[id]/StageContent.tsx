@@ -632,7 +632,7 @@ interface AnswerBoxProps {
 
 /** 判定章配色：成立竹青、部分成立赭石、不成立朱砂——沿用工坊色谱 */
 /* ---------- 结构化作答（排序 / 单选）----------
- * 非文本题的答案序列化为纯文本协议存入 answers，与文本题共用存储和判对错通道；
+ * 非文本题的答案序列化为纯文本协议存入 answers，与文本题共用存储和评阅通道；
  * 协议格式已在 prompt.ts / grade-prompt.ts 的「格式约定」里同步给模型。
  *   排序题：「排序：a → b → c①、c②」（「→」分隔层、左为先/上，「、」为同层并列）+ 可选一行「补充：…」
  *   单选题：「选择：B」+ 可选一行「补充：…」；多选题：「多选：A、C」+ 可选一行「补充：…」
@@ -1213,7 +1213,7 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
   const isSubmitted = hydrated && !!submittedFlag;
   const fieldId = `answer-${stageId}-${question.id}${part ? `-${part.label}` : ''}`;
 
-  // AI 判对错：把本框答案交给 /api/grade 按评阅要点判定，SSE 回流判定章 + 流式解析
+  // 请小简评阅：把本框答案交给 /api/grade 按评阅要点判定，SSE 回流判定章 + 流式解析
   const [grading, setGrading] = useState(false);
   const [verdict, setVerdict] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState('');
@@ -1498,7 +1498,7 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
               className="inline-flex items-center gap-1.5 rounded border border-wj-line bg-wj-raised px-2.5 py-1 text-[11px] text-wj-ink2 transition-colors hover:border-wj-cinnabar/60 hover:text-wj-cinnabar disabled:cursor-not-allowed disabled:opacity-50"
             >
               {grading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Stamp className="h-3 w-3" />}
-              {grading ? '判定中…' : 'AI 判对错'}
+              {grading ? '评阅中…' : '请小简评阅'}
             </button>
             <button
               type="button"

@@ -4,7 +4,7 @@ import { LLMClient, Config, HeaderUtils } from 'coze-coding-dev-sdk';
 import { buildGradeUserMsg } from '@/lib/workshop/grade-prompt';
 import { getSupabaseCredentials } from '@/storage/database/supabase-client';
 
-/** 判对错限速：滑动窗口，按登录用户（或 IP）计。判定比对话便宜，窗口额度相应收紧 */
+/** 评阅限速：滑动窗口，按登录用户（或 IP）计。判定比对话便宜，窗口额度相应收紧 */
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 15;
 
@@ -46,7 +46,7 @@ async function requireUser(req: NextRequest): Promise<AuthResult> {
   const token = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
   if (!token) {
     return {
-      denied: Response.json({ error: '请先登录，再使用判对错。' }, { status: 401 }),
+      denied: Response.json({ error: '请先登录，再使用评阅。' }, { status: 401 }),
       key: '',
     };
   }
