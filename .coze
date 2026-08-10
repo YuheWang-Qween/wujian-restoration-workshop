@@ -8,6 +8,12 @@ version = "0.0.32"
 [preview]
 preview_enable = "enabled"
 
+[dev]
+build = ["bash", "projects/scripts/prepare.sh"]
+run = ["bash", "projects/scripts/dev.sh"]
+validate = ["bash", "projects/scripts/validate.sh"]
+deps = ["git"]
+
 [deploy]
 build = ["bash", "projects/scripts/build.sh"]
 run = ["bash", "projects/scripts/start.sh"]
