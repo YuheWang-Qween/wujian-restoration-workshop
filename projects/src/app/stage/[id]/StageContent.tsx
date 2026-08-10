@@ -908,17 +908,31 @@ function DrawingCanvas({
     onChange(null);
   };
 
+  const restoreRef = useRef(false);
+
+  // 初次挂载：填充背景
   useEffect(() => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext('2d')!;
     ctx.fillStyle = '#f5efe1';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    if (value) {
-      const img = new Image();
-      img.onload = () => ctx.drawImage(img, 0, 0);
-      img.src = value;
-    }
   }, []);
+
+  // value 从外部（store 恢复）变更时，把已保存的图画回 canvas
+  useEffect(() => {
+    if (!value || drawingRef.current) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const img = new Image();
+    img.onload = () => {
+      ctx.fillStyle = '#f5efe1';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+    };
+    img.src = value;
+  }, [value]);
 
   return (
     <div className="mt-2 space-y-2">
