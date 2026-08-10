@@ -21,7 +21,7 @@ import { GuideChat, type GuideAsk } from './GuideChat';
  * guide-lines 里的 mood 四态保留——待官方表情差分图到位后按态切换立绘。
  */
 
-/** 官方形象：透明底 PNG（源文件 assets/AI助教.png，已裁边降采样） */
+/** 官方形象：透明底 PNG（已裁边降采样，位于 public/guide-avatar.png） */
 const AVATAR_SRC = '/guide-avatar.png';
 
 const TYPE_INTERVAL_MS = 40;

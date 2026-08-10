@@ -42,10 +42,13 @@ bin/
 .vscode/
 .idea/
 *.iml
+.claude/
 
 # OS / misc
 Thumbs.db
 ehthumbs.db
+__MACOSX/
+*.tsbuildinfo
 
 # Logs
 output.log
