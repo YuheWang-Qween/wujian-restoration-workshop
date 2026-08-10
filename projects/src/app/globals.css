@@ -1,0 +1,271 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+/* 自托管的中文衬线字（Noto Serif SC 子集，见 scripts/subset-font.sh）：
+   Android / Linux 没有预装中文宋体，没有这两个文件整套衬线设计会静默降级为黑体。
+   子集只含仓库内出现过的字符（新增生僻字后重跑脚本）；swap 保证加载期间先用系统字回退。 */
+@font-face {
+  font-family: 'Noto Serif SC';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url('/fonts/noto-serif-sc-subset-regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Noto Serif SC';
+  font-style: normal;
+  font-weight: 600 700;
+  font-display: swap;
+  src: url('/fonts/noto-serif-sc-subset-semibold.woff2') format('woff2');
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* 工坊色板 —— 唯一来源，组件里不要再写十六进制字面量 */
+  --color-wj-bg: var(--wj-bg);
+  --color-wj-surface: var(--wj-surface);
+  --color-wj-raised: var(--wj-raised);
+  --color-wj-sunk: var(--wj-sunk);
+  --color-wj-line: var(--wj-line);
+  --color-wj-border: var(--wj-border);
+  --color-wj-ink: var(--wj-ink);
+  --color-wj-muted: var(--wj-muted);
+  --color-wj-dim: var(--wj-dim);
+  --color-wj-cinnabar: var(--wj-cinnabar);
+  --color-wj-cinnabar-ink: var(--wj-cinnabar-ink);
+  --color-wj-bamboo: var(--wj-bamboo);
+  --color-wj-water: var(--wj-water);
+  --color-wj-ochre: var(--wj-ochre);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans:
+    'Inter', 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif:
+    'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', 'SimSun-ExtB', ui-serif,
+    Georgia, serif;
+  --font-mono:
+    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+}
+
+:root {
+  --radius: 0.375rem;
+
+  /* 纸与墨。底色取竹席／宣纸，强调色取朱砂印泥与竹青 */
+  --wj-bg: #e8dfca;
+  --wj-surface: #f6f1e4;
+  --wj-raised: #efe8d6;
+  --wj-sunk: #e2d8c0;
+  --wj-line: #dcd0b6;
+  --wj-border: #c6b99a;
+  --wj-ink: #1e1b16;
+  --wj-muted: #665e4f;
+  --wj-dim: #8d8471;
+  --wj-cinnabar: #a3392a;
+  --wj-cinnabar-ink: #fbf6ec;
+  --wj-bamboo: #4a6a4c;
+  --wj-water: #35636f;
+  --wj-ochre: #855c14;
+  --background: var(--wj-bg);
+  --foreground: var(--wj-ink);
+  --card: var(--wj-surface);
+  --card-foreground: var(--wj-ink);
+  --popover: var(--wj-surface);
+  --popover-foreground: var(--wj-ink);
+  --primary: var(--wj-cinnabar);
+  --primary-foreground: var(--wj-cinnabar-ink);
+  --secondary: var(--wj-raised);
+  --secondary-foreground: var(--wj-ink);
+  --muted: var(--wj-raised);
+  --muted-foreground: var(--wj-muted);
+  --accent: var(--wj-raised);
+  --accent-foreground: var(--wj-ink);
+  --destructive: var(--wj-cinnabar);
+  --border: var(--wj-border);
+  --input: var(--wj-border);
+  --ring: var(--wj-cinnabar);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+
+    /* 纸纹：两层极淡的斜向条纹，模拟竹席与纸的肌理，不用外部图片 */
+    background-image:
+      repeating-linear-gradient(
+        102deg,
+        color-mix(in oklab, var(--wj-ink) 2.5%, transparent) 0,
+        color-mix(in oklab, var(--wj-ink) 2.5%, transparent) 1px,
+        transparent 1px,
+        transparent 7px
+      ),
+      repeating-linear-gradient(
+        14deg,
+        color-mix(in oklab, var(--wj-ink) 1.8%, transparent) 0,
+        color-mix(in oklab, var(--wj-ink) 1.8%, transparent) 1px,
+        transparent 1px,
+        transparent 11px
+      );
+  }
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--wj-cinnabar) 45%, transparent);
+  }
+}
+
+.wj-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.wj-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.wj-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--wj-border);
+  border-radius: 3px;
+}
+.wj-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--wj-dim);
+}
+
+/* 隐藏滚动条但保留滚动能力（环节页资料区，滚动由「接着读 / 上一节」按钮引导） */
+.wj-scrollbar-none {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* 旧 Edge */
+}
+.wj-scrollbar-none::-webkit-scrollbar {
+  display: none; /* WebKit / Blink */
+}
+
+/* 竹简纹理：卡片左缘的一道竹青细边，两端渐隐 */
+.wj-slip {
+  position: relative;
+}
+.wj-slip::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    color-mix(in oklab, var(--wj-bamboo) 55%, transparent) 12%,
+    color-mix(in oklab, var(--wj-bamboo) 55%, transparent) 88%,
+    transparent 100%
+  );
+}
+
+/* 朱文方印 */
+.wj-seal {
+  font-family: var(--font-serif);
+  letter-spacing: 0.08em;
+}
+
+/* ===== 大厅动态背景（微光呼吸，page.tsx 内联样式引用） ===== */
+
+@keyframes wj-breathe {
+  0%, 100% { opacity: 0.03; }
+  50% { opacity: 0.08; }
+}
+
+/* ===== 数字人向导「小简」 ===== */
+
+@keyframes wj-guide-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes wj-bubble-pop {
+  0% {
+    transform: translateY(6px) scale(0.96);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* 头像徽章的呼吸浮动（减弱动效偏好下由下方的全局媒体查询统一关掉） */
+.wj-guide-float {
+  animation: wj-guide-float 3.6s ease-in-out infinite;
+}
+
+/* 气泡进场：台词切换时通过 key 重挂触发 */
+.wj-bubble-pop {
+  animation: wj-bubble-pop 0.25s ease-out;
+}
+
+/* 对话面板从右侧滑入（与 .wj-chat-dodge 的正文让位过渡同节奏） */
+@keyframes wj-panel-in {
+  0% {
+    transform: translateX(2rem);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.wj-panel-in {
+  animation: wj-panel-in 0.25s ease-out;
+}
+
+/* 无底立绘的落地投影（随透明轮廓走，不用盒影） */
+.wj-guide-shadow {
+  filter: drop-shadow(0 6px 14px color-mix(in oklab, var(--wj-ink) 28%, transparent));
+}
+
+/* 对话面板展开时正文让位：GuideAvatar 给 <html> 打 data-wj-chat-open 标，
+   lg+ 视口下带本类的滚动容器右侧让出面板宽度（24rem，与 GuideChat 的 sm:w-96 一致），
+   对话与阅读并排互不遮挡；小屏面板全屏覆盖（空间不够让位） */
+.wj-chat-dodge {
+  transition: padding-right 0.25s ease-out;
+}
+
+@media (width >= 64rem) {
+  [data-wj-chat-open] .wj-chat-dodge {
+    padding-right: 24rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
