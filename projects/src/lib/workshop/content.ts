@@ -21,10 +21,16 @@ export interface WjFact {
   note?: string;
 }
 
+/** 小问的作答形式：缺省为文本作答（问答）；ordering 点选排序，choice 单选。 */
+export type WjPartInput =
+  | { type: 'ordering'; items: string[] }
+  | { type: 'choice'; options: { key: string; text: string }[] };
+
 export interface WjPart {
   label: string;
   text: string;
   tag?: string;
+  input?: WjPartInput;
 }
 
 export interface WjQuestion {
@@ -144,6 +150,10 @@ export const STAGES: WjStage[] = [
           {
             label: 'a',
             text: '请将 a、b、c①、c②、c③、d、e 七个单位按从上到下的实际叠压层序排列。凡是无法从给定信息确定先后关系的单位对，请明确指出并说明为什么无法确定。',
+            input: {
+              type: 'ordering',
+              items: ['a', 'b', 'c①', 'c②', 'c③', 'd', 'e'],
+            },
           },
           {
             label: 'b',
@@ -227,8 +237,17 @@ export const STAGES: WjStage[] = [
         parts: [
           {
             label: 'a',
-            text: '这个共同原因是（单选）：A. 竹黄面的木质素含量高于竹青面；B. 竹黄面的组织致密度低于竹青面；C. 竹黄面的含水率高于竹青面；D. 竹黄面在竹材内侧，受地下水侵蚀更严重',
+            text: '这个共同原因是：',
             tag: '单选',
+            input: {
+              type: 'choice',
+              options: [
+                { key: 'A', text: '竹黄面的木质素含量高于竹青面' },
+                { key: 'B', text: '竹黄面的组织致密度低于竹青面' },
+                { key: 'C', text: '竹黄面的含水率高于竹青面' },
+                { key: 'D', text: '竹黄面在竹材内侧，受地下水侵蚀更严重' },
+              ],
+            },
           },
           {
             label: 'b',

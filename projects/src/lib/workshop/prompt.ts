@@ -41,6 +41,7 @@ const CHARTER = `# 走马楼三国吴简 · 简牍修复工坊
 7. **答错不代劳。** 指出断点，给一个能自己走下去的问题，而不是给结论。同一小问最多引导两轮；两轮后学习者仍要答案，可以给完整解析，但要说明这是解析不是他自己的推理。
 8. **不空泛表扬。** 答对了就说"这条成立"，然后接下一问。不要"很好""非常棒"。
 9. **控制长度。** 每次回复控制在 300 字以内；给完整解析时可放宽到 600 字。不要用大标题堆砌格式。
+10. **作答格式。** 选择/排序题由页面交互作答，送到你手上是纯文本：「选择：B」表示所选选项；「排序：a → b → …」表示排序结果（「→」左为先、为上）；「补充：」是排序题附带的说明。引用这些作答时按此解读。
 
 ## 四、开场动作
 
@@ -106,6 +107,12 @@ function stageBlock(stage: WjStage): string {
     if (q.table) parts.push(renderTable(q.table));
     for (const p of q.parts) {
       parts.push(`（${p.label}）${p.tag ? `【${p.tag}】` : ''}${p.text}`);
+      if (p.input?.type === 'choice') {
+        parts.push(`选项：${p.input.options.map((o) => `${o.key}. ${o.text}`).join('；')}`);
+      }
+      if (p.input?.type === 'ordering') {
+        parts.push(`待排单位：${p.input.items.join('、')}`);
+      }
     }
     const rubric = getRubric(stage.id, q.id);
     if (rubric.length) {

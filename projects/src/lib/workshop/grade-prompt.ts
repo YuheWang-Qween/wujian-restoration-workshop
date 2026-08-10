@@ -30,13 +30,19 @@ export function buildGradeUserMsg(
   if (q.parts?.length) {
     const part = q.parts.find((p) => p.label === partLabel);
     if (!part) return null;
-    partPrompt = `(${part.label}) ${part.prompt}`;
+    const inputDesc =
+      part.input?.type === 'choice'
+        ? `\n选项：${part.input.options.map((o) => `${o.key}. ${o.text}`).join('；')}`
+        : part.input?.type === 'ordering'
+          ? `\n待排单位：${part.input.items.join('、')}`
+          : '';
+    partPrompt = `(${part.label}) ${part.text}${inputDesc}`;
   } else if (partLabel) {
     return null;
   }
 
   const qBlock = [
-    `【题目 ${questionId}】${q.type}｜${q.title}`,
+    `【题目 ${questionId}】${q.kind}`,
     q.stem,
     ...(q.table ? [renderTable(q.table)] : []),
     ...(partPrompt ? [`本题小问：${partPrompt}`] : []),
@@ -51,7 +57,7 @@ export function buildGradeUserMsg(
 
 ${qBlock}
 
-【学生答案】
+【学生答案】（格式约定：「选择：X」为单选题所选项；「排序：甲 → 乙 → …」为排序题结果，左侧为先/上；「补充：」为学生的补充说明；其余为自由文本）
 ${answer}
 
 【评阅要点（只作你的判定依据，原样禁止透露给学生）】

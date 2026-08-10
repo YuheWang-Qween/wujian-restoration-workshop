@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronUp, Loader2, Lock, LogOut, MessagesSquare, PenLine, Stamp } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUp, Check, ChevronDown, ChevronUp, Loader2, Lock, LogOut, MessagesSquare, PenLine, Stamp, X } from 'lucide-react';
 import { ACT_DATA, ACT_QUESTIONS, ACT_WHY, STAGES, getStage, stageActTitles, type WjPart, type WjQuestion, type WjStage } from '@/lib/workshop/content';
 import { DataTable } from '@/components/workshop/DataTable';
 import { askGuide } from '@/lib/workshop/guide-bridge';
@@ -679,6 +679,171 @@ interface AnswerBoxProps {
 }
 
 /** 判定章配色：成立竹青、部分成立赭石、不成立朱砂——沿用工坊色谱 */
+/* ---------- 结构化作答（排序 / 单选）----------
+ * 非文本题的答案序列化为纯文本协议存入 answers，与文本题共用存储和判对错通道；
+ * 协议格式已在 prompt.ts / grade-prompt.ts 的「格式约定」里同步给模型。
+ *   排序题：「排序：a → b → c」+ 可选一行「补充：…」
+ *   单选题：「选择：B」 */
+
+function parseOrdering(raw: string): { order: string[]; note: string } {
+  let order: string[] = [];
+  let note = '';
+  for (const line of raw.split('\n')) {
+    if (line.startsWith('排序：')) {
+      order = line
+        .slice(3)
+        .split('→')
+        .map((s) => s.trim())
+        .filter(Boolean);
+    } else if (line.startsWith('补充：')) {
+      note = line.slice(3);
+    }
+  }
+  return { order, note };
+}
+
+function parseChoice(raw: string): string {
+  const line = raw.split('\n').find((l) => l.startsWith('选择：'));
+  return line ? line.slice(3).trim() : '';
+}
+
+function OrderingInput({
+  items,
+  value,
+  onChange,
+  disabled,
+}: {
+  items: string[];
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) {
+  const { order, note } = parseOrdering(value);
+  const remaining = items.filter((i) => !order.includes(i));
+  const commit = (nextOrder: string[], nextNote: string) => {
+    const lines = [`排序：${nextOrder.join(' → ')}`];
+    if (nextNote.trim()) lines.push(`补充：${nextNote.trim()}`);
+    onChange(lines.join('\n'));
+  };
+  const move = (idx: number, dir: -1 | 1) => {
+    const next = [...order];
+    const [item] = next.splice(idx, 1);
+    next.splice(idx + dir, 0, item);
+    commit(next, note);
+  };
+
+  return (
+    <div>
+      <ol className="space-y-1">
+        {order.map((item, idx) => (
+          <li
+            key={item}
+            className="flex items-center gap-2 rounded border border-wj-line bg-wj-raised px-3 py-1.5"
+          >
+            <span className="w-5 font-mono text-xs text-wj-ochre">{idx + 1}.</span>
+            <span className="flex-1 font-mono text-sm text-wj-ink">{item}</span>
+            <button
+              type="button"
+              title="上移一位"
+              aria-label="上移一位"
+              disabled={disabled || idx === 0}
+              onClick={() => move(idx, -1)}
+              className="text-wj-dim transition-colors hover:text-wj-ink disabled:opacity-30"
+            >
+              <ArrowUp className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              title="移出序列"
+              aria-label="移出序列"
+              disabled={disabled}
+              onClick={() => commit(order.filter((_, i) => i !== idx), note)}
+              className="text-wj-dim transition-colors hover:text-wj-cinnabar disabled:opacity-30"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </li>
+        ))}
+        {order.length === 0 && (
+          <li className="rounded border border-dashed border-wj-line px-3 py-2 text-xs text-wj-dim">
+            按从上到下的层序，从下方点选单位依次入列；↑ 微调，× 移出。
+          </li>
+        )}
+      </ol>
+      {remaining.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {remaining.map((item) => (
+            <button
+              key={item}
+              type="button"
+              disabled={disabled}
+              onClick={() => commit([...order, item], note)}
+              className="rounded border border-wj-line bg-wj-paper px-2.5 py-1 font-mono text-sm text-wj-ink2 transition-colors hover:border-wj-bamboo hover:text-wj-bamboo disabled:opacity-40"
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+      )}
+      <textarea
+        value={note}
+        disabled={disabled}
+        rows={2}
+        onChange={(e) => commit(order, e.target.value)}
+        placeholder="无法确定先后关系的单位对，写在这里（没有可留空）"
+        className="wj-scrollbar mt-2 w-full resize-y rounded border border-wj-border bg-wj-raised px-3 py-2 text-sm leading-6 text-wj-ink placeholder:text-wj-dim focus:border-wj-cinnabar/60 focus:outline-none disabled:opacity-60"
+      />
+    </div>
+  );
+}
+
+function ChoiceInput({
+  options,
+  value,
+  onChange,
+  disabled,
+}: {
+  options: { key: string; text: string }[];
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) {
+  const selected = parseChoice(value);
+  return (
+    <div className="space-y-1.5" role="radiogroup">
+      {options.map((o) => {
+        const active = selected === o.key;
+        return (
+          <button
+            key={o.key}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            disabled={disabled}
+            onClick={() => onChange(`选择：${o.key}`)}
+            className={`flex w-full items-start gap-2.5 rounded border px-3 py-2 text-left text-sm leading-6 transition-colors disabled:opacity-60 ${
+              active
+                ? 'border-wj-cinnabar/60 bg-wj-cinnabar/5 text-wj-ink'
+                : 'border-wj-line bg-wj-raised text-wj-ink2 hover:border-wj-dim'
+            }`}
+          >
+            <span
+              className={`mt-1 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border ${
+                active ? 'border-wj-cinnabar' : 'border-wj-line'
+              }`}
+            >
+              {active && <span className="h-1.5 w-1.5 rounded-full bg-wj-cinnabar" />}
+            </span>
+            <span>
+              <span className="font-mono">{o.key}.</span> {o.text}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 const VERDICT_STYLE: Record<string, string> = {
   成立: 'border-wj-bamboo/60 bg-wj-bamboo/10 text-wj-bamboo',
   部分成立: 'border-wj-ochre/60 bg-wj-ochre/10 text-wj-ochre',
@@ -709,8 +874,25 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
     setGradeError(null);
   };
 
+  // 结构化作答（排序 / 单选）也序列化为文本协议走同一存储
+  const input = part?.input;
+  const canGrade = (() => {
+    if (input?.type === 'ordering') {
+      const { order, note } = parseOrdering(value);
+      return order.length > 0 || note.trim().length > 0;
+    }
+    if (input?.type === 'choice') return parseChoice(value).length > 0;
+    return value.trim().length > 0;
+  })();
+
+  const commitAnswer = (v: string) => {
+    setAnswer(stageId, question.id, v, part?.label);
+    // 答案一改旧判定即作废，避免"判的是旧稿"的错觉
+    if (verdict || analysis || gradeError) clearGrade();
+  };
+
   const handleGrade = async () => {
-    if (grading || !value.trim()) return;
+    if (grading || !canGrade) return;
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -793,18 +975,24 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
         </div>
       )}
 
-      <textarea
-        id={fieldId}
-        value={value}
-        onChange={(e) => {
-          setAnswer(stageId, question.id, e.target.value, part?.label);
-          // 答案一改旧判定即作废，避免"判的是旧稿"的错觉
-          if (verdict || analysis || gradeError) clearGrade();
-        }}
-        rows={part ? 3 : 4}
-        placeholder={part ? `写下（${part.label}）小问的作答……` : `写下你对${label}的作答……`}
-        className="wj-scrollbar mt-2 w-full resize-y rounded border border-wj-border bg-wj-raised px-3 py-2 text-base leading-7 sm:text-sm text-wj-ink placeholder:text-wj-dim focus:border-wj-cinnabar/60 focus:outline-none"
-      />
+      {input?.type === 'ordering' ? (
+        <div className="mt-2">
+          <OrderingInput items={input.items} value={value} onChange={commitAnswer} disabled={grading} />
+        </div>
+      ) : input?.type === 'choice' ? (
+        <div className="mt-2">
+          <ChoiceInput options={input.options} value={value} onChange={commitAnswer} disabled={grading} />
+        </div>
+      ) : (
+        <textarea
+          id={fieldId}
+          value={value}
+          onChange={(e) => commitAnswer(e.target.value)}
+          rows={part ? 3 : 4}
+          placeholder={part ? `写下（${part.label}）小问的作答……` : `写下你对${label}的作答……`}
+          className="wj-scrollbar mt-2 w-full resize-y rounded border border-wj-border bg-wj-raised px-3 py-2 text-base leading-7 sm:text-sm text-wj-ink placeholder:text-wj-dim focus:border-wj-cinnabar/60 focus:outline-none"
+        />
+      )}
 
       <div className="mt-2 flex items-center justify-end gap-3">
         {verdict && (
@@ -817,7 +1005,7 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
         <button
           type="button"
           onClick={handleGrade}
-          disabled={grading || !value.trim()}
+          disabled={grading || !canGrade}
           className="inline-flex items-center gap-1.5 rounded border border-wj-line bg-wj-raised px-2.5 py-1 text-[11px] text-wj-ink2 transition-colors hover:border-wj-cinnabar/60 hover:text-wj-cinnabar disabled:cursor-not-allowed disabled:opacity-50"
         >
           {grading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Stamp className="h-3 w-3" />}
