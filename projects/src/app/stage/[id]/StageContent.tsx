@@ -348,7 +348,7 @@ export function StageContent() {
             )}
 
             {/* 一节一屏：第二节起底部左侧可回「上一节」 */}
-            {nextAct && (
+            {nextAct ? (
               <div className="mt-8 flex items-stretch gap-3">
                 {prevAct && (
                   <button
@@ -375,7 +375,17 @@ export function StageContent() {
                   <ChevronDown className="h-4 w-4 text-wj-muted transition-transform duration-300 group-hover:translate-y-0.5 group-hover:text-wj-cinnabar" />
                 </button>
               </div>
-            )}
+            ) : next ? (
+              <div className="flex justify-end pt-2">
+                <Link
+                  href={`/stage/${next.id}`}
+                  className="group inline-flex items-center gap-2 rounded-lg bg-wj-cinnabar px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-wj-cinnabar/90 hover:shadow-md"
+                >
+                  进入下一环节
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </div>
+            ) : null}
           </div>
         </article>
       </div>
