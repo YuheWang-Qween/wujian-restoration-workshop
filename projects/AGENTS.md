@@ -64,6 +64,9 @@
 > done 帧的成稿写入 store（`referenceAnswers`，persist 持久化），刷新/重进直接读缓存；
 > 中途断开/出错不缓存半成品，界面给「重试」。store 的 `submitted` /
 > `referenceAnswers` 以 answerKey 为键，partialize 与 resetAll 都要同步维护。
+> **作答记录持久化**：`answers`/`verdicts`/`analyses`/`images`/`submitted`/`referenceAnswers`
+> 全部 persist 到 localStorage，刷新/重进后从 store 恢复——评阅判定、解析正文、画板图
+> 都不丢，学生可接着之前的进度继续。
 > 接口骨架与 /api/grade 一致（鉴权/限速 10 次/分/心跳/deadline），prompt 由
 > grade-prompt.ts 的 `buildReferenceAnswerUserMsg` 组装（与判分共用 `resolveQuestion`）；
 > 撰写纪律要求纯文本分点、不出现 markdown 语法与「参考答案」字样。

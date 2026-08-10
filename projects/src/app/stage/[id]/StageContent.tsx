@@ -1200,6 +1200,11 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
   const markSubmitted = useWorkshopStore((s) => s.markSubmitted);
   const cachedReference = useWorkshopStore((s) => s.referenceAnswers[key]);
   const setReferenceAnswer = useWorkshopStore((s) => s.setReferenceAnswer);
+  const storedVerdict = useWorkshopStore((s) => s.verdicts[key]);
+  const storedAnalysis = useWorkshopStore((s) => s.analyses[key]);
+  const setVerdictStore = useWorkshopStore((s) => s.setVerdict);
+  const storedImage = useWorkshopStore((s) => s.images[key]);
+  const setImageStore = useWorkshopStore((s) => s.setImage);
   const { session } = useAuth();
 
   // persist 落定之前一律按空串渲染，与服务端输出保持一致，避免 hydration 不匹配
@@ -1215,6 +1220,14 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
   const [imageData, setImageData] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   useEffect(() => () => abortRef.current?.abort(), []);
+
+  // hydrated 后从 store 恢复评阅状态
+  useEffect(() => {
+    if (!hydrated) return;
+    if (storedVerdict) setVerdict(storedVerdict);
+    if (storedAnalysis) setAnalysis(storedAnalysis);
+    if (storedImage) setImageData(storedImage);
+  }, [hydrated, storedVerdict, storedAnalysis, storedImage]);
 
   // 确认提交：两段式（先提示"不可再改"，再确认）；提交后输入锁定、出参考答案
   const [confirming, setConfirming] = useState(false);
@@ -1298,11 +1311,22 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
         throw new Error(msg);
       }
 
+      let finalVerdict = '';
+      let finalAnalysis = '';
       await readSse(res.body, (payload) => {
-        if (payload.verdict !== undefined) setVerdict(payload.verdict);
-        if (payload.content) setAnalysis((prev) => prev + payload.content);
+        if (payload.verdict !== undefined) {
+          finalVerdict = payload.verdict ?? '';
+          setVerdict(payload.verdict ?? '');
+        }
+        if (payload.content) {
+          finalAnalysis += payload.content;
+          setAnalysis((prev) => prev + payload.content);
+        }
         if (payload.error) setGradeError(payload.error);
       });
+      if (finalVerdict && !finalAnalysis.includes('error')) {
+        setVerdictStore(stageId, question.id, part?.label, finalVerdict, finalAnalysis);
+      }
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') return;
       setGradeError(e instanceof Error ? e.message : '判定失败了，稍后再试。');
@@ -1436,7 +1460,7 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
       ) : input?.type === 'drawing' ? (
         <DrawingCanvas
           value={imageData}
-          onChange={setImageData}
+          onChange={(v) => { setImageData(v); setImageStore(stageId, question.id, part?.label, v ?? ''); }}
           disabled={grading || isSubmitted}
         />
       ) : (

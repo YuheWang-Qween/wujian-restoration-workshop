@@ -11,6 +11,12 @@ interface WorkshopState {
   submitted: Record<string, true>;
   /** 参考答案缓存，key 同 answers。提交后生成一次，刷新后复用不重复生成 */
   referenceAnswers: Record<string, string>;
+  /** 评阅判定（成立/部分成立/不成立），key 同 answers。刷新后保留 */
+  verdicts: Record<string, string>;
+  /** 评阅解析正文，key 同 answers。刷新后保留 */
+  analyses: Record<string, string>;
+  /** 画板题的 base64 PNG，key 同 answers。刷新后保留 */
+  images: Record<string, string>;
   /** 各环节当前读到第几节（从 1 起；一节一屏，同屏只出现当前一节），key 为环节编号 */
   actsRevealed: Record<number, number>;
   /**
@@ -25,6 +31,8 @@ interface WorkshopState {
   setAnswer: (stageId: number, questionId: string, text: string, part?: string) => void;
   markSubmitted: (stageId: number, questionId: string, part?: string) => void;
   setReferenceAnswer: (stageId: number, questionId: string, part: string | undefined, text: string) => void;
+  setVerdict: (stageId: number, questionId: string, part: string | undefined, verdict: string, analysis: string) => void;
+  setImage: (stageId: number, questionId: string, part: string | undefined, data: string) => void;
   revealNextAct: (stageId: number, totalActs: number) => void;
   revealPrevAct: (stageId: number) => void;
   resetAll: () => void;
@@ -60,6 +68,9 @@ export const useWorkshopStore = create<WorkshopState>()(
       answers: {},
       submitted: {},
       referenceAnswers: {},
+      verdicts: {},
+      analyses: {},
+      images: {},
       actsRevealed: {},
       hydrated: false,
 
@@ -83,6 +94,20 @@ export const useWorkshopStore = create<WorkshopState>()(
           referenceAnswers: { ...s.referenceAnswers, [answerKey(stageId, questionId, part)]: text },
         })),
 
+      setVerdict: (stageId, questionId, part, verdict, analysis) =>
+        set((s) => {
+          const key = answerKey(stageId, questionId, part);
+          return {
+            verdicts: { ...s.verdicts, [key]: verdict },
+            analyses: { ...s.analyses, [key]: analysis },
+          };
+        }),
+
+      setImage: (stageId, questionId, part, data) =>
+        set((s) => ({
+          images: { ...s.images, [answerKey(stageId, questionId, part)]: data },
+        })),
+
       revealNextAct: (stageId, totalActs) =>
         set((s) => {
           const cur = s.actsRevealed[stageId] ?? 1;
@@ -103,6 +128,9 @@ export const useWorkshopStore = create<WorkshopState>()(
           answers: {},
           submitted: {},
           referenceAnswers: {},
+          verdicts: {},
+          analyses: {},
+          images: {},
           actsRevealed: {},
           sessionId: newSessionId(),
         }),
@@ -116,6 +144,9 @@ export const useWorkshopStore = create<WorkshopState>()(
         answers: s.answers,
         submitted: s.submitted,
         referenceAnswers: s.referenceAnswers,
+        verdicts: s.verdicts,
+        analyses: s.analyses,
+        images: s.images,
         actsRevealed: s.actsRevealed,
       }),
       onRehydrateStorage: () => (state) => {
