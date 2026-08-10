@@ -682,24 +682,29 @@ interface AnswerBoxProps {
 /* ---------- 结构化作答（排序 / 单选）----------
  * 非文本题的答案序列化为纯文本协议存入 answers，与文本题共用存储和判对错通道；
  * 协议格式已在 prompt.ts / grade-prompt.ts 的「格式约定」里同步给模型。
- *   排序题：「排序：a → b → c」+ 可选一行「补充：…」
+ *   排序题：「排序：a → b → c①、c②」（「→」分隔层、左为先/上，「、」为同层并列）+ 可选一行「补充：…」
  *   单选题：「选择：B」 */
 
-function parseOrdering(raw: string): { order: string[]; note: string } {
-  let order: string[] = [];
+function parseOrdering(raw: string): { layers: string[][]; note: string } {
+  let layers: string[][] = [];
   let note = '';
   for (const line of raw.split('\n')) {
     if (line.startsWith('排序：')) {
-      order = line
+      layers = line
         .slice(3)
         .split('→')
-        .map((s) => s.trim())
-        .filter(Boolean);
+        .map((layer) =>
+          layer
+            .split('、')
+            .map((s) => s.trim())
+            .filter(Boolean),
+        )
+        .filter((layer) => layer.length > 0);
     } else if (line.startsWith('补充：')) {
       note = line.slice(3);
     }
   }
-  return { order, note };
+  return { layers, note };
 }
 
 function parseChoice(raw: string): string {
@@ -718,66 +723,131 @@ function OrderingInput({
   onChange: (v: string) => void;
   disabled?: boolean;
 }) {
-  const { order, note } = parseOrdering(value);
-  const remaining = items.filter((i) => !order.includes(i));
-  const commit = (nextOrder: string[], nextNote: string) => {
-    const lines = [`排序：${nextOrder.join(' → ')}`];
+  const { layers, note } = parseOrdering(value);
+  const [activeLayer, setActiveLayer] = useState(0);
+  const active = Math.min(activeLayer, layers.length);
+  const used = new Set(layers.flat());
+  const remaining = items.filter((i) => !used.has(i));
+
+  const commit = (nextLayers: string[][], nextNote: string) => {
+    const filled = nextLayers.filter((l) => l.length > 0);
+    const lines = [`排序：${filled.map((l) => l.join('、')).join(' → ')}`];
     if (nextNote.trim()) lines.push(`补充：${nextNote.trim()}`);
     onChange(lines.join('\n'));
   };
-  const move = (idx: number, dir: -1 | 1) => {
-    const next = [...order];
-    const [item] = next.splice(idx, 1);
-    next.splice(idx + dir, 0, item);
+  const addItem = (item: string) => {
+    const next = layers.map((l) => [...l]);
+    if (active >= next.length) next.push([item]);
+    else next[active].push(item);
     commit(next, note);
   };
+  const removeItem = (li: number, item: string) =>
+    commit(
+      layers.map((l, i) => (i === li ? l.filter((x) => x !== item) : l)),
+      note,
+    );
+  const moveLayer = (li: number) => {
+    const next = layers.map((l) => [...l]);
+    [next[li - 1], next[li]] = [next[li], next[li - 1]];
+    commit(next, note);
+  };
+  const removeLayer = (li: number) => commit(layers.filter((_, i) => i !== li), note);
 
   return (
     <div>
-      <ol className="space-y-1">
-        {order.map((item, idx) => (
+      <p className="text-xs leading-5 text-wj-dim">
+        上层先于下层揭取；先后无法确定的单位放进同一层。点层选中（朱砂描边为当前层），再点下方单位入层；点末尾虚线层开新层。
+      </p>
+      <ol className="mt-2 space-y-1">
+        {layers.map((layer, li) => (
           <li
-            key={item}
-            className="flex items-center gap-2 rounded border border-wj-line bg-wj-raised px-3 py-1.5"
+            key={li}
+            role="button"
+            tabIndex={0}
+            onClick={() => setActiveLayer(li)}
+            onKeyDown={(e) => e.key === 'Enter' && setActiveLayer(li)}
+            className={`flex items-start gap-2 rounded border px-3 py-1.5 transition-colors ${
+              active === li ? 'border-wj-cinnabar/60 bg-wj-raised' : 'border-wj-line bg-wj-raised'
+            }`}
           >
-            <span className="w-5 font-mono text-xs text-wj-ochre">{idx + 1}.</span>
-            <span className="flex-1 font-mono text-sm text-wj-ink">{item}</span>
+            <span className="mt-0.5 w-5 shrink-0 font-mono text-xs text-wj-ochre">{li + 1}.</span>
+            <div className="flex flex-1 flex-wrap gap-1.5">
+              {layer.map((item) => (
+                <span
+                  key={item}
+                  className="inline-flex items-center gap-1 rounded border border-wj-line bg-wj-paper px-2 py-0.5 font-mono text-sm text-wj-ink"
+                >
+                  {item}
+                  <button
+                    type="button"
+                    title="移回待排"
+                    aria-label={`把 ${item} 移回待排`}
+                    disabled={disabled}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeItem(li, item);
+                    }}
+                    className="text-wj-dim transition-colors hover:text-wj-cinnabar disabled:opacity-30"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
             <button
               type="button"
-              title="上移一位"
-              aria-label="上移一位"
-              disabled={disabled || idx === 0}
-              onClick={() => move(idx, -1)}
-              className="text-wj-dim transition-colors hover:text-wj-ink disabled:opacity-30"
+              title="整层上移"
+              aria-label="整层上移"
+              disabled={disabled || li === 0}
+              onClick={(e) => {
+                e.stopPropagation();
+                moveLayer(li);
+              }}
+              className="mt-0.5 shrink-0 text-wj-dim transition-colors hover:text-wj-ink disabled:opacity-30"
             >
               <ArrowUp className="h-3.5 w-3.5" />
             </button>
             <button
               type="button"
-              title="移出序列"
-              aria-label="移出序列"
+              title="解散此层"
+              aria-label="解散此层"
               disabled={disabled}
-              onClick={() => commit(order.filter((_, i) => i !== idx), note)}
-              className="text-wj-dim transition-colors hover:text-wj-cinnabar disabled:opacity-30"
+              onClick={(e) => {
+                e.stopPropagation();
+                removeLayer(li);
+              }}
+              className="mt-0.5 shrink-0 text-wj-dim transition-colors hover:text-wj-cinnabar disabled:opacity-30"
             >
               <X className="h-3.5 w-3.5" />
             </button>
           </li>
         ))}
-        {order.length === 0 && (
-          <li className="rounded border border-dashed border-wj-line px-3 py-2 text-xs text-wj-dim">
-            按从上到下的层序，从下方点选单位依次入列；↑ 微调，× 移出。
+        {remaining.length > 0 && (
+          <li
+            role="button"
+            tabIndex={0}
+            onClick={() => setActiveLayer(layers.length)}
+            onKeyDown={(e) => e.key === 'Enter' && setActiveLayer(layers.length)}
+            className={`flex items-center gap-2 rounded border border-dashed px-3 py-2 text-xs transition-colors ${
+              active === layers.length
+                ? 'border-wj-cinnabar/60 text-wj-ink2'
+                : 'border-wj-line text-wj-dim'
+            }`}
+          >
+            <span className="w-5 shrink-0 font-mono text-wj-ochre">{layers.length + 1}.</span>
+            {layers.length ? '新层——点下方单位在此开一层' : '点下方单位，开始排第一层'}
           </li>
         )}
       </ol>
       {remaining.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          <span className="text-xs text-wj-dim">待排：</span>
           {remaining.map((item) => (
             <button
               key={item}
               type="button"
               disabled={disabled}
-              onClick={() => commit([...order, item], note)}
+              onClick={() => addItem(item)}
               className="rounded border border-wj-line bg-wj-paper px-2.5 py-1 font-mono text-sm text-wj-ink2 transition-colors hover:border-wj-bamboo hover:text-wj-bamboo disabled:opacity-40"
             >
               {item}
@@ -789,8 +859,8 @@ function OrderingInput({
         value={note}
         disabled={disabled}
         rows={2}
-        onChange={(e) => commit(order, e.target.value)}
-        placeholder="无法确定先后关系的单位对，写在这里（没有可留空）"
+        onChange={(e) => commit(layers, e.target.value)}
+        placeholder="哪些单位对无法确定先后、为什么——写在这里（没有可留空）"
         className="wj-scrollbar mt-2 w-full resize-y rounded border border-wj-border bg-wj-raised px-3 py-2 text-sm leading-6 text-wj-ink placeholder:text-wj-dim focus:border-wj-cinnabar/60 focus:outline-none disabled:opacity-60"
       />
     </div>
@@ -878,8 +948,8 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
   const input = part?.input;
   const canGrade = (() => {
     if (input?.type === 'ordering') {
-      const { order, note } = parseOrdering(value);
-      return order.length > 0 || note.trim().length > 0;
+      const { layers, note } = parseOrdering(value);
+      return layers.length > 0 || note.trim().length > 0;
     }
     if (input?.type === 'choice') return parseChoice(value).length > 0;
     return value.trim().length > 0;
