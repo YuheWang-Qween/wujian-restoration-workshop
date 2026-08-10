@@ -644,21 +644,27 @@ function parseNoteLine(raw: string, prefix: string): string {
   return line ? line.slice(prefix.length).trim() : '';
 }
 
-function parseOrdering(raw: string): { layers: string[][]; note: string } {
+function parseOrdering(raw: string, items: string[]): { layers: string[][]; note: string } {
   let layers: string[][] = [];
   let note = '';
   for (const line of raw.split('\n')) {
     if (line.startsWith('排序：')) {
-      layers = line
-        .slice(3)
-        .split('→')
-        .map((layer) =>
-          layer
-            .split('、')
-            .map((s) => s.trim())
-            .filter(Boolean),
-        )
-        .filter((layer) => layer.length > 0);
+      const body = line.slice(3);
+      const layerStrs = body.split('→');
+      layers = layerStrs.map((layer) => {
+        const trimmed = layer.trim();
+        const found: string[] = [];
+        let rest = trimmed;
+        const sortedItems = [...items].sort((a, b) => b.length - a.length);
+        for (const item of sortedItems) {
+          const idx = rest.indexOf(item);
+          if (idx !== -1) {
+            found.push(item);
+            rest = rest.slice(0, idx) + rest.slice(idx + item.length);
+          }
+        }
+        return found;
+      }).filter((layer) => layer.length > 0);
     } else if (line.startsWith('补充：')) {
       note = line.slice(3);
     }
@@ -701,7 +707,7 @@ function OrderingInput({
   onChange: (v: string) => void;
   disabled?: boolean;
 }) {
-  const { layers, note } = parseOrdering(value);
+  const { layers, note } = parseOrdering(value, items);
   const [activeLayer, setActiveLayer] = useState(0);
   const active = Math.min(activeLayer, layers.length);
   const used = new Set(layers.flat());
@@ -1268,7 +1274,7 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
   const input = part?.input;
   const canGrade = (() => {
     if (input?.type === 'ordering') {
-      const { layers, note } = parseOrdering(value);
+      const { layers, note } = parseOrdering(value, input.items);
       return layers.length > 0 || note.trim().length > 0;
     }
     if (input?.type === 'choice') {
