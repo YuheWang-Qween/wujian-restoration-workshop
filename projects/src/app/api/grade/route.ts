@@ -130,15 +130,16 @@ export async function POST(req: NextRequest) {
     const questionId = typeof body?.questionId === 'string' ? body.questionId : '';
     const partLabel = typeof body?.partLabel === 'string' ? body.partLabel : null;
     const answer = typeof body?.answer === 'string' ? body.answer.trim() : '';
+    const image = typeof body?.image === 'string' ? body.image : '';
 
-    if (!questionId || !answer) {
+    if (!questionId || (!answer && !image)) {
       return Response.json({ error: '缺少判定所需的题目或答案。' }, { status: 400 });
     }
     if (answer.length > 4000) {
       return Response.json({ error: '答案太长了，精简到 4000 字以内再判。' }, { status: 400 });
     }
 
-    const userMsg = buildGradeUserMsg(stageId, questionId, partLabel, answer);
+    const userMsg = buildGradeUserMsg(stageId, questionId, partLabel, answer, image);
     if (!userMsg) {
       return Response.json({ error: '题目不存在或该题暂不支持判定。' }, { status: 400 });
     }
@@ -214,7 +215,13 @@ export async function POST(req: NextRequest) {
           }, STREAM_DEADLINE_MS);
 
           try {
-            const stream = client.stream([{ role: 'user', content: userMsg }], {
+            const userContent: string | Array<{ type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }> = image
+              ? [
+                  { type: 'text', text: userMsg.text },
+                  { type: 'image_url', image_url: { url: image } },
+                ]
+              : userMsg.text;
+            const stream = client.stream([{ role: 'user', content: userContent }], {
               model: 'doubao-seed-2-0-lite-260215',
               temperature: 0.2,
             });

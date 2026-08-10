@@ -835,6 +835,125 @@ function OrderingInput({
   );
 }
 
+function DrawingCanvas({
+  prompt,
+  value,
+  onChange,
+  disabled,
+}: {
+  prompt?: string;
+  value: string | null;
+  onChange: (v: string | null) => void;
+  disabled?: boolean;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const drawingRef = useRef(false);
+  const lastRef = useRef<{ x: number; y: number } | null>(null);
+  const [tool, setTool] = useState<'pen' | 'eraser'>('pen');
+
+  const getPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: ((e.clientX - rect.left) / rect.width) * canvas.width,
+      y: ((e.clientY - rect.top) / rect.height) * canvas.height,
+    };
+  };
+
+  const start = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (disabled) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    drawingRef.current = true;
+    lastRef.current = getPos(e);
+  };
+
+  const move = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!drawingRef.current || disabled) return;
+    const canvas = canvasRef.current!;
+    const ctx = canvas.getContext('2d')!;
+    const pos = getPos(e);
+    const last = lastRef.current!;
+    ctx.lineWidth = tool === 'eraser' ? 16 : 2.5;
+    ctx.strokeStyle = tool === 'eraser' ? '#f5efe1' : '#3a3026';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(last.x, last.y);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    lastRef.current = pos;
+    onChange(canvas.toDataURL('image/png'));
+  };
+
+  const end = () => {
+    drawingRef.current = false;
+    lastRef.current = null;
+  };
+
+  const clear = () => {
+    const canvas = canvasRef.current!;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = '#f5efe1';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    onChange(null);
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current!;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = '#f5efe1';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (value) {
+      const img = new Image();
+      img.onload = () => ctx.drawImage(img, 0, 0);
+      img.src = value;
+    }
+  }, []);
+
+  return (
+    <div className="mt-2 space-y-2">
+      {prompt && <p className="text-sm text-wj-dim">{prompt}</p>}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => setTool('pen')}
+          className={`rounded px-3 py-1 text-sm transition-colors disabled:opacity-40 ${tool === 'pen' ? 'bg-wj-cinnabar text-white' : 'bg-wj-raised text-wj-ink2 hover:bg-wj-border'}`}
+        >
+          画笔
+        </button>
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => setTool('eraser')}
+          className={`rounded px-3 py-1 text-sm transition-colors disabled:opacity-40 ${tool === 'eraser' ? 'bg-wj-cinnabar text-white' : 'bg-wj-raised text-wj-ink2 hover:bg-wj-border'}`}
+        >
+          橡皮
+        </button>
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={clear}
+          className="rounded px-3 py-1 text-sm bg-wj-raised text-wj-ink2 transition-colors hover:bg-wj-border disabled:opacity-40"
+        >
+          清空
+        </button>
+      </div>
+      <canvas
+        ref={canvasRef}
+        width={800}
+        height={500}
+        onPointerDown={start}
+        onPointerMove={move}
+        onPointerUp={end}
+        onPointerLeave={end}
+        className={`w-full rounded-lg border border-wj-line bg-wj-paper ${disabled ? 'pointer-events-none opacity-70' : 'cursor-crosshair'}`}
+        style={{ touchAction: 'none' }}
+      />
+    </div>
+  );
+}
+
 function ChoiceInput({
   options,
   withNote,
@@ -1089,6 +1208,7 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
   const [verdict, setVerdict] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState('');
   const [gradeError, setGradeError] = useState<string | null>(null);
+  const [imageData, setImageData] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -1126,6 +1246,9 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
       const map = parseMatching(value);
       return input.left.every((l) => map[l.key]);
     }
+    if (input?.type === 'drawing') {
+      return !!imageData;
+    }
     return value.trim().length > 0;
   })();
 
@@ -1156,6 +1279,7 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
           questionId: question.id,
           partLabel: part?.label ?? null,
           answer: value.trim(),
+          image: input?.type === 'drawing' ? imageData : undefined,
         }),
       });
       if (!res.ok || !res.body) {
@@ -1305,6 +1429,12 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
         <div className="mt-2">
           <MatchingInput left={input.left} right={input.right} value={value} onChange={commitAnswer} disabled={grading || isSubmitted} />
         </div>
+      ) : input?.type === 'drawing' ? (
+        <DrawingCanvas
+          value={imageData}
+          onChange={setImageData}
+          disabled={grading || isSubmitted}
+        />
       ) : (
         <textarea
           id={fieldId}

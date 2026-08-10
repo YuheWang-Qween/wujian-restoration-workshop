@@ -56,13 +56,16 @@ function resolveQuestion(
   return { stage, q, part, rubric, partPrompt, qBlock };
 }
 
+export type GradeUserMsg = { text: string; image?: string };
+
 /** 组装判定指令（作为一条 user 消息发给模型）；题目不存在或该题无评阅要点时返回 null */
 export function buildGradeUserMsg(
   stageId: number,
   questionId: string,
   partLabel: string | null,
   answer: string,
-): string | null {
+  image?: string,
+): GradeUserMsg | null {
   const resolved = resolveQuestion(stageId, questionId, partLabel);
   if (!resolved) return null;
   const { q, rubric, qBlock } = resolved;
@@ -72,12 +75,17 @@ export function buildGradeUserMsg(
     ? `注意：本题为多小问题，学生仅提交小问 (${partLabel}) 的答案，只针对该小问判定；评阅要点中属于其他小问的条目忽略。\n\n`
     : '';
 
-  const userMsg = `你是「走马楼吴简修复工坊」的评阅人小简，现在学生主动提交答案，请你判定对错并给出解析。
+  const isDrawing = answer === '__DRAWING__';
+  const answerSection = isDrawing
+    ? `【学生答案】学生在此题的画板上绘制了一幅横断面示意图（见附带图片）。请从图中辨认以下要素是否齐备并给出判定。`
+    : `【学生答案】（格式约定：「选择：X」为单选所选项；「多选：A、C」为多选所选项；「排序：甲 → 乙 → 丙、丁」为排序题的分层结果——「→」分隔层、左为先/上，「、」为同层并列（同层单位表示学生认为先后不确定）；「匹配：A→②」为左列项与右列项的对应；「补充：」「说明：」为学生附带的文字说明；其余为自由文本）
+${answer}`;
+
+  const text = `你是「走马楼吴简修复工坊」的评阅人小简，现在学生主动提交答案，请你判定对错并给出解析。
 
 ${qBlock}
 
-${scopeNote}【学生答案】（格式约定：「选择：X」为单选所选项；「多选：A、C」为多选所选项；「排序：甲 → 乙 → 丙、丁」为排序题的分层结果——「→」分隔层、左为先/上，「、」为同层并列（同层单位表示学生认为先后不确定）；「匹配：A→②」为左列项与右列项的对应；「补充：」「说明：」为学生附带的文字说明；其余为自由文本）
-${answer}
+${scopeNote}${answerSection}
 
 【评阅要点（只作你的判定依据，原样禁止透露给学生）】
 ${rubricBlock}
@@ -86,18 +94,19 @@ ${rubricBlock}
 1. 判定只看学生答案与评阅要点的对得上程度：全对上判「成立」，对上主干但有断点或缺环判「部分成立」，方向错、答非所问或把信息当证据用判「不成立」。
 2. 数字类答案以评阅要点给出的口径与结果为准绳；口径不同但推导自洽的，判「部分成立」并指出口径差异。
 3. 排序类答案的合法排列可能不止一种：学生的序列只要不与题目给定的先后约束冲突，排列维度即算正确，不要求与评阅要点里举的示例排列一致。
-4. 答案含糊、只说套话没有落到本题材料的，按「不成立」或「部分成立」从严处理，解析里点名缺的是哪一条要点对应的内容。
-5. 输出格式严格如下，不得有任何前后多余文字：
+4. 画图类答案：从图中辨认层次结构、标注和比例关系是否与评阅要点对应；要素齐备判「成立」，主干正确但缺标注或层次不全判「部分成立」，方向错误判「不成立」。
+5. 答案含糊、只说套话没有落到本题材料的，按「不成立」或「部分成立」从严处理，解析里点名缺的是哪一条要点对应的内容。
+6. 输出格式严格如下，不得有任何前后多余文字：
    第一行：判定：成立（或 判定：部分成立 / 判定：不成立）
    第二行：---
    第三行起：解析正文。
-6. 解析正文要求（≤260 字）：
+7. 解析正文要求（≤260 字）：
    - 先点依据：引用题目或环节材料中的具体数据/记录说明哪里对、哪里断；
    - 再点缺口：对应不上的评阅要点转述成"你还差……"，不朗读要点原文；
    - 最后给一个能自己走下去的方向（一个问题或一步操作），不把完整标准答案端出来；
    - 人称用"你"，语气与工坊助教一致，引文照常带《》或「」。`;
 
-  return userMsg;
+  return { text, image: isDrawing ? image : undefined };
 }
 
 function renderTable(t: WjTable): string {

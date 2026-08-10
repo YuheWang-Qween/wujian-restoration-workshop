@@ -35,7 +35,8 @@ export type WjPartInput =
   | { type: 'ordering'; items: string[] }
   | { type: 'choice'; options: WjInputOption[]; withNote?: boolean }
   | { type: 'multi'; options: WjInputOption[]; withNote?: boolean }
-  | { type: 'matching'; left: WjInputOption[]; right: WjInputOption[] };
+  | { type: 'matching'; left: WjInputOption[]; right: WjInputOption[] }
+  | { type: 'drawing' };
 
 export interface WjPart {
   label: string;
@@ -252,6 +253,8 @@ export const STAGES: WjStage[] = [
           {
             label: 'a',
             text: '「上半部分有字面朝下、下半部分朝上」这个现象，在几何上说明简册是以什么方式卷起的？请画出横断面示意图，标注卷起方向和卷心位置。',
+            tag: '画图',
+            input: { type: 'drawing' },
           },
           { label: 'b', text: '这个实物模拟法成立的前提假设有哪些？请至少列出两条。' },
           {
