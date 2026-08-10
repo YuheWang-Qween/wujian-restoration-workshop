@@ -330,7 +330,7 @@ export function StageContent() {
               />
 
               {/* 一题一答：同屏只出现当前这道题，作答后解锁下一题（key 保证换环节时进度归零重算） */}
-              <QuestionWizard key={stage.id} stage={stage} nextStage={next} isDone={isDone} />
+              <QuestionWizard key={stage.id} stage={stage} nextStage={next} isDone={isDone} allCompleted={completed.length >= STAGES.length} />
             </section>
             )}
 
@@ -417,7 +417,7 @@ function isQuestionAnswered(
  * 第 i 题在前一题答完后解锁（与环节间的顺序解锁同一精神）；
  * 进度圆点可回看已答完的题；初始定位到第一道未答完的题。
  */
-function QuestionWizard({ stage, nextStage, isDone }: { stage: WjStage; nextStage?: WjStage; isDone: boolean }) {
+function QuestionWizard({ stage, nextStage, isDone, allCompleted }: { stage: WjStage; nextStage?: WjStage; isDone: boolean; allCompleted: boolean }) {
   // 各题是否已答完：拼成 '10…' 字符串的原始值选择器——
   // 只有某题「未答完 ↔ 答完」翻转时才重渲染，不随每次按键动
   const answeredBits = useWorkshopStore((s) =>
@@ -605,7 +605,7 @@ function QuestionWizard({ stage, nextStage, isDone }: { stage: WjStage; nextStag
               {nextStage ? '本环节已完成，下一环节已解锁' : '本环节已完成——六道工序全部读完'}
             </p>
           )}
-          {nextStage && (
+          {nextStage ? (
             <div className="flex justify-end">
               <Link
                 href={`/stage/${nextStage.id}`}
@@ -615,7 +615,17 @@ function QuestionWizard({ stage, nextStage, isDone }: { stage: WjStage; nextStag
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </div>
-          )}
+          ) : allCompleted ? (
+            <div className="flex justify-end">
+              <Link
+                href="/achievement"
+                className="group inline-flex items-center gap-2 rounded-lg bg-wj-cinnabar px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-wj-cinnabar/90 hover:shadow-md"
+              >
+                解锁成就卡
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </div>
+          ) : null}
         </div>
       )}
     </div>
