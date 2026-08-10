@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { COLOPHON, EXH_META, EXH_NAV } from '@/lib/workshop/exhibition';
+import { COLOPHON, EXH_NAV } from '@/lib/workshop/exhibition';
 
 /**
  * 简牍展示篇 · 展厅首页（大厅「简牍展示」页签内）
  *
- * 只做索引：篇头 + 五个板块入口卡。板块内容各自独立成页
+ * 只做索引：五个板块入口卡。板块内容各自独立成页
  * （/exhibition/discovery|forms|themes|cases|reference，案例精读 /exhibition/case/N），
  * 不把全部内容堆在一个页签里。
  * 展示篇是陈列阅读：没有顺序解锁、没有细问、没有答题框，小简也不出场。
@@ -15,40 +15,6 @@ import { COLOPHON, EXH_META, EXH_NAV } from '@/lib/workshop/exhibition';
 export function ExhibitionHall() {
   return (
     <div className="mt-6 space-y-10">
-      {/* ---------- 篇头 ---------- */}
-      <header className="max-w-3xl">
-        <p className="text-xs tracking-[0.2em] text-wj-muted">长沙走马楼三国吴简 · 资料汇编</p>
-        <h2 className="mt-2 font-serif text-3xl font-semibold tracking-wide text-wj-ink sm:text-4xl">
-          {EXH_META.title}
-        </h2>
-        <p className="mt-1.5 font-serif text-base text-wj-muted">{EXH_META.subtitle}</p>
-        <p className="mt-4 text-sm leading-8 text-wj-ink/85">{EXH_META.intro}</p>
-
-        <ul className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1.5 font-mono text-xs tabular-nums text-wj-water">
-          {EXH_META.infoLine.map((item, i) => (
-            <li key={item} className="flex items-center gap-2">
-              {i > 0 && (
-                <span aria-hidden className="text-wj-dim">
-                  ｜
-                </span>
-              )}
-              {item}
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-5 space-y-2 rounded-md border-l-2 border-wj-ochre/60 bg-wj-raised/70 px-4 py-3">
-          <p className="text-xs leading-6 text-wj-muted">
-            <span className="font-medium text-wj-ink">释文说明：</span>
-            {EXH_META.transcriptionNote}
-          </p>
-          <p className="text-xs leading-6 text-wj-muted">
-            <span className="font-medium text-wj-ink">图版说明：</span>
-            {EXH_META.photoNote}
-          </p>
-        </div>
-      </header>
-
       {/* ---------- 五个板块入口 ---------- */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
         {EXH_NAV.map((board, i) => (

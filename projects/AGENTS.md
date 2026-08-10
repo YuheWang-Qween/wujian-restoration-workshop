@@ -8,8 +8,8 @@
   学习者在环节页里读资料、做细问，答题框草稿存在本机、自答自核。
   六道工序：揭取 → 清洗 → 绑夹与核对 → 饱水保存 → 脱色 → 脱水。
   其中「绑夹与核对」是轻量环节，只设两道细问，不与其余环节强求对称。
-- **简牍展示**：大厅「简牍展示」页签是展厅首页（`ExhibitionHall.tsx`）：篇头（含释文/图版
-  转引声明）+ 五个板块入口卡。板块各自独立成页（服务端组件）：
+- **简牍展示**：大厅「简牍展示」页签是展厅首页（`ExhibitionHall.tsx`）：无篇头，
+  直接五个板块入口卡。板块各自独立成页（服务端组件）：
   `/exhibition/discovery`（壹 · 发现与归属四说）、`/exhibition/forms`（贰 · 形制六类展签）、
   `/exhibition/themes`（叁 · 主题八类 + 丘里双轨）、`/exhibition/cases`（肆 · 案例入口）、
   `/exhibition/reference`（伍—捌 · 术语·出版·意义·来源）；五个案例精读在 `/exhibition/case/N`。
@@ -116,7 +116,7 @@ src/
 │   ├── GuideAvatarGate.tsx           # 小简的出场闸门：仅 /stage 路由动态加载（layout 挂它）
 │   ├── GuideAvatar.tsx               # 数字人向导「小简」：右下常驻，实时感知页面换台词
 │   ├── GuideChat.tsx                 # 小简的 AI 助教对话框：就地展开，接 /api/chat
-│   ├── ExhibitionHall.tsx            # 展示篇展厅首页（大厅页签内）：篇头 + 五板块入口卡
+│   ├── ExhibitionHall.tsx            # 展示篇展厅首页（大厅页签内）：五板块入口卡
 │   ├── ExhibitionParts.tsx           # 展示篇共享组件：节标 / 图版卡 / 释文块 / 独立页外壳 ExhibitionShell
 │   └── DataTable.tsx                 # 报告原始数据表（展示篇的对照表/出版表也复用它）
 ├── lib/
