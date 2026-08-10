@@ -211,87 +211,102 @@ export default function AchievementPage() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-2xl px-4 py-12 sm:px-6">
-        {/* 成就卡主体 */}
-        <div ref={cardRef} className="relative overflow-hidden rounded-lg border-2 border-wj-cinnabar/40 bg-wj-surface shadow-[0_8px_40px_-12px_rgba(30,27,22,0.25)]">
-          {/* 朱砂印章角标 */}
-          <div className="absolute right-5 top-5 z-10">
-            <div className="flex size-14 flex-col items-center justify-center rounded bg-wj-cinnabar text-wj-cinnabar-ink shadow-sm">
-              <span className="font-serif text-[10px] leading-none">吴簡</span>
-              <span className="font-serif text-[10px] leading-none mt-0.5">修坊</span>
+        {/* 成就卡主体 — 纸色卷面，朱砂双栏边框 */}
+        <div ref={cardRef} className="relative overflow-hidden bg-wj-surface shadow-[0_8px_40px_-12px_rgba(30,27,22,0.25)]">
+          {/* 朱砂双线边框 */}
+          <div className="pointer-events-none absolute inset-0 border border-wj-cinnabar/30" />
+          <div className="pointer-events-none absolute inset-[5px] border border-wj-cinnabar/15" />
+
+          {/* 朱砂印章 — 右上角，竖排篆体感 */}
+          <div className="absolute right-7 top-7 z-10">
+            <div className="flex size-20 flex-col items-center justify-center gap-1 bg-wj-cinnabar text-wj-cinnabar-ink shadow-md" style={{ borderRadius: '2px' }}>
+              <span className="font-serif text-sm font-semibold leading-none">吴簡</span>
+              <span className="font-serif text-sm font-semibold leading-none">修坊</span>
+              <span className="mt-0.5 h-px w-7 bg-wj-cinnabar-ink/30" />
+              <span className="font-serif text-[8px] leading-none">结业</span>
             </div>
           </div>
 
-          {/* 标题 */}
-          <div className="border-b border-wj-line px-8 py-6">
-            <div className="flex items-center gap-2 text-wj-cinnabar">
-              <Award className="size-5" />
-              <span className="text-xs font-semibold tracking-[0.2em]">ACHIEVEMENT</span>
-            </div>
-            <h1 className="mt-2 font-serif text-2xl font-semibold tracking-wide text-wj-ink">
-              走马楼吴简修复工坊 · 结业成就卡
+          {/* 标题区 — serif 大字 + 朱砂细线 */}
+          <div className="px-10 pb-6 pt-10">
+            <div className="font-serif text-xs tracking-[0.3em] text-wj-cinnabar">走马楼吴简修复工坊</div>
+            <h1 className="mt-3 font-serif text-3xl font-semibold leading-tight tracking-wide text-wj-ink">
+              结业成就卡
             </h1>
+            <div className="mt-4 h-px w-full bg-gradient-to-r from-wj-cinnabar/40 via-wj-line to-transparent" />
           </div>
 
-          {/* 学生信息 */}
-          <div className="px-8 py-6">
-            <div className="grid grid-cols-2 gap-4">
+          {/* 学生信息 — 竹青左缘细边，档案条目式 */}
+          <div className="px-10 py-5">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="border-l-2 border-wj-bamboo/50 pl-3">
+                <div className="text-[11px] tracking-wide text-wj-dim">学号</div>
+                <div className="mt-1 font-mono text-base font-medium tabular-nums text-wj-water">{studentInfo?.studentId}</div>
+              </div>
+              <div className="border-l-2 border-wj-bamboo/50 pl-3">
+                <div className="text-[11px] tracking-wide text-wj-dim">姓名</div>
+                <div className="mt-1 font-serif text-base font-medium text-wj-ink">{studentInfo?.name}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 环节完成 — 简册编联意象：六枚竹简横排，竹青色编绳线贯穿 */}
+          <div className="px-10 py-5">
+            <div className="text-xs font-medium tracking-wide text-wj-muted">六道工序 · 修习记录</div>
+            <div className="relative mt-4">
+              {/* 编绳线 */}
+              <div className="pointer-events-none absolute left-0 right-0 top-[14px] h-px bg-wj-bamboo/30" />
+              <div className="pointer-events-none absolute left-0 right-0 bottom-[14px] h-px bg-wj-bamboo/30" />
+              <div className="relative grid grid-cols-6 gap-2">
+                {STAGES.map((s) => (
+                  <div key={s.id} className="flex flex-col items-center">
+                    {/* 竹简片 */}
+                    <div className="flex w-full flex-col items-center rounded-t-sm rounded-b-sm border-x border-wj-bamboo/25 bg-wj-raised py-3" style={{ borderTopWidth: '3px', borderTopColor: 'rgba(74,106,76,0.3)', borderBottomWidth: '3px', borderBottomColor: 'rgba(74,106,76,0.3)' }}>
+                      <span className="flex size-7 items-center justify-center rounded-full bg-wj-bamboo text-white">
+                        <Check className="size-3.5" />
+                      </span>
+                      <span className="mt-2 font-serif text-[11px] leading-tight text-wj-ink">{s.name}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 答题统计 — 实验记录式四格 */}
+          <div className="px-10 py-5">
+            <div className="text-xs font-medium tracking-wide text-wj-muted">评阅统计</div>
+            <div className="mt-3 grid grid-cols-4 gap-3">
+              <div className="border-l-2 border-wj-water/40 bg-wj-raised/50 px-3 py-2.5">
+                <div className="font-mono text-2xl font-semibold tabular-nums text-wj-water">{answeredCount}</div>
+                <div className="mt-0.5 text-[10px] text-wj-muted">作答</div>
+              </div>
+              <div className="border-l-2 border-wj-bamboo/40 bg-wj-raised/50 px-3 py-2.5">
+                <div className="font-mono text-2xl font-semibold tabular-nums text-wj-bamboo">{verdictCounts.成立}</div>
+                <div className="mt-0.5 text-[10px] text-wj-muted">成立</div>
+              </div>
+              <div className="border-l-2 border-wj-ochre/40 bg-wj-raised/50 px-3 py-2.5">
+                <div className="font-mono text-2xl font-semibold tabular-nums text-wj-ochre">{verdictCounts.部分成立}</div>
+                <div className="mt-0.5 text-[10px] text-wj-muted">部分成立</div>
+              </div>
+              <div className="border-l-2 border-wj-cinnabar/40 bg-wj-raised/50 px-3 py-2.5">
+                <div className="font-mono text-2xl font-semibold tabular-nums text-wj-cinnabar">{verdictCounts.不成立}</div>
+                <div className="mt-0.5 text-[10px] text-wj-muted">不成立</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 底部 — 日期 + 签发语 */}
+          <div className="border-t border-wj-line px-10 py-5">
+            <div className="flex items-end justify-between">
               <div>
-                <div className="text-xs text-wj-muted">学号</div>
-                <div className="mt-1 font-mono text-sm font-medium text-wj-ink">{studentInfo?.studentId}</div>
+                <div className="text-[11px] tracking-wide text-wj-dim">签发日期</div>
+                <div className="mt-1 font-mono text-sm tabular-nums text-wj-ink">{dateStr}</div>
               </div>
-              <div>
-                <div className="text-xs text-wj-muted">姓名</div>
-                <div className="mt-1 font-serif text-sm font-medium text-wj-ink">{studentInfo?.name}</div>
+              <div className="text-right">
+                <div className="font-serif text-xs text-wj-muted">竹简一千枚，皆经手过眼</div>
+                <div className="mt-1 font-serif text-[11px] text-wj-dim">——吴簡修坊</div>
               </div>
-            </div>
-          </div>
-
-          {/* 环节完成情况 */}
-          <div className="border-t border-wj-line px-8 py-6">
-            <div className="text-xs font-medium tracking-wide text-wj-muted">环节完成</div>
-            <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
-              {STAGES.map((s) => (
-                <div
-                  key={s.id}
-                  className="flex flex-col items-center gap-1.5 rounded border border-wj-line bg-wj-raised py-2.5"
-                >
-                  <span className="flex size-7 items-center justify-center rounded-full bg-wj-bamboo text-white">
-                    <Check className="size-3.5" />
-                  </span>
-                  <span className="text-[11px] text-wj-muted">{s.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 答题统计 */}
-          <div className="border-t border-wj-line px-8 py-6">
-            <div className="text-xs font-medium tracking-wide text-wj-muted">答题统计</div>
-            <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <div className="rounded border border-wj-line bg-wj-raised px-4 py-3">
-                <div className="font-mono text-lg font-semibold tabular-nums text-wj-water">{answeredCount}</div>
-                <div className="mt-0.5 text-[11px] text-wj-muted">作答题数</div>
-              </div>
-              <div className="rounded border border-wj-line bg-wj-raised px-4 py-3">
-                <div className="font-mono text-lg font-semibold tabular-nums text-wj-bamboo">{verdictCounts.成立}</div>
-                <div className="mt-0.5 text-[11px] text-wj-muted">评阅成立</div>
-              </div>
-              <div className="rounded border border-wj-line bg-wj-raised px-4 py-3">
-                <div className="font-mono text-lg font-semibold tabular-nums text-wj-ochre">{verdictCounts.部分成立}</div>
-                <div className="mt-0.5 text-[11px] text-wj-muted">部分成立</div>
-              </div>
-              <div className="rounded border border-wj-line bg-wj-raised px-4 py-3">
-                <div className="font-mono text-lg font-semibold tabular-nums text-wj-cinnabar">{verdictCounts.不成立}</div>
-                <div className="mt-0.5 text-[11px] text-wj-muted">评阅不成立</div>
-              </div>
-            </div>
-          </div>
-
-          {/* 底部日期 */}
-          <div className="border-t border-wj-line px-8 py-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-wj-muted">完成日期</span>
-              <span className="font-mono text-sm text-wj-ink">{dateStr}</span>
             </div>
           </div>
         </div>
