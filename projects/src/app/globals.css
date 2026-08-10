@@ -248,9 +248,10 @@
 }
 
 /* 对话面板展开时正文让位：GuideAvatar 给 <html> 打 data-wj-chat-open 标，
-   lg+ 视口下带本类的容器（环节页滚动区 + 顶栏内容行）右侧让出面板宽度
+   lg+ 视口下带本类的容器（环节页正文滚动区）右侧让出面板宽度
    （24rem，与 GuideChat 的 lg:w-96 一致），对话与阅读并排互不遮挡；
-   小于 lg 面板全屏覆盖（空间不够让位） */
+   面板本身从顶栏（h-14）以下开始，顶栏全宽恒可见、不参与让位；
+   小于 lg 面板全宽覆盖顶栏以下区域（空间不够让位） */
 .wj-chat-dodge {
   transition: padding-right 0.25s ease-out;
 }

@@ -7,8 +7,8 @@ import { useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from './AuthProvider';
 
 /**
- * 小简的 AI 助教对话面板：固定占据视口右侧全高（小于 lg 全屏覆盖，lg 起 24rem 宽），
- * 在原页面就地展开，不另起一页；桌面端展开时正文让位（.wj-chat-dodge，同为 lg 断点），互不遮挡。
+ * 小简的 AI 助教对话面板：固定在视口右侧、顶栏（h-14）以下到底部（小于 lg 全宽覆盖，lg 起 24rem 宽），
+ * 在原页面就地展开，不另起一页；顶栏保持全宽可见，桌面端展开时正文滚动区让位（.wj-chat-dodge，同为 lg 断点），互不遮挡。
  * 真实 LLM 对话（/api/chat SSE 流式 + 环节材料注入 + 三册参考书 RAG）。
  * 上下文实时跟随学生所在页面：哪个环节（宿主 key 重挂）+ 读到第几节
  * （订阅 store.actsRevealed，随请求透传给后端写进系统提示）；
@@ -362,7 +362,7 @@ export function GuideChat({
     <div
       role="dialog"
       aria-label="小简 AI 助教"
-      className="wj-panel-in pointer-events-auto fixed inset-y-0 right-0 z-40 flex w-full flex-col border-l border-wj-border bg-wj-surface/95 shadow-[-12px_0_32px_-16px_rgb(30_27_22/0.35)] backdrop-blur-md lg:w-96"
+      className="wj-panel-in pointer-events-auto fixed bottom-0 right-0 top-14 z-40 flex w-full flex-col border-l border-wj-border bg-wj-surface/95 shadow-[-12px_0_32px_-16px_rgb(30_27_22/0.35)] backdrop-blur-md lg:w-96"
     >
       {/* 头部：小简头像 + 名签 + 当前话题 + 收起 */}
       <div className="flex shrink-0 items-center gap-2 border-b border-wj-line px-3.5 py-3">
