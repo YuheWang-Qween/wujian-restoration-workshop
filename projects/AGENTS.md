@@ -96,6 +96,16 @@ pnpm lint:build   # ESLint
 pnpm lint:style   # Stylelint
 ```
 
+## 预览与部署
+
+- **预览**：`scripts/dev.sh` 从 `.preview` 读取端口（fallback 5000），绑定 `0.0.0.0`，
+  用 `tsx watch src/server.ts` 启动 dev server（自定义 Next.js server，非 `next dev`）。
+- **部署构建**：`scripts/build.sh` 执行 `pnpm next build` + `tsup src/server.ts` 打包为 `dist/server.js`。
+- **部署启动**：`scripts/start.sh` 用 `node dist/server.js` 启动，端口由 `DEPLOY_RUN_PORT` 或默认 5000。
+- 所有脚本基于 `SCRIPT_DIR` 推导 `PROJECT_DIR`，不依赖调用时的 `pwd` 或 `COZE_WORKSPACE_PATH`。
+- `.preview` 已在 `.gitignore` 中，不提交 git。
+- 本地无 Supabase 凭据时登录功能降级（预期行为），`/api/chat` 按 IP 降级放行。
+
 ## 顺序解锁
 
 六个环节依次解锁：环节 1 常开，环节 N 在 N−1 被读完后解锁（`isStageUnlocked`，

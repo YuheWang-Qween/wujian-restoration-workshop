@@ -1,17 +1,23 @@
 [project]
-requires = [ "nodejs-24" ]
+sub_id = "12d22086"
+name = "wujian-workshop"
+requires = ["nodejs-24"]
 project_type = "web"
-template = "nextjs"
 version = "0.0.32"
-appliedPatches = [ ]
 
 [dev]
-build = [ "bash", "./scripts/prepare.sh" ]
-run = [ "bash", "./scripts/dev.sh" ]
-validate = [ "bash", "./scripts/validate.sh" ]
-deps = [ "git" ]
+build = ["bash", "./scripts/prepare.sh"]
+run = ["bash", "./scripts/dev.sh"]
+validate = ["bash", "./scripts/validate.sh"]
+deps = ["git"]
 
 [deploy]
-build = [ "bash", "./scripts/build.sh" ]
-run = [ "bash", "./scripts/start.sh" ]
-deps = [ "git" ]
+build = ["bash", "./scripts/build.sh"]
+run = ["bash", "./scripts/start.sh"]
+
+[deploy.profile]
+kind = "service"
+flavor = "web"
+
+[deploy.backend]
+enabled = true

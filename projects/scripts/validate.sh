@@ -1,10 +1,10 @@
 #!/bin/bash
 set -Eeuo pipefail
 
-COZE_WORKSPACE_PATH="${COZE_WORKSPACE_PATH:-$(pwd)}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_DIR"
 
-cd "${COZE_WORKSPACE_PATH}"
-
-echo "🔍 Running validate..."
+echo "Running validate..."
 pnpm validate
-echo "✅ Validate passed!"
+echo "Validate passed!"
