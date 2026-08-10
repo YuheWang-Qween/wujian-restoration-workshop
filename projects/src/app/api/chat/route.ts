@@ -15,7 +15,7 @@ interface ChatMessage {
 const MAX_MESSAGES = 40;
 const MAX_CHARS_PER_MESSAGE = 4000;
 
-/** 限速：滑动窗口，按登录用户（或 IP）计。开场 + 翻节通知也各占一次，额度给足正常学习节奏 */
+/** 限速：滑动窗口，按登录用户（或 IP）计。题卡唤起 + 翻节通知也各占一次，额度给足正常学习节奏 */
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 20;
 
@@ -159,13 +159,24 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const messages = sanitizeMessages(body?.messages);
+    if (!messages.length) {
+      return Response.json({ error: '小简没跟上，再试一次。' }, { status: 400 });
+    }
+    // 消息序列必须以学习者（或触发语）的 user 消息收尾
+    const lastMsg = messages[messages.length - 1];
+    const lastEmpty = typeof lastMsg.content === 'string' && !lastMsg.content.trim();
+    if (lastMsg.role !== 'user' || lastEmpty) {
+      return Response.json({ error: '消息序列不完整' }, { status: 400 });
+    }
+    // 学习者开过口才值得检索参考资料；hidden 触发语由前端 noRag 先行拦住
+    const hasUserMessage = messages.some((m) => m.role === 'user');
     // stage 可选：从环节页进入助教页时携带；从大厅进入时不带，走通用带教口径
     const stageId = Number(body?.stage);
     const validStage = STAGES.some((s) => s.id === stageId) ? stageId : 0;
     // act 可选：学习者当前读到的节名（环节页一节一屏，前端实时透传）
     const ACT_TITLES = [ACT_WHY, ACT_DATA, ACT_QUESTIONS];
     const actTitle = ACT_TITLES.includes(body?.act) ? (body.act as string) : undefined;
-    // noRag：hidden 触发消息（开场 / 翻节通知）不做知识库检索，免得无意义烧检索
+    // noRag：hidden 触发消息（题卡唤起 / 翻节通知）不做知识库检索，免得无意义烧检索
     const noRag = body?.noRag === true;
 
     const customHeaders = HeaderUtils.extractForwardHeaders(req.headers);
@@ -175,13 +186,6 @@ export async function POST(req: NextRequest) {
       { role: 'system', content: buildSystemPrompt(validStage, actTitle) },
       ...messages,
     ];
-
-    // 首轮由前端发一条空消息触发开场，这里补一条用户消息，
-    // 否则部分模型会拒绝只有 system 的请求
-    const hasUserMessage = chatMessages.some((m) => m.role === 'user');
-    if (!hasUserMessage) {
-      chatMessages.push({ role: 'user', content: '我进入了本环节，请开始带教。' });
-    }
 
     const encoder = new TextEncoder();
     let closed = false;

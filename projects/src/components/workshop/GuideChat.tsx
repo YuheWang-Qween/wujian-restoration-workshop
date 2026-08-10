@@ -12,14 +12,15 @@ import { useAuth } from './AuthProvider';
  * 真实 LLM 对话（/api/chat SSE 流式 + 环节材料注入 + 三册参考书 RAG）。
  * 上下文实时跟随学生所在页面：哪个环节（宿主 key 重挂）+ 读到第几节
  * （订阅 store.actsRevealed，随请求透传给后端写进系统提示）；
- * 学生在节之间翻动时，自动发一条 hidden 翻节通知让小简接住新话题。
- * 对话只存组件 state，收起即卸载、重开重新开场。
+ * 对话中学生在节之间翻动时，自动发一条 hidden 翻节通知让小简接住新话题。
+ * 小简不主动开口：面板打开后静候，第一条消息永远来自学习者（点题卡上的
+ * 「问小简」也算学习者开口）。对话只存组件 state，收起即卸载、重开重新来过。
  */
 
 interface ChatMsg {
   role: 'user' | 'assistant';
   content: string;
-  /** 自动开场的触发语：发给 API 但不渲染出来 */
+  /** 触发语：发给 API 但不渲染出来（题卡「问小简」唤起、翻节通知） */
   hidden?: boolean;
 }
 
@@ -256,32 +257,26 @@ export function GuideChat({
     [stageId, actTitle, session?.access_token],
   );
 
-  // 开场触发语按「当下」的环节与节名组装：开场失败后翻节再重试，也要用新节名。
-  // 若面板是被题卡「问小简这道题」唤起的，开场直接带上那道题的提问语
+  // 不预设学习者的问题：仅题卡「问小简这道题」唤起（未消费的 ask）时以该题语境作触发语，
+  // 其余情况返回 null——面板打开后小简安静等待，对话面板的第一条消息一定来自学习者
   const askConsumedRef = useRef(0);
-  const makeOpeningTrigger = useCallback((): ChatMsg => {
+  const makeOpeningTrigger = useCallback((): ChatMsg | null => {
     if (ask && ask.seq > askConsumedRef.current) {
       askConsumedRef.current = ask.seq;
       return { role: 'user', content: ask.prompt, hidden: true };
     }
-    return {
-      role: 'user',
-      content: stage
-        ? `我进入了「${stage.name}」环节，正读到「${actTitle}」一节，请开始带教。`
-        : '我来到了工坊大厅，想请你带我认识这座工坊。',
-      hidden: true,
-    };
-  }, [stage, actTitle, ask]);
+    return null;
+  }, [ask]);
   const makeOpeningTriggerRef = useRef(makeOpeningTrigger);
   useEffect(() => {
     makeOpeningTriggerRef.current = makeOpeningTrigger;
   }, [makeOpeningTrigger]);
 
-  // 挂载即自动开场（触发语不渲染，带上当前读到的节）；
-  // 换环节时宿主用 key 重挂本组件，回到这里重新开场。
-  // cleanup 中止在途流：收起即卸载不再白烧 token，StrictMode 双跑也不会双开场
+  // 挂载时仅当有待消费的题卡唤起（ask）才发出第一条触发语；否则空场等待学习者先开口。
+  // cleanup 中止在途流：收起即卸载不再白烧 token，StrictMode 双跑也不会重复发
   useEffect(() => {
-    void runRequest([makeOpeningTriggerRef.current()], { noRag: true });
+    const trigger = makeOpeningTriggerRef.current();
+    if (trigger) void runRequest([trigger], { noRag: true });
     return () => abortRef.current?.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -295,16 +290,17 @@ export function GuideChat({
     setNoticeTick((t) => t + 1);
   }, []);
 
-  // 翻节实时通知：学生翻到另一节时，补一条 hidden 通知让小简接住新话题
+  // 翻节实时通知：对话进行中翻到另一节时，补一条 hidden 通知让小简接住新话题；
+  // 学习者尚未开口时不推送——小简不主动开启话题
   const prevActRef = useRef(actTitle);
   useEffect(() => {
     if (actTitle && actTitle !== prevActRef.current) {
       prevActRef.current = actTitle;
-      queueNotice(`我翻到了「${actTitle}」一节。`);
+      if (messagesRef.current.length) queueNotice(`我翻到了「${actTitle}」一节。`);
     }
   }, [actTitle, queueNotice]);
 
-  // 题卡「问小简这道题」：面板已开时把提问语排进通知队列（未开时走开场触发语）
+  // 题卡「问小简这道题」：面板已开时把提问语排进通知队列（未开时由挂载 effect 直接发起）
   useEffect(() => {
     if (!ask || ask.seq <= askConsumedRef.current) return;
     askConsumedRef.current = ask.seq;
@@ -314,8 +310,6 @@ export function GuideChat({
   useEffect(() => {
     if (busy || !pendingNoticesRef.current.length) return;
     const base = messagesRef.current;
-    // 开场尚未成功：保留队列，等开场成功后再逐条补发
-    if (!base.length) return;
     const text = pendingNoticesRef.current.shift();
     if (!text) return;
     const notice: ChatMsg = { role: 'user', content: text, hidden: true };
@@ -324,18 +318,14 @@ export function GuideChat({
     void runRequest(next, { noRag: true });
   }, [busy, noticeTick, runRequest]);
 
-  // 重试：开场从未成功时用当前节名重建触发语（旧触发语里的节名可能已过时），
-  // 并清空排队的通知——重建的开场已含最新上下文，补发只会让小简重复开场；
-  // 其余情况原样重放上一次请求（保留其 noRag 口径）
+  // 重试：原样重放上一次请求（保留其 noRag 口径）；
+  // 对话为空说明失败的是唤起请求，重放前清空排队通知避免重复
   const retry = () => {
     if (busy) return;
-    if (!messagesRef.current.length) {
-      pendingNoticesRef.current = [];
-      void runRequest([makeOpeningTriggerRef.current()], { noRag: true });
-      return;
-    }
     const last = lastAttemptRef.current;
-    if (last) void runRequest(last.conversation, { noRag: last.noRag });
+    if (!last) return;
+    if (!messagesRef.current.length) pendingNoticesRef.current = [];
+    void runRequest(last.conversation, { noRag: last.noRag });
   };
 
   const send = () => {
@@ -388,6 +378,15 @@ export function GuideChat({
         aria-label="与小简的对话"
         className="wj-scrollbar-none min-h-0 flex-1 space-y-3 overflow-y-auto px-3.5 py-3"
       >
+        {/* 空场：小简不主动开口，等学习者先问 */}
+        {!visible.length && !isLoading && !isStreaming && !error && (
+          <div className="flex h-full items-center justify-center px-8 text-center text-xs leading-6 text-wj-dim">
+            小简不主动开口——
+            <br />
+            哪一步卡住了，直接问。
+          </div>
+        )}
+
         {visible.map((m, i) => (
           <MessageBubble key={i} msg={m} index={i} email={user?.email} />
         ))}
