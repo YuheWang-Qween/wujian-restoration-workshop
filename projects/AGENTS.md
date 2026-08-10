@@ -57,6 +57,17 @@
 > （点依据 → 点缺口 → 给一个能自己走下去的方向，不端完整标准答案）。
 > 答案一改旧判定即在前端作废；判对错与对话同一套鉴权口径，限速桶独立（15 次/分）。
 >
+> **确认提交与参考答案**（答题流程闭环）：学生可反复改稿、反复点判对错；
+> 点「确认提交」（两段式，先提示"提交后即定稿"再确认）后该框定稿——输入锁定、
+> 判对错按钮隐藏、判定章保留，并自动向 `/api/reference-answer` 拉取参考答案
+> （SSE 纯 content 流，无 verdict 章）。参考答案**每小问只生成一次**：完整走完
+> done 帧的成稿写入 store（`referenceAnswers`，persist 持久化），刷新/重进直接读缓存；
+> 中途断开/出错不缓存半成品，界面给「重试」。store 的 `submitted` /
+> `referenceAnswers` 以 answerKey 为键，partialize 与 resetAll 都要同步维护。
+> 接口骨架与 /api/grade 一致（鉴权/限速 10 次/分/心跳/deadline），prompt 由
+> grade-prompt.ts 的 `buildReferenceAnswerUserMsg` 组装（与判分共用 `resolveQuestion`）；
+> 撰写纪律要求纯文本分点、不出现 markdown 语法与「参考答案」字样。
+>
 > **题型机制**：细问不限于问答。小问数据带 `WjPart.input`（缺省=文本框）：
 > `input: { type: 'ordering', items }` 为排序题（**分层排序**：`→` 分隔层、
 > 同层 `、` 并列表示先后不确定；点层选中后点单位入层，层可增删/上移，附补充说明框，
@@ -83,6 +94,7 @@ src/
 │   ├── api/supabase-config/route.ts  # 向前端注入 Supabase url/anonKey
 │   ├── api/chat/route.ts             # 助教对话：SSE 流式 + 环节材料注入 + 知识库 RAG
 │   ├── api/grade/route.ts            # AI 判对错：SSE 流式判定（verdict 章 + 流式解析）
+│   ├── api/reference-answer/route.ts # 参考答案：确认提交后 SSE 流式生成（纯 content 流）
 │   ├── login/page.tsx、register/page.tsx  # 登录 / 注册（已登录访问自动跳回首页）
 │   ├── page.tsx                      # 工坊大厅：两篇页签（?tab=exhibition 落展示篇）+ 六个环节入口
 │   ├── stage/[id]/page.tsx           # 环节页：单栏资料 + 细问 + 答题草稿框
@@ -103,13 +115,13 @@ src/
 │   ├── workshop/exhibition.ts        # 展示篇全部内容（出自资料汇编 docx，释文系转引）
 │   ├── workshop/guide-lines.ts       # 小简的预设台词解析器（事实口径同 content.ts）
 │   ├── workshop/prompt.ts            # 助教系统提示词组装 —— 只走服务端
-│   ├── workshop/grade-prompt.ts      # 判分提示词组装（/api/grade 专用）—— 只走服务端
+│   ├── workshop/grade-prompt.ts      # 判分 + 参考答案提示词组装（resolveQuestion 共用）—— 只走服务端
 │   ├── workshop/rubrics.ts           # 细问评阅要点 —— 只走服务端，禁止进客户端包
 │   ├── workshop/knowledge.ts         # 知识库检索（wujian_knowledge 扫描页）—— 只走服务端
 │   ├── supabase-config-inject.tsx    # 配置注入 Provider（拉 /api/supabase-config）
 │   └── supabase-browser.ts           # 浏览器端 Supabase client
 ├── storage/database/supabase-client.ts  # 服务端 Supabase client（凭据由运行时注入）
-└── store/useWorkshopStore.ts         # 完成标记 + 顺序解锁（isStageUnlocked）+ 答题草稿 + 三节阅读进度（一节一屏）
+└── store/useWorkshopStore.ts         # 完成标记 + 顺序解锁（isStageUnlocked）+ 答题草稿 + 提交定稿/参考答案缓存 + 三节阅读进度（一节一屏）
 ```
 
 ## 开发命令

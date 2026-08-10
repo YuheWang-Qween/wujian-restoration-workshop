@@ -7,6 +7,10 @@ interface WorkshopState {
   completed: number[];
   /** 答题框里的内容，key 为 `环节编号-细问 id`。随手保存，刷新不丢 */
   answers: Record<string, string>;
+  /** 已确认提交（终版锁定）的小问，key 同 answers。提交后不可再改、出现参考答案 */
+  submitted: Record<string, true>;
+  /** 参考答案缓存，key 同 answers。提交后生成一次，刷新后复用不重复生成 */
+  referenceAnswers: Record<string, string>;
   /** 各环节当前读到第几节（从 1 起；一节一屏，同屏只出现当前一节），key 为环节编号 */
   actsRevealed: Record<number, number>;
   /**
@@ -19,6 +23,8 @@ interface WorkshopState {
   /** 幂等：已完成过就原样返回。由环节页在「最后一道细问已作答」时自动调用 */
   markCompleted: (stageId: number) => void;
   setAnswer: (stageId: number, questionId: string, text: string, part?: string) => void;
+  markSubmitted: (stageId: number, questionId: string, part?: string) => void;
+  setReferenceAnswer: (stageId: number, questionId: string, part: string | undefined, text: string) => void;
   revealNextAct: (stageId: number, totalActs: number) => void;
   revealPrevAct: (stageId: number) => void;
   resetAll: () => void;
@@ -52,6 +58,8 @@ export const useWorkshopStore = create<WorkshopState>()(
       sessionId: newSessionId(),
       completed: [],
       answers: {},
+      submitted: {},
+      referenceAnswers: {},
       actsRevealed: {},
       hydrated: false,
 
@@ -66,6 +74,14 @@ export const useWorkshopStore = create<WorkshopState>()(
 
       setAnswer: (stageId, questionId, text, part) =>
         set((s) => ({ answers: { ...s.answers, [answerKey(stageId, questionId, part)]: text } })),
+
+      markSubmitted: (stageId, questionId, part) =>
+        set((s) => ({ submitted: { ...s.submitted, [answerKey(stageId, questionId, part)]: true } })),
+
+      setReferenceAnswer: (stageId, questionId, part, text) =>
+        set((s) => ({
+          referenceAnswers: { ...s.referenceAnswers, [answerKey(stageId, questionId, part)]: text },
+        })),
 
       revealNextAct: (stageId, totalActs) =>
         set((s) => {
@@ -82,7 +98,14 @@ export const useWorkshopStore = create<WorkshopState>()(
         }),
 
       resetAll: () =>
-        set({ completed: [], answers: {}, actsRevealed: {}, sessionId: newSessionId() }),
+        set({
+          completed: [],
+          answers: {},
+          submitted: {},
+          referenceAnswers: {},
+          actsRevealed: {},
+          sessionId: newSessionId(),
+        }),
     }),
     {
       name: 'wujian-workshop-progress',
@@ -91,6 +114,8 @@ export const useWorkshopStore = create<WorkshopState>()(
         sessionId: s.sessionId,
         completed: s.completed,
         answers: s.answers,
+        submitted: s.submitted,
+        referenceAnswers: s.referenceAnswers,
         actsRevealed: s.actsRevealed,
       }),
       onRehydrateStorage: () => (state) => {

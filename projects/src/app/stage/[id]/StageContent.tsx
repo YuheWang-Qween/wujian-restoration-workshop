@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, ArrowRight, ArrowUp, Check, ChevronDown, ChevronUp, Loader2, Lock, LogOut, MessagesSquare, PenLine, Stamp, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUp, Check, ChevronDown, ChevronUp, Loader2, Lock, LogOut, MessagesSquare, PenLine, ScrollText, Stamp, X } from 'lucide-react';
 import { ACT_DATA, ACT_QUESTIONS, ACT_WHY, STAGES, getStage, stageActTitles, type WjPart, type WjQuestion, type WjStage } from '@/lib/workshop/content';
 import { DataTable } from '@/components/workshop/DataTable';
 import { askGuide } from '@/lib/workshop/guide-bridge';
@@ -920,14 +920,50 @@ const VERDICT_STYLE: Record<string, string> = {
   不成立: 'border-wj-cinnabar/60 bg-wj-cinnabar/10 text-wj-cinnabar',
 };
 
+/** /api/grade 与 /api/reference-answer 共用的 SSE 帧形状 */
+interface SsePayload {
+  verdict?: string | null;
+  content?: string;
+  error?: string;
+  done?: boolean;
+}
+
+/** 逐行读 SSE 正文并分发 data 帧；心跳注释行与非 data 行自动忽略 */
+async function readSse(body: ReadableStream<Uint8Array>, onPayload: (p: SsePayload) => void) {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  for (;;) {
+    const { done, value: chunk } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(chunk, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() ?? '';
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      try {
+        onPayload(JSON.parse(line.slice(6)) as SsePayload);
+      } catch {
+        // 不完整 JSON 说明数据段跨块，下一次 buffer 拼接后自然恢复
+      }
+    }
+  }
+}
+
 function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
   const hydrated = useWorkshopStore((s) => s.hydrated);
-  const stored = useWorkshopStore((s) => s.answers[answerKey(stageId, question.id, part?.label)]);
+  const key = answerKey(stageId, question.id, part?.label);
+  const stored = useWorkshopStore((s) => s.answers[key]);
   const setAnswer = useWorkshopStore((s) => s.setAnswer);
+  const submittedFlag = useWorkshopStore((s) => s.submitted[key]);
+  const markSubmitted = useWorkshopStore((s) => s.markSubmitted);
+  const cachedReference = useWorkshopStore((s) => s.referenceAnswers[key]);
+  const setReferenceAnswer = useWorkshopStore((s) => s.setReferenceAnswer);
   const { session } = useAuth();
 
   // persist 落定之前一律按空串渲染，与服务端输出保持一致，避免 hydration 不匹配
   const value = hydrated ? (stored ?? '') : '';
+  const isSubmitted = hydrated && !!submittedFlag;
   const fieldId = `answer-${stageId}-${question.id}${part ? `-${part.label}` : ''}`;
 
   // AI 判对错：把本框答案交给 /api/grade 按评阅要点判定，SSE 回流判定章 + 流式解析
@@ -937,6 +973,15 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
   const [gradeError, setGradeError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   useEffect(() => () => abortRef.current?.abort(), []);
+
+  // 确认提交：两段式（先提示"不可再改"，再确认）；提交后输入锁定、出参考答案
+  const [confirming, setConfirming] = useState(false);
+  const [refLoading, setRefLoading] = useState(false);
+  const [refError, setRefError] = useState<string | null>(null);
+  const [refDraft, setRefDraft] = useState('');
+  const refAbortRef = useRef<AbortController | null>(null);
+  const refRequestedRef = useRef(false);
+  useEffect(() => () => refAbortRef.current?.abort(), []);
 
   const clearGrade = () => {
     setVerdict(null);
@@ -956,13 +1001,15 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
   })();
 
   const commitAnswer = (v: string) => {
+    if (isSubmitted) return;
     setAnswer(stageId, question.id, v, part?.label);
+    setConfirming(false);
     // 答案一改旧判定即作废，避免"判的是旧稿"的错觉
     if (verdict || analysis || gradeError) clearGrade();
   };
 
   const handleGrade = async () => {
-    if (grading || !canGrade) return;
+    if (grading || !canGrade || isSubmitted) return;
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -994,32 +1041,11 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
         throw new Error(msg);
       }
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-      for (;;) {
-        const { done, value: chunk } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(chunk, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          try {
-            const payload = JSON.parse(line.slice(6)) as {
-              verdict?: string | null;
-              content?: string;
-              error?: string;
-              done?: boolean;
-            };
-            if (payload.verdict !== undefined) setVerdict(payload.verdict);
-            if (payload.content) setAnalysis((prev) => prev + payload.content);
-            if (payload.error) setGradeError(payload.error);
-          } catch {
-            // 不完整 JSON 说明数据段跨块，下一次 buffer 拼接后自然恢复
-          }
-        }
-      }
+      await readSse(res.body, (payload) => {
+        if (payload.verdict !== undefined) setVerdict(payload.verdict);
+        if (payload.content) setAnalysis((prev) => prev + payload.content);
+        if (payload.error) setGradeError(payload.error);
+      });
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') return;
       setGradeError(e instanceof Error ? e.message : '判定失败了，稍后再试。');
@@ -1027,6 +1053,95 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
       setGrading(false);
     }
   };
+
+  // 参考答案：确认提交后自动生成（每小问只生成一次，done 后写入 store 缓存，
+  // 刷新/重进直接读缓存不再请求）；中途失败可手动重试
+  const fetchReference = async () => {
+    refAbortRef.current?.abort();
+    const controller = new AbortController();
+    refAbortRef.current = controller;
+    setRefLoading(true);
+    setRefError(null);
+    setRefDraft('');
+    let acc = '';
+    let finished = false;
+    let errored = false;
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+      const res = await fetch('/api/reference-answer', {
+        method: 'POST',
+        headers,
+        signal: controller.signal,
+        body: JSON.stringify({
+          stage: stageId,
+          questionId: question.id,
+          partLabel: part?.label ?? null,
+        }),
+      });
+      if (!res.ok || !res.body) {
+        let msg = '参考答案生成失败了，稍后再试。';
+        try {
+          const data = (await res.json()) as { error?: string };
+          if (data?.error) msg = data.error;
+        } catch {
+          // 响应体不是 JSON（如网关错误页），用通用文案
+        }
+        throw new Error(msg);
+      }
+
+      await readSse(res.body, (payload) => {
+        if (payload.content) {
+          acc += payload.content;
+          setRefDraft(acc);
+        }
+        if (payload.error) {
+          errored = true;
+          setRefError(payload.error);
+        }
+        if (payload.done) finished = true;
+      });
+      // 只有完整走完 done 帧的成稿才进缓存；中途断开/出错留着重试，不缓存半成品
+      if (finished && !errored && acc.trim()) {
+        setReferenceAnswer(stageId, question.id, part?.label, acc.trim());
+      }
+    } catch (e) {
+      if (e instanceof Error && e.name === 'AbortError') return;
+      setRefError(e instanceof Error ? e.message : '参考答案生成失败了，稍后再试。');
+    } finally {
+      setRefLoading(false);
+    }
+  };
+
+  const fetchReferenceRef = useRef(fetchReference);
+  fetchReferenceRef.current = fetchReference;
+
+  // 提交落定（含刷新后 persist 恢复出已提交态）且尚无缓存时自动拉取一次
+  useEffect(() => {
+    if (!isSubmitted || cachedReference || refRequestedRef.current) return;
+    refRequestedRef.current = true;
+    void fetchReferenceRef.current();
+  }, [isSubmitted, cachedReference]);
+
+  const handleSubmit = () => {
+    if (!canGrade || isSubmitted) return;
+    if (!confirming) {
+      setConfirming(true);
+      return;
+    }
+    setConfirming(false);
+    // 进行中的判定随提交一并收尾：定稿之后旧稿的判定结果没有继续等待的意义
+    abortRef.current?.abort();
+    setGrading(false);
+    markSubmitted(stageId, question.id, part?.label);
+  };
+
+  const retryReference = () => {
+    refRequestedRef.current = true;
+    void fetchReferenceRef.current();
+  };
+
+  const referenceText = cachedReference ?? refDraft;
 
   return (
     <div className={part ? 'mt-2 pl-8' : 'mt-4 border-t border-dashed border-wj-line pt-4'}>
@@ -1047,20 +1162,21 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
 
       {input?.type === 'ordering' ? (
         <div className="mt-2">
-          <OrderingInput items={input.items} value={value} onChange={commitAnswer} disabled={grading} />
+          <OrderingInput items={input.items} value={value} onChange={commitAnswer} disabled={grading || isSubmitted} />
         </div>
       ) : input?.type === 'choice' ? (
         <div className="mt-2">
-          <ChoiceInput options={input.options} value={value} onChange={commitAnswer} disabled={grading} />
+          <ChoiceInput options={input.options} value={value} onChange={commitAnswer} disabled={grading || isSubmitted} />
         </div>
       ) : (
         <textarea
           id={fieldId}
           value={value}
           onChange={(e) => commitAnswer(e.target.value)}
+          disabled={grading || isSubmitted}
           rows={part ? 3 : 4}
           placeholder={part ? `写下（${part.label}）小问的作答……` : `写下你对${label}的作答……`}
-          className="wj-scrollbar mt-2 w-full resize-y rounded border border-wj-border bg-wj-raised px-3 py-2 text-base leading-7 sm:text-sm text-wj-ink placeholder:text-wj-dim focus:border-wj-cinnabar/60 focus:outline-none"
+          className="wj-scrollbar mt-2 w-full resize-y rounded border border-wj-border bg-wj-raised px-3 py-2 text-base leading-7 sm:text-sm text-wj-ink placeholder:text-wj-dim focus:border-wj-cinnabar/60 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
         />
       )}
 
@@ -1072,15 +1188,52 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
             {verdict}
           </span>
         )}
-        <button
-          type="button"
-          onClick={handleGrade}
-          disabled={grading || !canGrade}
-          className="inline-flex items-center gap-1.5 rounded border border-wj-line bg-wj-raised px-2.5 py-1 text-[11px] text-wj-ink2 transition-colors hover:border-wj-cinnabar/60 hover:text-wj-cinnabar disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {grading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Stamp className="h-3 w-3" />}
-          {grading ? '判定中…' : 'AI 判对错'}
-        </button>
+        {isSubmitted ? (
+          <span className="inline-flex items-center gap-1 text-[11px] text-wj-dim">
+            <Lock className="h-3 w-3" />
+            已提交定稿
+          </span>
+        ) : confirming ? (
+          <>
+            <span className="text-[11px] text-wj-ochre">提交后即定稿，不可再修改</span>
+            <button
+              type="button"
+              onClick={() => setConfirming(false)}
+              className="rounded border border-wj-line bg-wj-raised px-2.5 py-1 text-[11px] text-wj-ink2 transition-colors hover:border-wj-dim"
+            >
+              再想想
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className="inline-flex items-center gap-1.5 rounded border border-wj-cinnabar bg-wj-cinnabar px-2.5 py-1 text-[11px] font-medium text-wj-paper transition-colors hover:bg-wj-cinnabar/90"
+            >
+              <Check className="h-3 w-3" />
+              确认提交
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={handleGrade}
+              disabled={grading || !canGrade}
+              className="inline-flex items-center gap-1.5 rounded border border-wj-line bg-wj-raised px-2.5 py-1 text-[11px] text-wj-ink2 transition-colors hover:border-wj-cinnabar/60 hover:text-wj-cinnabar disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {grading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Stamp className="h-3 w-3" />}
+              {grading ? '判定中…' : 'AI 判对错'}
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={grading || !canGrade}
+              className="inline-flex items-center gap-1.5 rounded border border-wj-line bg-wj-raised px-2.5 py-1 text-[11px] text-wj-ink2 transition-colors hover:border-wj-cinnabar/60 hover:text-wj-cinnabar disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Check className="h-3 w-3" />
+              确认提交
+            </button>
+          </>
+        )}
       </div>
 
       {(gradeError || analysis) && (
@@ -1092,6 +1245,37 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
           }`}
         >
           {gradeError ?? analysis}
+        </div>
+      )}
+
+      {isSubmitted && (
+        <div className="mt-2 rounded border border-wj-bamboo/40 bg-wj-bamboo/5 px-3 py-2">
+          <div className="flex items-center gap-1.5 text-[11px] font-medium text-wj-bamboo">
+            <ScrollText className="h-3 w-3" />
+            参考答案
+          </div>
+          {refError ? (
+            <p className="mt-1.5 text-[12.5px] leading-6 text-wj-cinnabar">
+              {refError}
+              <button
+                type="button"
+                onClick={retryReference}
+                className="ml-2 underline underline-offset-2 hover:text-wj-cinnabar/80"
+              >
+                重试
+              </button>
+            </p>
+          ) : referenceText ? (
+            <p className="mt-1.5 whitespace-pre-wrap text-[12.5px] leading-6 text-wj-ink2">
+              {referenceText}
+              {refLoading && <Loader2 className="ml-1 inline h-3 w-3 animate-spin text-wj-dim" />}
+            </p>
+          ) : (
+            <p className="mt-1.5 flex items-center gap-1.5 text-[12.5px] text-wj-dim">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              参考答案生成中…
+            </p>
+          )}
         </div>
       )}
 
