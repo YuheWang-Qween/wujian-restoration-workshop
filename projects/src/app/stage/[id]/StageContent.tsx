@@ -167,7 +167,7 @@ export function StageContent() {
       </div>
 
       <header className="relative z-10 shrink-0 border-b border-wj-border bg-wj-surface/85 backdrop-blur">
-        <div className="mx-auto flex h-14 w-full max-w-[1400px] items-center gap-3 px-4 sm:px-6">
+        <div className="wj-chat-dodge mx-auto flex h-14 w-full max-w-[1400px] items-center gap-3 px-4 sm:px-6">
           <Link
             href="/"
             aria-label="返回工坊"
