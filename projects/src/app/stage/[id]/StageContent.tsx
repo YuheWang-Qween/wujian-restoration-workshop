@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronUp, Loader2, Lock, LogOut, MessagesSquare, PenLine } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronUp, Loader2, Lock, LogOut, MessagesSquare, PenLine, Stamp } from 'lucide-react';
 import { ACT_DATA, ACT_QUESTIONS, ACT_WHY, STAGES, getStage, stageActTitles, type WjPart, type WjQuestion, type WjStage } from '@/lib/workshop/content';
 import { DataTable } from '@/components/workshop/DataTable';
 import { askGuide } from '@/lib/workshop/guide-bridge';
@@ -678,14 +678,103 @@ interface AnswerBoxProps {
   part?: WjPart;
 }
 
+/** 判定章配色：成立竹青、部分成立赭石、不成立朱砂——沿用工坊色谱 */
+const VERDICT_STYLE: Record<string, string> = {
+  成立: 'border-wj-bamboo/60 bg-wj-bamboo/10 text-wj-bamboo',
+  部分成立: 'border-wj-ochre/60 bg-wj-ochre/10 text-wj-ochre',
+  不成立: 'border-wj-cinnabar/60 bg-wj-cinnabar/10 text-wj-cinnabar',
+};
+
 function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
   const hydrated = useWorkshopStore((s) => s.hydrated);
   const stored = useWorkshopStore((s) => s.answers[answerKey(stageId, question.id, part?.label)]);
   const setAnswer = useWorkshopStore((s) => s.setAnswer);
+  const { session } = useAuth();
 
   // persist 落定之前一律按空串渲染，与服务端输出保持一致，避免 hydration 不匹配
   const value = hydrated ? (stored ?? '') : '';
   const fieldId = `answer-${stageId}-${question.id}${part ? `-${part.label}` : ''}`;
+
+  // AI 判对错：把本框答案交给 /api/grade 按评阅要点判定，SSE 回流判定章 + 流式解析
+  const [grading, setGrading] = useState(false);
+  const [verdict, setVerdict] = useState<string | null>(null);
+  const [analysis, setAnalysis] = useState('');
+  const [gradeError, setGradeError] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  useEffect(() => () => abortRef.current?.abort(), []);
+
+  const clearGrade = () => {
+    setVerdict(null);
+    setAnalysis('');
+    setGradeError(null);
+  };
+
+  const handleGrade = async () => {
+    if (grading || !value.trim()) return;
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setGrading(true);
+    clearGrade();
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+      const res = await fetch('/api/grade', {
+        method: 'POST',
+        headers,
+        signal: controller.signal,
+        body: JSON.stringify({
+          stage: stageId,
+          questionId: question.id,
+          partLabel: part?.label ?? null,
+          answer: value.trim(),
+        }),
+      });
+      if (!res.ok || !res.body) {
+        // 服务端 400/401/429 都带用户可读的 error 字段，能读到就原样展示
+        let msg = '判定失败了，稍后再试。';
+        try {
+          const data = (await res.json()) as { error?: string };
+          if (data?.error) msg = data.error;
+        } catch {
+          // 响应体不是 JSON（如网关错误页），用通用文案
+        }
+        throw new Error(msg);
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      for (;;) {
+        const { done, value: chunk } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(chunk, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const payload = JSON.parse(line.slice(6)) as {
+              verdict?: string | null;
+              content?: string;
+              error?: string;
+              done?: boolean;
+            };
+            if (payload.verdict !== undefined) setVerdict(payload.verdict);
+            if (payload.content) setAnalysis((prev) => prev + payload.content);
+            if (payload.error) setGradeError(payload.error);
+          } catch {
+            // 不完整 JSON 说明数据段跨块，下一次 buffer 拼接后自然恢复
+          }
+        }
+      }
+    } catch (e) {
+      if (e instanceof Error && e.name === 'AbortError') return;
+      setGradeError(e instanceof Error ? e.message : '判定失败了，稍后再试。');
+    } finally {
+      setGrading(false);
+    }
+  };
 
   return (
     <div className={part ? 'mt-2 pl-8' : 'mt-4 border-t border-dashed border-wj-line pt-4'}>
@@ -707,11 +796,46 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
       <textarea
         id={fieldId}
         value={value}
-        onChange={(e) => setAnswer(stageId, question.id, e.target.value, part?.label)}
+        onChange={(e) => {
+          setAnswer(stageId, question.id, e.target.value, part?.label);
+          // 答案一改旧判定即作废，避免"判的是旧稿"的错觉
+          if (verdict || analysis || gradeError) clearGrade();
+        }}
         rows={part ? 3 : 4}
         placeholder={part ? `写下（${part.label}）小问的作答……` : `写下你对${label}的作答……`}
         className="wj-scrollbar mt-2 w-full resize-y rounded border border-wj-border bg-wj-raised px-3 py-2 text-base leading-7 sm:text-sm text-wj-ink placeholder:text-wj-dim focus:border-wj-cinnabar/60 focus:outline-none"
       />
+
+      <div className="mt-2 flex items-center justify-end gap-3">
+        {verdict && (
+          <span
+            className={`rounded border px-2 py-0.5 text-[11px] font-medium ${VERDICT_STYLE[verdict] ?? 'border-wj-line text-wj-muted'}`}
+          >
+            {verdict}
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={handleGrade}
+          disabled={grading || !value.trim()}
+          className="inline-flex items-center gap-1.5 rounded border border-wj-line bg-wj-raised px-2.5 py-1 text-[11px] text-wj-ink2 transition-colors hover:border-wj-cinnabar/60 hover:text-wj-cinnabar disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {grading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Stamp className="h-3 w-3" />}
+          {grading ? '判定中…' : 'AI 判对错'}
+        </button>
+      </div>
+
+      {(gradeError || analysis) && (
+        <div
+          className={`mt-2 rounded border px-3 py-2 text-[12.5px] leading-6 ${
+            gradeError
+              ? 'border-wj-cinnabar/40 bg-wj-cinnabar/5 text-wj-cinnabar'
+              : 'border-wj-line bg-wj-raised/70 text-wj-ink2'
+          }`}
+        >
+          {gradeError ?? analysis}
+        </div>
+      )}
 
       {!part && (
         <div className="mt-2 flex items-center justify-end">

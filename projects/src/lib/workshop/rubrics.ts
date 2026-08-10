@@ -5,7 +5,8 @@ import 'server-only';
  *
  * 这份文件绝不能被任何客户端组件 import：它一旦进了浏览器包，
  * 学习者打开 DevTools 就能直接读到全部参考答案。
- * 唯一的合法入口是 `prompt.ts`，而 `prompt.ts` 只被 /api/chat 引用。
+ * 合法入口只有两个：`prompt.ts`（/api/chat 助教对话）与
+ * `grade-prompt.ts`（/api/grade AI 判对错），两者都只被 API 路由引用。
  *
  * key 形如 `环节编号-子问题 id`，例如 '1-q2'。
  */

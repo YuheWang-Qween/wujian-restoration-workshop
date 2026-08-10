@@ -45,6 +45,14 @@
 > 桌面端（lg+）对话框展开时环节页正文让位（html[data-wj-chat-open] + .wj-chat-dodge），
 > 未解锁环节点立绘不开对话（顺序解锁同一口径）。
 > 两处的身份都是「小简」。
+>
+> **AI 判对错**（环节页每个答题框下）：学生写完某框答案后点「AI 判对错」，
+> 前端把该框答案（含环节/题目/小问定位）交给 `/api/grade`；服务端用
+> `grade-prompt.ts` 组装判分指令（题目 + rubrics.ts 评阅要点 + 输出纪律），
+> SSE 回流：首帧是判定章（成立/部分成立/不成立，服务端从模型输出的
+> 「判定：X\n---」头部解析，正则优先匹配长词「部分成立」），后续是流式解析
+> （点依据 → 点缺口 → 给一个能自己走下去的方向，不端完整标准答案）。
+> 答案一改旧判定即在前端作废；判对错与对话同一套鉴权口径，限速桶独立（15 次/分）。
 
 ## 技术栈
 
@@ -58,6 +66,7 @@ src/
 ├── app/
 │   ├── api/supabase-config/route.ts  # 向前端注入 Supabase url/anonKey
 │   ├── api/chat/route.ts             # 助教对话：SSE 流式 + 环节材料注入 + 知识库 RAG
+│   ├── api/grade/route.ts            # AI 判对错：SSE 流式判定（verdict 章 + 流式解析）
 │   ├── login/page.tsx、register/page.tsx  # 登录 / 注册（已登录访问自动跳回首页）
 │   ├── page.tsx                      # 工坊大厅：两篇页签（?tab=exhibition 落展示篇）+ 六个环节入口
 │   ├── stage/[id]/page.tsx           # 环节页：单栏资料 + 子问题 + 答题草稿框
@@ -78,6 +87,7 @@ src/
 │   ├── workshop/exhibition.ts        # 展示篇全部内容（出自资料汇编 docx，释文系转引）
 │   ├── workshop/guide-lines.ts       # 小简的预设台词解析器（事实口径同 content.ts）
 │   ├── workshop/prompt.ts            # 助教系统提示词组装 —— 只走服务端
+│   ├── workshop/grade-prompt.ts      # 判分提示词组装（/api/grade 专用）—— 只走服务端
 │   ├── workshop/rubrics.ts           # 子问题评阅要点 —— 只走服务端，禁止进客户端包
 │   ├── workshop/knowledge.ts         # 知识库检索（wujian_knowledge 扫描页）—— 只走服务端
 │   ├── supabase-config-inject.tsx    # 配置注入 Provider（拉 /api/supabase-config）
