@@ -35,7 +35,6 @@ export type WjPartInput =
   | { type: 'ordering'; items: string[] }
   | { type: 'choice'; options: WjInputOption[]; withNote?: boolean }
   | { type: 'multi'; options: WjInputOption[]; withNote?: boolean }
-  | { type: 'judge'; items: WjInputOption[] }
   | { type: 'matching'; left: WjInputOption[]; right: WjInputOption[] };
 
 export interface WjPart {
@@ -50,8 +49,6 @@ export interface WjQuestion {
   kind: string;
   stem: string;
   table?: WjTable;
-  /** 整题级作答形式：仅 parts 为空时使用（如 1-q2 判断题），与小问级 input 二选一。 */
-  input?: WjPartInput;
   parts: WjPart[];
 }
 
@@ -178,18 +175,74 @@ export const STAGES: WjStage[] = [
       {
         id: 'q2',
         kind: '判断题',
-        stem: '以下是关于走马楼揭取环节的五条陈述，请逐条判断正误。判断为「错误」的，请在说明中写出正确表述；判断为「正确」的，请补充说明它对后续工序意味着什么。',
-        input: {
-          type: 'judge',
-          items: [
-            { key: '①', text: '简牍层位关系的破坏，全部是 1996 年施工机械造成的' },
-            { key: '②', text: '揭剥号（如 30-27-38）记录的是简牍在井中的空间位置信息' },
-            { key: '③', text: '2480 枚大木简都配有完整的揭剥图' },
-            { key: '④', text: '揭取时使用温水升温，是为了杀灭简牍表面的微生物' },
-            { key: '⑤', text: '揭取的最大困难是简牍太脆，一碰就碎' },
-          ],
-        },
-        parts: [],
+        stem: '以下是关于走马楼揭取环节的五条陈述，请逐条判断正误、做一条提交一条。判断为「错误」的，请在说明中写出正确表述；判断为「正确」的，请补充说明它对后续工序意味着什么。',
+        parts: [
+          {
+            label: 'a',
+            text: '简牍层位关系的破坏，全部是 1996 年施工机械造成的。',
+            tag: '判断',
+            input: {
+              type: 'choice',
+              withNote: true,
+              options: [
+                { key: '正', text: '这条陈述正确' },
+                { key: '误', text: '这条陈述错误' },
+              ],
+            },
+          },
+          {
+            label: 'b',
+            text: '揭剥号（如 30-27-38）记录的是简牍在井中的空间位置信息。',
+            tag: '判断',
+            input: {
+              type: 'choice',
+              withNote: true,
+              options: [
+                { key: '正', text: '这条陈述正确' },
+                { key: '误', text: '这条陈述错误' },
+              ],
+            },
+          },
+          {
+            label: 'c',
+            text: '2480 枚大木简都配有完整的揭剥图。',
+            tag: '判断',
+            input: {
+              type: 'choice',
+              withNote: true,
+              options: [
+                { key: '正', text: '这条陈述正确' },
+                { key: '误', text: '这条陈述错误' },
+              ],
+            },
+          },
+          {
+            label: 'd',
+            text: '揭取时使用温水升温，是为了杀灭简牍表面的微生物。',
+            tag: '判断',
+            input: {
+              type: 'choice',
+              withNote: true,
+              options: [
+                { key: '正', text: '这条陈述正确' },
+                { key: '误', text: '这条陈述错误' },
+              ],
+            },
+          },
+          {
+            label: 'e',
+            text: '揭取的最大困难是简牍太脆，一碰就碎。',
+            tag: '判断',
+            input: {
+              type: 'choice',
+              withNote: true,
+              options: [
+                { key: '正', text: '这条陈述正确' },
+                { key: '误', text: '这条陈述错误' },
+              ],
+            },
+          },
+        ],
       },
       {
         id: 'q3',

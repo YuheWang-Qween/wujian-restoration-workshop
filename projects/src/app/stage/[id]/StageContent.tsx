@@ -668,19 +668,6 @@ function parseMulti(raw: string): { selected: string[]; note: string } {
   };
 }
 
-function parseJudge(raw: string): { verdicts: Record<string, '正' | '误'>; note: string } {
-  const verdicts: Record<string, '正' | '误'> = {};
-  const line = parseNoteLine(raw, '判断：');
-  if (line) {
-    for (const seg of line.split('、')) {
-      const key = seg.slice(0, 1);
-      const mark = seg.slice(1);
-      if (mark === '正' || mark === '误') verdicts[key] = mark;
-    }
-  }
-  return { verdicts, note: parseNoteLine(raw, '说明：') };
-}
-
 function parseMatching(raw: string): Record<string, string> {
   const map: Record<string, string> = {};
   const line = parseNoteLine(raw, '匹配：');
@@ -984,78 +971,6 @@ function MultiInput({
   );
 }
 
-function JudgeInput({
-  items,
-  value,
-  onChange,
-  disabled,
-}: {
-  items: { key: string; text: string }[];
-  value: string;
-  onChange: (v: string) => void;
-  disabled?: boolean;
-}) {
-  const { verdicts, note } = parseJudge(value);
-  const commit = (nextVerdicts: Record<string, '正' | '误'>, nextNote: string) => {
-    const judged = items.filter((i) => nextVerdicts[i.key]);
-    const lines = judged.length
-      ? [`判断：${judged.map((i) => `${i.key}${nextVerdicts[i.key]}`).join('、')}`]
-      : [];
-    if (nextNote.trim()) lines.push(`说明：${nextNote.trim()}`);
-    onChange(lines.join('\n'));
-  };
-  return (
-    <div>
-      <ul className="space-y-1.5">
-        {items.map((item) => {
-          const current = verdicts[item.key];
-          return (
-            <li
-              key={item.key}
-              className="flex items-start gap-2 rounded border border-wj-line bg-wj-raised px-3 py-2"
-            >
-              <span className="flex-1 text-sm leading-6 text-wj-ink">
-                <span className="font-mono">{item.key}</span> {item.text}
-              </span>
-              <span className="mt-0.5 flex shrink-0 gap-1">
-                {(['正', '误'] as const).map((mark) => {
-                  const active = current === mark;
-                  return (
-                    <button
-                      key={mark}
-                      type="button"
-                      aria-pressed={active}
-                      disabled={disabled}
-                      onClick={() => commit({ ...verdicts, [item.key]: mark }, note)}
-                      className={`rounded border px-2 py-0.5 text-xs transition-colors disabled:opacity-60 ${
-                        active
-                          ? mark === '正'
-                            ? 'border-wj-bamboo/60 bg-wj-bamboo/10 text-wj-bamboo'
-                            : 'border-wj-cinnabar/60 bg-wj-cinnabar/10 text-wj-cinnabar'
-                          : 'border-wj-line text-wj-dim hover:border-wj-dim hover:text-wj-ink2'
-                      }`}
-                    >
-                      {mark}
-                    </button>
-                  );
-                })}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
-      <textarea
-        value={note}
-        disabled={disabled}
-        rows={3}
-        onChange={(e) => commit(verdicts, e.target.value)}
-        placeholder="说明：判「误」的写出正确表述，判「正」的补充它对后续工序意味着什么"
-        className="wj-scrollbar mt-2 w-full resize-y rounded border border-wj-border bg-wj-raised px-3 py-2 text-sm leading-6 text-wj-ink placeholder:text-wj-dim focus:border-wj-cinnabar/60 focus:outline-none disabled:opacity-60"
-      />
-    </div>
-  );
-}
-
 function MatchingInput({
   left,
   right,
@@ -1186,9 +1101,8 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
     setGradeError(null);
   };
 
-  // 结构化作答（排序 / 单选 / 多选 / 判断 / 匹配）也序列化为文本协议走同一存储；
-  // 小问级 input 优先，无小问的题（如 1-q2 判断题）用整题级 input
-  const input = part?.input ?? question.input;
+  // 结构化作答（排序 / 单选 / 多选 / 匹配）也序列化为文本协议走同一存储
+  const input = part?.input;
   const canGrade = (() => {
     if (input?.type === 'ordering') {
       const { layers, note } = parseOrdering(value);
@@ -1201,10 +1115,6 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
     if (input?.type === 'multi') {
       const { selected, note } = parseMulti(value);
       return selected.length > 0 && (!input.withNote || note.trim().length > 0);
-    }
-    if (input?.type === 'judge') {
-      const { verdicts, note } = parseJudge(value);
-      return input.items.every((i) => verdicts[i.key]) && note.trim().length > 0;
     }
     if (input?.type === 'matching') {
       const map = parseMatching(value);
@@ -1384,10 +1294,6 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
       ) : input?.type === 'multi' ? (
         <div className="mt-2">
           <MultiInput options={input.options} withNote={input.withNote} value={value} onChange={commitAnswer} disabled={grading || isSubmitted} />
-        </div>
-      ) : input?.type === 'judge' ? (
-        <div className="mt-2">
-          <JudgeInput items={input.items} value={value} onChange={commitAnswer} disabled={grading || isSubmitted} />
         </div>
       ) : input?.type === 'matching' ? (
         <div className="mt-2">

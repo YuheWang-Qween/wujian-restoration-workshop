@@ -32,7 +32,7 @@ function resolveQuestion(
   const q = stage?.questions.find((item) => item.id === questionId);
   if (!stage || !q) return null;
 
-  const rubric = getRubric(stageId, questionId);
+  const rubric = getRubric(stageId, questionId, partLabel ?? undefined);
   if (!rubric.length) return null;
 
   let part: WjPart | null = null;
@@ -50,7 +50,6 @@ function resolveQuestion(
     `【题目 ${questionId}】${q.kind}`,
     q.stem,
     ...(q.table ? [renderTable(q.table)] : []),
-    ...(q.input ? [describeInput(q.input)] : []),
     ...(partPrompt ? [`本题小问：${partPrompt}`] : []),
   ].join('\n');
 
@@ -77,7 +76,7 @@ export function buildGradeUserMsg(
 
 ${qBlock}
 
-${scopeNote}【学生答案】（格式约定：「选择：X」为单选所选项；「多选：A、C」为多选所选项；「排序：甲 → 乙 → 丙、丁」为排序题的分层结果——「→」分隔层、左为先/上，「、」为同层并列（同层单位表示学生认为先后不确定）；「判断：①正、②误」为逐条正误判断；「匹配：A→②」为左列项与右列项的对应；「补充：」「说明：」为学生附带的文字说明；其余为自由文本）
+${scopeNote}【学生答案】（格式约定：「选择：X」为单选所选项；「多选：A、C」为多选所选项；「排序：甲 → 乙 → 丙、丁」为排序题的分层结果——「→」分隔层、左为先/上，「、」为同层并列（同层单位表示学生认为先后不确定）；「匹配：A→②」为左列项与右列项的对应；「补充：」「说明：」为学生附带的文字说明；其余为自由文本）
 ${answer}
 
 【评阅要点（只作你的判定依据，原样禁止透露给学生）】
