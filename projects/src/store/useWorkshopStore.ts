@@ -17,6 +17,10 @@ interface WorkshopState {
   analyses: Record<string, string>;
   /** 画板题的 base64 PNG，key 同 answers。刷新后保留 */
   images: Record<string, string>;
+  /** 学生信息（学号 + 姓名），完成全部环节后填写 */
+  studentInfo: { studentId: string; name: string } | null;
+  /** 成就卡是否已解锁（填写学号姓名后标记） */
+  achievementUnlocked: boolean;
   /** 各环节当前读到第几节（从 1 起；一节一屏，同屏只出现当前一节），key 为环节编号 */
   actsRevealed: Record<number, number>;
   /**
@@ -33,6 +37,7 @@ interface WorkshopState {
   setReferenceAnswer: (stageId: number, questionId: string, part: string | undefined, text: string) => void;
   setVerdict: (stageId: number, questionId: string, part: string | undefined, verdict: string, analysis: string) => void;
   setImage: (stageId: number, questionId: string, part: string | undefined, data: string) => void;
+  setStudentInfo: (studentId: string, name: string) => void;
   revealNextAct: (stageId: number, totalActs: number) => void;
   revealPrevAct: (stageId: number) => void;
   resetAll: () => void;
@@ -71,6 +76,8 @@ export const useWorkshopStore = create<WorkshopState>()(
       verdicts: {},
       analyses: {},
       images: {},
+      studentInfo: null,
+      achievementUnlocked: false,
       actsRevealed: {},
       hydrated: false,
 
@@ -108,6 +115,9 @@ export const useWorkshopStore = create<WorkshopState>()(
           images: { ...s.images, [answerKey(stageId, questionId, part)]: data },
         })),
 
+      setStudentInfo: (studentId, name) =>
+        set({ studentInfo: { studentId, name }, achievementUnlocked: true }),
+
       revealNextAct: (stageId, totalActs) =>
         set((s) => {
           const cur = s.actsRevealed[stageId] ?? 1;
@@ -131,6 +141,8 @@ export const useWorkshopStore = create<WorkshopState>()(
           verdicts: {},
           analyses: {},
           images: {},
+          studentInfo: null,
+          achievementUnlocked: false,
           actsRevealed: {},
           sessionId: newSessionId(),
         }),
@@ -147,6 +159,8 @@ export const useWorkshopStore = create<WorkshopState>()(
         verdicts: s.verdicts,
         analyses: s.analyses,
         images: s.images,
+        studentInfo: s.studentInfo,
+        achievementUnlocked: s.achievementUnlocked,
         actsRevealed: s.actsRevealed,
       }),
       onRehydrateStorage: () => (state) => {

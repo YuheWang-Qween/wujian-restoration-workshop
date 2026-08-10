@@ -7,7 +7,7 @@ import { SECTIONS, STAGES } from '@/lib/workshop/content';
 import { isStageUnlocked, useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { ExhibitionHall } from '@/components/workshop/ExhibitionHall';
-import { ArrowRight, Check, Lock, LogOut } from 'lucide-react';
+import { ArrowRight, Award, Check, Lock, LogOut } from 'lucide-react';
 
 export default function WorkshopHall() {
   return (
@@ -20,7 +20,9 @@ export default function WorkshopHall() {
 function WorkshopHallInner() {
   const completed = useWorkshopStore((s) => s.completed);
   const hydrated = useWorkshopStore((s) => s.hydrated);
+  const achievementUnlocked = useWorkshopStore((s) => s.achievementUnlocked);
   const done = hydrated ? completed : [];
+  const allCompleted = done.length >= STAGES.length;
   const { user, signOut } = useAuth();
   const [excavation, exhibition] = SECTIONS;
 
@@ -270,6 +272,31 @@ function WorkshopHallInner() {
           );
         })}
         </div>
+
+        {/* 全环节完成后展示成就卡入口 */}
+        {allCompleted && (
+          <Link
+            href="/achievement"
+            className="group mt-8 flex items-center justify-between rounded-lg border-2 border-wj-cinnabar/30 bg-wj-surface p-5 transition-all duration-300 hover:border-wj-cinnabar/60 hover:shadow-[0_4px_8px_-2px_rgba(30,27,22,0.08),0_16px_40px_-16px_rgba(30,27,22,0.22)]"
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex size-12 items-center justify-center rounded-full bg-wj-cinnabar/10">
+                <Award className="size-6 text-wj-cinnabar" />
+              </div>
+              <div>
+                <div className="font-serif text-base font-semibold text-wj-ink">
+                  {achievementUnlocked ? '查看成就卡' : '解锁成就卡'}
+                </div>
+                <div className="mt-0.5 text-sm text-wj-muted">
+                  {achievementUnlocked
+                    ? '已完成全部环节，查看你的结业成就卡'
+                    : '已完成全部环节，填写学号姓名领取结业成就卡'}
+                </div>
+              </div>
+            </div>
+            <ArrowRight className="h-5 w-5 text-wj-cinnabar transition-all duration-200 group-hover:translate-x-1" />
+          </Link>
+        )}
       </section>
 
       <section
