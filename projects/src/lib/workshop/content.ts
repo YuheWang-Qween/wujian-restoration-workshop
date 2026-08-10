@@ -21,10 +21,22 @@ export interface WjFact {
   note?: string;
 }
 
-/** 小问的作答形式：缺省为文本作答（问答）；ordering 点选排序，choice 单选。 */
+export interface WjInputOption {
+  key: string;
+  text: string;
+}
+
+/**
+ * 小问的作答形式：缺省为文本作答（问答）。
+ * ordering 分层排序，choice 单选，multi 多选，judge 逐条判断正误，matching 左右匹配；
+ * choice/multi 的 withNote 为 true 时附一个补充说明框（理由/依据由它承载）。
+ */
 export type WjPartInput =
   | { type: 'ordering'; items: string[] }
-  | { type: 'choice'; options: { key: string; text: string }[] };
+  | { type: 'choice'; options: WjInputOption[]; withNote?: boolean }
+  | { type: 'multi'; options: WjInputOption[]; withNote?: boolean }
+  | { type: 'judge'; items: WjInputOption[] }
+  | { type: 'matching'; left: WjInputOption[]; right: WjInputOption[] };
 
 export interface WjPart {
   label: string;
@@ -38,6 +50,8 @@ export interface WjQuestion {
   kind: string;
   stem: string;
   table?: WjTable;
+  /** 整题级作答形式：仅 parts 为空时使用（如 1-q2 判断题），与小问级 input 二选一。 */
+  input?: WjPartInput;
   parts: WjPart[];
 }
 
@@ -164,15 +178,15 @@ export const STAGES: WjStage[] = [
       {
         id: 'q2',
         kind: '判断题',
-        stem: '以下是关于走马楼揭取环节的五条陈述，请逐条判断正误。判断为「错误」的，请写出正确表述；判断为「正确」的，请补充说明它对后续工序意味着什么。',
-        table: {
-          head: ['序号', '陈述', '正 / 误'],
-          rows: [
-            ['①', '简牍层位关系的破坏，全部是 1996 年施工机械造成的', ''],
-            ['②', '揭剥号（如 30-27-38）记录的是简牍在井中的空间位置信息', ''],
-            ['③', '2480 枚大木简都配有完整的揭剥图', ''],
-            ['④', '揭取时使用温水升温，是为了杀灭简牍表面的微生物', ''],
-            ['⑤', '揭取的最大困难是简牍太脆，一碰就碎', ''],
+        stem: '以下是关于走马楼揭取环节的五条陈述，请逐条判断正误。判断为「错误」的，请在说明中写出正确表述；判断为「正确」的，请补充说明它对后续工序意味着什么。',
+        input: {
+          type: 'judge',
+          items: [
+            { key: '①', text: '简牍层位关系的破坏，全部是 1996 年施工机械造成的' },
+            { key: '②', text: '揭剥号（如 30-27-38）记录的是简牍在井中的空间位置信息' },
+            { key: '③', text: '2480 枚大木简都配有完整的揭剥图' },
+            { key: '④', text: '揭取时使用温水升温，是为了杀灭简牍表面的微生物' },
+            { key: '⑤', text: '揭取的最大困难是简牍太脆，一碰就碎' },
           ],
         },
         parts: [],
@@ -375,7 +389,18 @@ export const STAGES: WjStage[] = [
           },
           {
             label: 'b',
-            text: '假设漂移已经发生、一盒 40 枚简的编号已经混乱。请设计两种补救方案，并分别说明其可行性和局限性。（提示：考虑脱色前是否留有影像资料、简牍的尺寸/形制是否有个体差异、字迹内容能否辅助识别。）',
+            text: '假设漂移已经发生、一盒 40 枚简的编号已经混乱。以下哪些路径可能用于补救识别？请选出所有可行项，并在补充说明中分别说明其可行性与局限性。',
+            tag: '多选',
+            input: {
+              type: 'multi',
+              withNote: true,
+              options: [
+                { key: 'A', text: '用脱色前留存的逐枚影像，比对残缺轮廓、断口与编绳孔位' },
+                { key: 'B', text: '测量尺寸与形制（长宽厚、断茬），按个体差异比对' },
+                { key: 'C', text: '释读字迹内容，按同册文书的连读关系复原归属' },
+                { key: 'D', text: '逐枚称重量，按重量记录回查身份' },
+              ],
+            },
           },
           {
             label: 'c',
@@ -449,9 +474,33 @@ export const STAGES: WjStage[] = [
         parts: [
           {
             label: 'a',
-            text: '根据「提高浓度后稳定有效」这一事实，上述四条中哪一条可以被直接排除？请写出推理链条：为什么这个事实与该假设不相容？',
+            text: '根据「提高浓度后稳定有效」这一事实，上述四条中哪一条可以被直接排除？请在补充说明中写出推理链条：为什么这个事实与该假设不相容？',
+            tag: '单选',
+            input: {
+              type: 'choice',
+              withNote: true,
+              options: [
+                { key: '①', text: '简体高含水率稀释了药剂，实际作用浓度低于标称值' },
+                { key: '②', text: '药剂在水中自身分解失效' },
+                { key: '③', text: '细菌代谢物中和了药效' },
+                { key: '④', text: '细菌产生了抗药性' },
+              ],
+            },
           },
-          { label: 'b', text: '剩余三条中，哪些无法仅凭这一个事实互相区分？请说明它们在现象层面为什么表现一致。' },
+          {
+            label: 'b',
+            text: '剩余三条中，哪些无法仅凭这一个事实互相区分？请全选，并在补充说明中解释它们在现象层面为什么表现一致。',
+            tag: '多选',
+            input: {
+              type: 'multi',
+              withNote: true,
+              options: [
+                { key: '①', text: '简体高含水率稀释药剂' },
+                { key: '③', text: '细菌代谢物中和药效' },
+                { key: '④', text: '细菌产生抗药性' },
+              ],
+            },
+          },
           {
             label: 'c',
             text: '请为剩余的每一条原因各设计一个能将其单独验证的对照实验。要求写明：实验组、对照组、控制变量、判读指标。',
@@ -463,7 +512,20 @@ export const STAGES: WjStage[] = [
         kind: '多维决策题',
         stem: '依据上方「四种候选药剂的实验数据」表回答。',
         parts: [
-          { label: 'a', text: '如果只看抑菌性能和对竹简的安全性两项，应该选哪一种药剂？' },
+          {
+            label: 'a',
+            text: '如果只看抑菌性能和对竹简的安全性两项，应该选哪一种药剂？',
+            tag: '单选',
+            input: {
+              type: 'choice',
+              options: [
+                { key: 'A', text: '异噻唑啉酮' },
+                { key: 'B', text: '霉敌' },
+                { key: 'C', text: '硫酸铜' },
+                { key: 'D', text: '新洁尔灭' },
+              ],
+            },
+          },
           { label: 'b', text: '报告实际选择的是新洁尔灭。请指出（a）中你所选药剂的决定性落选理由。' },
           {
             label: 'c',
@@ -482,8 +544,9 @@ export const STAGES: WjStage[] = [
         parts: [
           {
             label: 'a',
-            text: '【排序】假设一批竹简同时出现上述三种形态，请按处理优先级从高到低排序，并说明每一位次的排序依据。',
+            text: '假设一批竹简同时出现上述三种形态，请按处理优先级从高到低排序，并在补充说明中给出每一位次的排序依据。',
             tag: '排序',
+            input: { type: 'ordering', items: ['白斑', '黏液', '软腐'] },
           },
           {
             label: 'b',
@@ -554,7 +617,20 @@ export const STAGES: WjStage[] = [
           ],
         },
         parts: [
-          { label: 'a', text: '哪个试剂脱色效果最好？判断依据是哪个指标？' },
+          {
+            label: 'a',
+            text: '哪个试剂脱色效果最好？请在补充说明中写出你依据的指标。',
+            tag: '单选',
+            input: {
+              type: 'choice',
+              withNote: true,
+              options: [
+                { key: 'A', text: '草酸' },
+                { key: 'B', text: '连二亚硫酸钠' },
+                { key: 'C', text: '双氧水' },
+              ],
+            },
+          },
           {
             label: 'b',
             text: '三个试剂的脱色速率有何差异？请分别从「30min 的初始值」和「24h 相对 30min 的降幅」两个角度分析，并指出：哪个试剂是「快而彻底」，哪个是「慢而持续」？',
@@ -597,7 +673,23 @@ export const STAGES: WjStage[] = [
         kind: '决策题',
         stem: '有一枚颜色特别深的竹简，又宽又厚，材质为刚竹。按标准流程处理后，字迹仍然模糊不清。标准流程 = 1% EDTA 二钠浸泡 24 小时 → 1% 连二亚硫酸钠，保温 45～50℃，作用 20～40 分钟。你有三个调整选项：A. 提高 EDTA 二钠浓度（至 2%）并延长浸泡时间（至 72 小时）；B. 提高连二亚硫酸钠浓度（加倍至 2%）；C. 延长连二亚硫酸钠的保温脱色时间（至 60 分钟）。',
         parts: [
-          { label: 'a', text: '这三个选项各针对哪一条变色路径？请对应填写。' },
+          {
+            label: 'a',
+            text: '这三个选项各针对哪一条变色路径？请逐项匹配。',
+            tag: '匹配',
+            input: {
+              type: 'matching',
+              left: [
+                { key: 'A', text: '提高 EDTA 二钠浓度并延长浸泡' },
+                { key: 'B', text: '提高连二亚硫酸钠浓度' },
+                { key: 'C', text: '延长连二亚硫酸钠保温时间' },
+              ],
+              right: [
+                { key: '①', text: '有机路径（醌类 ↔ 酚类）' },
+                { key: '②', text: '无机路径（Fe³⁺ 络合）' },
+              ],
+            },
+          },
           {
             label: 'b',
             text: '在动手之前，你需要先判断这枚简「颜色深」的主导原因是有机发色团过多，还是铁离子含量过高。有什么办法可以在不破坏简体的前提下做出这个判断？（提示：回顾报告中用到的 EDS、XRF、AAS 三种元素定量分析方法，它们的取样破坏性各不相同。）',
@@ -669,12 +761,31 @@ export const STAGES: WjStage[] = [
           },
           {
             label: 'c',
-            text: '【判断】假设有一种填充材料能把宽度收缩率降到 5%，但长度收缩率仍有 15%。这个材料可以接受吗？请结合报告给出的脱水指标（「收缩率应在 5% 之内，最好能达到 3% 之内」）说明理由。',
+            text: '假设有一种填充材料能把宽度收缩率降到 5%，但长度收缩率仍有 15%。这个材料可以接受吗？请结合报告给出的脱水指标（「收缩率应在 5% 之内，最好能达到 3% 之内」）在补充说明中说明理由。',
             tag: '判断',
+            input: {
+              type: 'choice',
+              withNote: true,
+              options: [
+                { key: 'A', text: '可以接受' },
+                { key: 'B', text: '不可以接受' },
+              ],
+            },
           },
           {
             label: 'd',
-            text: '走马楼的大木简（杉木质地）可以直接自然干燥、无须填充，而竹简绝对不可以。请指出造成这个差异的两个关键因素。',
+            text: '走马楼的大木简（杉木质地）可以直接自然干燥、无须填充，而竹简绝对不可以。请选出造成这个差异的两个关键因素，并在补充说明中解释。',
+            tag: '多选',
+            input: {
+              type: 'multi',
+              withNote: true,
+              options: [
+                { key: 'A', text: '材质种类不同（杉木与竹的细胞结构不同）' },
+                { key: 'B', text: '腐朽降解程度不同（竹简纤维素结晶度已大幅下降）' },
+                { key: 'C', text: '简的厚度不同' },
+                { key: 'D', text: '埋藏深度不同' },
+              ],
+            },
           },
         ],
       },
@@ -733,8 +844,17 @@ export const STAGES: WjStage[] = [
           },
           {
             label: 'd',
-            text: '【排序】请将以下四个操作按正确的先后顺序排列，并指出如果任意两步颠倒会发生什么：① 用三氯乙烯或乙醇清除简面残留的十六醇；② 100% 十六醇、58℃、浸泡 3 小时；③ 用 504 环氧胶粘接断为数截的简；④ 取出后自然干燥。',
+            text: '请将以下四个操作按正确的先后顺序排列，并在补充说明中指出：如果任意两步颠倒会发生什么。',
             tag: '排序',
+            input: {
+              type: 'ordering',
+              items: [
+                '① 用三氯乙烯或乙醇清除简面残留的十六醇',
+                '② 100% 十六醇、58℃、浸泡 3 小时',
+                '③ 用 504 环氧胶粘接断为数截的简',
+                '④ 取出后自然干燥',
+              ],
+            },
           },
         ],
       },

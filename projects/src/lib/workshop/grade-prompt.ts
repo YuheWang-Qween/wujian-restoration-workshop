@@ -6,6 +6,7 @@
 import 'server-only';
 
 import { STAGES, type WjPart, type WjQuestion, type WjStage, type WjTable } from './content';
+import { describeInput } from './prompt';
 import { getRubric } from './rubrics';
 
 /** 判定三态，与 prompt.ts 教学协议口径一致 */
@@ -39,12 +40,7 @@ function resolveQuestion(
   if (q.parts?.length) {
     part = q.parts.find((p) => p.label === partLabel) ?? null;
     if (!part) return null;
-    const inputDesc =
-      part.input?.type === 'choice'
-        ? `\n选项：${part.input.options.map((o) => `${o.key}. ${o.text}`).join('；')}`
-        : part.input?.type === 'ordering'
-          ? `\n待排单位：${part.input.items.join('、')}`
-          : '';
+    const inputDesc = part.input ? `\n${describeInput(part.input)}` : '';
     partPrompt = `(${part.label}) ${part.text}${inputDesc}`;
   } else if (partLabel) {
     return null;
@@ -54,6 +50,7 @@ function resolveQuestion(
     `【题目 ${questionId}】${q.kind}`,
     q.stem,
     ...(q.table ? [renderTable(q.table)] : []),
+    ...(q.input ? [describeInput(q.input)] : []),
     ...(partPrompt ? [`本题小问：${partPrompt}`] : []),
   ].join('\n');
 
@@ -80,7 +77,7 @@ export function buildGradeUserMsg(
 
 ${qBlock}
 
-${scopeNote}【学生答案】（格式约定：「选择：X」为单选题所选项；「排序：甲 → 乙 → 丙、丁」为排序题的分层结果——「→」分隔层、左为先/上，「、」为同层并列（同层单位表示学生认为先后不确定）；「补充：」为学生的补充说明；其余为自由文本）
+${scopeNote}【学生答案】（格式约定：「选择：X」为单选所选项；「多选：A、C」为多选所选项；「排序：甲 → 乙 → 丙、丁」为排序题的分层结果——「→」分隔层、左为先/上，「、」为同层并列（同层单位表示学生认为先后不确定）；「判断：①正、②误」为逐条正误判断；「匹配：A→②」为左列项与右列项的对应；「补充：」「说明：」为学生附带的文字说明；其余为自由文本）
 ${answer}
 
 【评阅要点（只作你的判定依据，原样禁止透露给学生）】

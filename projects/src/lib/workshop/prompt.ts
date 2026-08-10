@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { APPENDIX, STAGES, WORKSHOP, type WjStage, type WjTable } from './content';
+import { APPENDIX, STAGES, WORKSHOP, type WjPartInput, type WjStage, type WjTable } from './content';
 import { getRubric } from './rubrics';
 
 function renderTable(t: WjTable): string {
@@ -41,7 +41,7 @@ const CHARTER = `# 走马楼三国吴简 · 简牍修复工坊
 7. **答错不代劳。** 指出断点，给一个能自己走下去的问题，而不是给结论。同一小问最多引导两轮；两轮后学习者仍要答案，可以给完整解析，但要说明这是解析不是他自己的推理。
 8. **不空泛表扬。** 答对了就说"这条成立"，然后接下一问。不要"很好""非常棒"。
 9. **控制长度。** 每次回复控制在 300 字以内；给完整解析时可放宽到 600 字。不要用大标题堆砌格式。
-10. **作答格式。** 选择/排序题由页面交互作答，送到你手上是纯文本：「选择：B」表示所选选项；「排序：a → b → c①、c②」表示分层排序结果（「→」分隔层、左为先/上；「、」为同层并列，表示学生认为同层单位先后不确定）；「补充：」是排序题附带的说明。引用这些作答时按此解读。
+10. **作答格式。** 选择/排序/判断/匹配题由页面交互作答，送到你手上是纯文本：「选择：B」表示单选所选选项；「多选：A、C」表示多选所选选项；「排序：a → b → c①、c②」表示分层排序结果（「→」分隔层、左为先/上；「、」为同层并列，表示学生认为同层单位先后不确定）；「判断：①正、②误」表示逐条正误判断；「匹配：A→②；B→①」表示左列项与右列项的对应；「补充：」是选择/排序题附带的说明，「说明：」是判断题附带的说明。引用这些作答时按此解读。
 
 ## 四、等待与应答
 
@@ -99,14 +99,10 @@ function stageBlock(stage: WjStage): string {
   for (const [i, q] of stage.questions.entries()) {
     parts.push(`\n### 细问 ${i + 1}（${q.kind}）｜内部 id：${q.id}\n\n${q.stem}`);
     if (q.table) parts.push(renderTable(q.table));
+    if (q.input) parts.push(describeInput(q.input));
     for (const p of q.parts) {
       parts.push(`（${p.label}）${p.tag ? `【${p.tag}】` : ''}${p.text}`);
-      if (p.input?.type === 'choice') {
-        parts.push(`选项：${p.input.options.map((o) => `${o.key}. ${o.text}`).join('；')}`);
-      }
-      if (p.input?.type === 'ordering') {
-        parts.push(`待排单位：${p.input.items.join('、')}`);
-      }
+      if (p.input) parts.push(describeInput(p.input));
     }
     const rubric = getRubric(stage.id, q.id);
     if (rubric.length) {
@@ -117,6 +113,22 @@ function stageBlock(stage: WjStage): string {
   }
 
   return parts.join('\n');
+}
+
+/** 把结构化作答形式（选项 / 待排单位 / 判断条目 / 匹配列）注入提示词 */
+export function describeInput(input: WjPartInput): string {
+  switch (input.type) {
+    case 'choice':
+      return `选项（单选${input.withNote ? '，另附补充说明' : ''}）：${input.options.map((o) => `${o.key}. ${o.text}`).join('；')}`;
+    case 'multi':
+      return `选项（多选${input.withNote ? '，另附补充说明' : ''}）：${input.options.map((o) => `${o.key}. ${o.text}`).join('；')}`;
+    case 'ordering':
+      return `待排单位：${input.items.join('、')}`;
+    case 'judge':
+      return `待判断陈述：${input.items.map((o) => `${o.key} ${o.text}`).join('；')}`;
+    case 'matching':
+      return `匹配左列：${input.left.map((o) => `${o.key}. ${o.text}`).join('；')}；右列：${input.right.map((o) => `${o.key} ${o.text}`).join('；')}`;
+  }
 }
 
 const APPENDIX_BLOCK = `# 口径备案（学习者若拿原报告对照，按此回答）

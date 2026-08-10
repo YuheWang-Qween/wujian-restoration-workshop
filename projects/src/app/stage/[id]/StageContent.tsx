@@ -683,7 +683,14 @@ interface AnswerBoxProps {
  * 非文本题的答案序列化为纯文本协议存入 answers，与文本题共用存储和判对错通道；
  * 协议格式已在 prompt.ts / grade-prompt.ts 的「格式约定」里同步给模型。
  *   排序题：「排序：a → b → c①、c②」（「→」分隔层、左为先/上，「、」为同层并列）+ 可选一行「补充：…」
- *   单选题：「选择：B」 */
+ *   单选题：「选择：B」+ 可选一行「补充：…」；多选题：「多选：A、C」+ 可选一行「补充：…」
+ *   判断题：「判断：①正、②误、③正」（逐条正误）+ 一行「说明：…」
+ *   匹配题：「匹配：A→②；B→①」（左项 key → 右项 key） */
+
+function parseNoteLine(raw: string, prefix: string): string {
+  const line = raw.split('\n').find((l) => l.startsWith(prefix));
+  return line ? line.slice(prefix.length).trim() : '';
+}
 
 function parseOrdering(raw: string): { layers: string[][]; note: string } {
   let layers: string[][] = [];
@@ -707,9 +714,41 @@ function parseOrdering(raw: string): { layers: string[][]; note: string } {
   return { layers, note };
 }
 
-function parseChoice(raw: string): string {
-  const line = raw.split('\n').find((l) => l.startsWith('选择：'));
-  return line ? line.slice(3).trim() : '';
+function parseChoice(raw: string): { selected: string; note: string } {
+  return { selected: parseNoteLine(raw, '选择：'), note: parseNoteLine(raw, '补充：') };
+}
+
+function parseMulti(raw: string): { selected: string[]; note: string } {
+  const line = parseNoteLine(raw, '多选：');
+  return {
+    selected: line ? line.split('、').map((s) => s.trim()).filter(Boolean) : [],
+    note: parseNoteLine(raw, '补充：'),
+  };
+}
+
+function parseJudge(raw: string): { verdicts: Record<string, '正' | '误'>; note: string } {
+  const verdicts: Record<string, '正' | '误'> = {};
+  const line = parseNoteLine(raw, '判断：');
+  if (line) {
+    for (const seg of line.split('、')) {
+      const key = seg.slice(0, 1);
+      const mark = seg.slice(1);
+      if (mark === '正' || mark === '误') verdicts[key] = mark;
+    }
+  }
+  return { verdicts, note: parseNoteLine(raw, '说明：') };
+}
+
+function parseMatching(raw: string): Record<string, string> {
+  const map: Record<string, string> = {};
+  const line = parseNoteLine(raw, '匹配：');
+  if (line) {
+    for (const seg of line.split('；')) {
+      const [left, right] = seg.split('→').map((s) => s.trim());
+      if (left && right) map[left] = right;
+    }
+  }
+  return map;
 }
 
 function OrderingInput({
@@ -869,48 +908,264 @@ function OrderingInput({
 
 function ChoiceInput({
   options,
+  withNote,
   value,
   onChange,
   disabled,
 }: {
   options: { key: string; text: string }[];
+  withNote?: boolean;
   value: string;
   onChange: (v: string) => void;
   disabled?: boolean;
 }) {
-  const selected = parseChoice(value);
+  const { selected, note } = parseChoice(value);
+  const commit = (nextSelected: string, nextNote: string) => {
+    const lines = nextSelected ? [`选择：${nextSelected}`] : [];
+    if (nextNote.trim()) lines.push(`补充：${nextNote.trim()}`);
+    onChange(lines.join('\n'));
+  };
   return (
-    <div className="space-y-1.5" role="radiogroup">
-      {options.map((o) => {
-        const active = selected === o.key;
-        return (
-          <button
-            key={o.key}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            disabled={disabled}
-            onClick={() => onChange(`选择：${o.key}`)}
-            className={`flex w-full items-start gap-2.5 rounded border px-3 py-2 text-left text-sm leading-6 transition-colors disabled:opacity-60 ${
-              active
-                ? 'border-wj-cinnabar/60 bg-wj-cinnabar/5 text-wj-ink'
-                : 'border-wj-line bg-wj-raised text-wj-ink2 hover:border-wj-dim'
-            }`}
-          >
-            <span
-              className={`mt-1 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border ${
-                active ? 'border-wj-cinnabar' : 'border-wj-line'
+    <div>
+      <div className="space-y-1.5" role="radiogroup">
+        {options.map((o) => {
+          const active = selected === o.key;
+          return (
+            <button
+              key={o.key}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              disabled={disabled}
+              onClick={() => commit(o.key, note)}
+              className={`flex w-full items-start gap-2.5 rounded border px-3 py-2 text-left text-sm leading-6 transition-colors disabled:opacity-60 ${
+                active
+                  ? 'border-wj-cinnabar/60 bg-wj-cinnabar/5 text-wj-ink'
+                  : 'border-wj-line bg-wj-raised text-wj-ink2 hover:border-wj-dim'
               }`}
             >
-              {active && <span className="h-1.5 w-1.5 rounded-full bg-wj-cinnabar" />}
-            </span>
-            <span>
-              <span className="font-mono">{o.key}.</span> {o.text}
-            </span>
-          </button>
-        );
-      })}
+              <span
+                className={`mt-1 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border ${
+                  active ? 'border-wj-cinnabar' : 'border-wj-line'
+                }`}
+              >
+                {active && <span className="h-1.5 w-1.5 rounded-full bg-wj-cinnabar" />}
+              </span>
+              <span>
+                <span className="font-mono">{o.key}.</span> {o.text}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      {withNote && (
+        <textarea
+          value={note}
+          disabled={disabled}
+          rows={2}
+          onChange={(e) => commit(selected, e.target.value)}
+          placeholder="理由 / 依据写在这里"
+          className="wj-scrollbar mt-2 w-full resize-y rounded border border-wj-border bg-wj-raised px-3 py-2 text-sm leading-6 text-wj-ink placeholder:text-wj-dim focus:border-wj-cinnabar/60 focus:outline-none disabled:opacity-60"
+        />
+      )}
     </div>
+  );
+}
+
+function MultiInput({
+  options,
+  withNote,
+  value,
+  onChange,
+  disabled,
+}: {
+  options: { key: string; text: string }[];
+  withNote?: boolean;
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) {
+  const { selected, note } = parseMulti(value);
+  const commit = (nextSelected: string[], nextNote: string) => {
+    // 按选项定义顺序序列化，与点选先后无关
+    const ordered = options.map((o) => o.key).filter((k) => nextSelected.includes(k));
+    const lines = ordered.length ? [`多选：${ordered.join('、')}`] : [];
+    if (nextNote.trim()) lines.push(`补充：${nextNote.trim()}`);
+    onChange(lines.join('\n'));
+  };
+  const toggle = (key: string) =>
+    commit(selected.includes(key) ? selected.filter((k) => k !== key) : [...selected, key], note);
+  return (
+    <div>
+      <div className="space-y-1.5">
+        {options.map((o) => {
+          const active = selected.includes(o.key);
+          return (
+            <button
+              key={o.key}
+              type="button"
+              role="checkbox"
+              aria-checked={active}
+              disabled={disabled}
+              onClick={() => toggle(o.key)}
+              className={`flex w-full items-start gap-2.5 rounded border px-3 py-2 text-left text-sm leading-6 transition-colors disabled:opacity-60 ${
+                active
+                  ? 'border-wj-cinnabar/60 bg-wj-cinnabar/5 text-wj-ink'
+                  : 'border-wj-line bg-wj-raised text-wj-ink2 hover:border-wj-dim'
+              }`}
+            >
+              <span
+                className={`mt-1 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm border ${
+                  active ? 'border-wj-cinnabar' : 'border-wj-line'
+                }`}
+              >
+                {active && <Check className="h-2.5 w-2.5 text-wj-cinnabar" />}
+              </span>
+              <span>
+                <span className="font-mono">{o.key}.</span> {o.text}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      {withNote && (
+        <textarea
+          value={note}
+          disabled={disabled}
+          rows={2}
+          onChange={(e) => commit(selected, e.target.value)}
+          placeholder="逐项的可行性 / 理由写在这里"
+          className="wj-scrollbar mt-2 w-full resize-y rounded border border-wj-border bg-wj-raised px-3 py-2 text-sm leading-6 text-wj-ink placeholder:text-wj-dim focus:border-wj-cinnabar/60 focus:outline-none disabled:opacity-60"
+        />
+      )}
+    </div>
+  );
+}
+
+function JudgeInput({
+  items,
+  value,
+  onChange,
+  disabled,
+}: {
+  items: { key: string; text: string }[];
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) {
+  const { verdicts, note } = parseJudge(value);
+  const commit = (nextVerdicts: Record<string, '正' | '误'>, nextNote: string) => {
+    const judged = items.filter((i) => nextVerdicts[i.key]);
+    const lines = judged.length
+      ? [`判断：${judged.map((i) => `${i.key}${nextVerdicts[i.key]}`).join('、')}`]
+      : [];
+    if (nextNote.trim()) lines.push(`说明：${nextNote.trim()}`);
+    onChange(lines.join('\n'));
+  };
+  return (
+    <div>
+      <ul className="space-y-1.5">
+        {items.map((item) => {
+          const current = verdicts[item.key];
+          return (
+            <li
+              key={item.key}
+              className="flex items-start gap-2 rounded border border-wj-line bg-wj-raised px-3 py-2"
+            >
+              <span className="flex-1 text-sm leading-6 text-wj-ink">
+                <span className="font-mono">{item.key}</span> {item.text}
+              </span>
+              <span className="mt-0.5 flex shrink-0 gap-1">
+                {(['正', '误'] as const).map((mark) => {
+                  const active = current === mark;
+                  return (
+                    <button
+                      key={mark}
+                      type="button"
+                      aria-pressed={active}
+                      disabled={disabled}
+                      onClick={() => commit({ ...verdicts, [item.key]: mark }, note)}
+                      className={`rounded border px-2 py-0.5 text-xs transition-colors disabled:opacity-60 ${
+                        active
+                          ? mark === '正'
+                            ? 'border-wj-bamboo/60 bg-wj-bamboo/10 text-wj-bamboo'
+                            : 'border-wj-cinnabar/60 bg-wj-cinnabar/10 text-wj-cinnabar'
+                          : 'border-wj-line text-wj-dim hover:border-wj-dim hover:text-wj-ink2'
+                      }`}
+                    >
+                      {mark}
+                    </button>
+                  );
+                })}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+      <textarea
+        value={note}
+        disabled={disabled}
+        rows={3}
+        onChange={(e) => commit(verdicts, e.target.value)}
+        placeholder="说明：判「误」的写出正确表述，判「正」的补充它对后续工序意味着什么"
+        className="wj-scrollbar mt-2 w-full resize-y rounded border border-wj-border bg-wj-raised px-3 py-2 text-sm leading-6 text-wj-ink placeholder:text-wj-dim focus:border-wj-cinnabar/60 focus:outline-none disabled:opacity-60"
+      />
+    </div>
+  );
+}
+
+function MatchingInput({
+  left,
+  right,
+  value,
+  onChange,
+  disabled,
+}: {
+  left: { key: string; text: string }[];
+  right: { key: string; text: string }[];
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) {
+  const map = parseMatching(value);
+  const commit = (next: Record<string, string>) => {
+    const pairs = left.filter((l) => next[l.key]).map((l) => `${l.key}→${next[l.key]}`);
+    onChange(pairs.length ? `匹配：${pairs.join('；')}` : '');
+  };
+  return (
+    <ul className="space-y-1.5">
+      {left.map((l) => (
+        <li
+          key={l.key}
+          className="flex flex-wrap items-center gap-2 rounded border border-wj-line bg-wj-raised px-3 py-2"
+        >
+          <span className="min-w-40 flex-1 text-sm leading-6 text-wj-ink">
+            <span className="font-mono">{l.key}.</span> {l.text}
+          </span>
+          <span className="flex shrink-0 gap-1.5">
+            {right.map((r) => {
+              const active = map[l.key] === r.key;
+              return (
+                <button
+                  key={r.key}
+                  type="button"
+                  aria-pressed={active}
+                  disabled={disabled}
+                  onClick={() => commit({ ...map, [l.key]: r.key })}
+                  className={`rounded border px-2 py-1 text-xs leading-5 transition-colors disabled:opacity-60 ${
+                    active
+                      ? 'border-wj-cinnabar/60 bg-wj-cinnabar/10 text-wj-cinnabar'
+                      : 'border-wj-line text-wj-dim hover:border-wj-dim hover:text-wj-ink2'
+                  }`}
+                >
+                  {r.key} {r.text}
+                </button>
+              );
+            })}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -989,14 +1244,30 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
     setGradeError(null);
   };
 
-  // 结构化作答（排序 / 单选）也序列化为文本协议走同一存储
-  const input = part?.input;
+  // 结构化作答（排序 / 单选 / 多选 / 判断 / 匹配）也序列化为文本协议走同一存储；
+  // 小问级 input 优先，无小问的题（如 1-q2 判断题）用整题级 input
+  const input = part?.input ?? question.input;
   const canGrade = (() => {
     if (input?.type === 'ordering') {
       const { layers, note } = parseOrdering(value);
       return layers.length > 0 || note.trim().length > 0;
     }
-    if (input?.type === 'choice') return parseChoice(value).length > 0;
+    if (input?.type === 'choice') {
+      const { selected, note } = parseChoice(value);
+      return !!selected && (!input.withNote || note.trim().length > 0);
+    }
+    if (input?.type === 'multi') {
+      const { selected, note } = parseMulti(value);
+      return selected.length > 0 && (!input.withNote || note.trim().length > 0);
+    }
+    if (input?.type === 'judge') {
+      const { verdicts, note } = parseJudge(value);
+      return input.items.every((i) => verdicts[i.key]) && note.trim().length > 0;
+    }
+    if (input?.type === 'matching') {
+      const map = parseMatching(value);
+      return input.left.every((l) => map[l.key]);
+    }
     return value.trim().length > 0;
   })();
 
@@ -1166,7 +1437,19 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
         </div>
       ) : input?.type === 'choice' ? (
         <div className="mt-2">
-          <ChoiceInput options={input.options} value={value} onChange={commitAnswer} disabled={grading || isSubmitted} />
+          <ChoiceInput options={input.options} withNote={input.withNote} value={value} onChange={commitAnswer} disabled={grading || isSubmitted} />
+        </div>
+      ) : input?.type === 'multi' ? (
+        <div className="mt-2">
+          <MultiInput options={input.options} withNote={input.withNote} value={value} onChange={commitAnswer} disabled={grading || isSubmitted} />
+        </div>
+      ) : input?.type === 'judge' ? (
+        <div className="mt-2">
+          <JudgeInput items={input.items} value={value} onChange={commitAnswer} disabled={grading || isSubmitted} />
+        </div>
+      ) : input?.type === 'matching' ? (
+        <div className="mt-2">
+          <MatchingInput left={input.left} right={input.right} value={value} onChange={commitAnswer} disabled={grading || isSubmitted} />
         </div>
       ) : (
         <textarea
