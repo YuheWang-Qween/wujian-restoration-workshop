@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { toPng } from 'html-to-image';
 import { STAGES } from '@/lib/workshop/content';
 import { useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
-import { ArrowLeft, Award, BadgeCheck, Check } from 'lucide-react';
+import { ArrowLeft, Award, BadgeCheck, Check, Download } from 'lucide-react';
 
 const TOTAL_STAGES = STAGES.length;
 
@@ -21,6 +22,8 @@ export default function AchievementPage() {
   const [studentId, setStudentId] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  const [downloading, setDownloading] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const allDone = hydrated && completed.length >= TOTAL_STAGES;
 
@@ -181,6 +184,26 @@ export default function AchievementPage() {
   const today = new Date();
   const dateStr = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
 
+  const handleDownload = async () => {
+    if (!cardRef.current) return;
+    setDownloading(true);
+    try {
+      const dataUrl = await toPng(cardRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: '#f5f0e6',
+      });
+      const link = document.createElement('a');
+      link.download = `成就卡-${studentInfo?.studentId}-${studentInfo?.name}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch {
+      setError('图片生成失败，请重试');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <main className="relative min-h-dvh">
       <div aria-hidden style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
@@ -189,7 +212,7 @@ export default function AchievementPage() {
 
       <div className="relative z-10 mx-auto max-w-2xl px-4 py-12 sm:px-6">
         {/* 成就卡主体 */}
-        <div className="relative overflow-hidden rounded-lg border-2 border-wj-cinnabar/40 bg-wj-surface shadow-[0_8px_40px_-12px_rgba(30,27,22,0.25)]">
+        <div ref={cardRef} className="relative overflow-hidden rounded-lg border-2 border-wj-cinnabar/40 bg-wj-surface shadow-[0_8px_40px_-12px_rgba(30,27,22,0.25)]">
           {/* 朱砂印章角标 */}
           <div className="absolute right-5 top-5 z-10">
             <div className="flex size-14 flex-col items-center justify-center rounded bg-wj-cinnabar text-wj-cinnabar-ink shadow-sm">
@@ -284,10 +307,12 @@ export default function AchievementPage() {
           </Link>
           <button
             type="button"
-            onClick={() => window.print()}
-            className="inline-flex h-9 items-center gap-2 rounded border border-wj-border px-4 text-sm text-wj-ink transition-colors hover:border-wj-cinnabar/60"
+            onClick={handleDownload}
+            disabled={downloading}
+            className="inline-flex h-9 items-center gap-2 rounded bg-wj-cinnabar px-4 text-sm font-medium text-wj-cinnabar-ink transition-colors hover:bg-wj-cinnabar/90 disabled:opacity-60"
           >
-            打印 / 保存
+            <Download className="h-4 w-4" />
+            {downloading ? '生成中…' : '下载图片'}
           </button>
         </div>
       </div>
