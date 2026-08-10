@@ -106,9 +106,7 @@ export function StageContent() {
     );
   }
 
-  const prev = STAGES.find((s) => s.id === stage.id - 1);
   const next = STAGES.find((s) => s.id === stage.id + 1);
-  const nextUnlocked = next ? isStageUnlocked(next.id, completed) : false;
 
   // 一节一屏：同屏只出现当前这一节，上一节随切换离场；当前节序号存本机，刷新回到已读位置。
   // 节数口径统一走 content.stageActTitles，与 GuideChat / guide-lines 一致
@@ -349,8 +347,8 @@ export function StageContent() {
             </section>
             )}
 
-            {/* 一节一屏：第二节起底部左侧可回「上一节」；读到最后一节后这里换成环节间导航 */}
-            {nextAct ? (
+            {/* 一节一屏：第二节起底部左侧可回「上一节」 */}
+            {nextAct && (
               <div className="mt-8 flex items-stretch gap-3">
                 {prevAct && (
                   <button
@@ -377,62 +375,6 @@ export function StageContent() {
                   <ChevronDown className="h-4 w-4 text-wj-muted transition-transform duration-300 group-hover:translate-y-0.5 group-hover:text-wj-cinnabar" />
                 </button>
               </div>
-            ) : (
-            <div className="mt-8 flex items-center gap-3 border-t border-wj-line pt-5">
-              {prevAct && (
-                <button
-                  type="button"
-                  onClick={handlePrevAct}
-                  title={`回到「${prevAct.title}」`}
-                  className="group inline-flex h-9 shrink-0 items-center gap-1.5 rounded border border-wj-border px-3 text-sm text-wj-muted transition-colors hover:border-wj-cinnabar/60 hover:text-wj-ink"
-                >
-                  <ChevronUp className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5" />
-                  上一节
-                </button>
-              )}
-            <nav className="flex flex-1 items-center justify-between gap-3">
-              {prev ? (
-                <Link
-                  href={`/stage/${prev.id}`}
-                  className="inline-flex h-9 min-w-0 items-center gap-2 rounded border border-wj-border px-3 text-sm text-wj-ink transition-colors hover:border-wj-cinnabar/60"
-                >
-                  <ArrowLeft className="h-4 w-4 shrink-0" />
-                  <span className="truncate">
-                    {prev.ordinal}　{prev.name}
-                  </span>
-                </Link>
-              ) : (
-                <Link
-                  href="/"
-                  className="inline-flex h-9 items-center gap-2 rounded border border-wj-border px-3 text-sm text-wj-ink transition-colors hover:border-wj-cinnabar/60"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  返回工坊
-                </Link>
-              )}
-              {next &&
-                (nextUnlocked ? (
-                  <Link
-                    href={`/stage/${next.id}`}
-                    className="inline-flex h-9 min-w-0 items-center gap-2 rounded bg-wj-cinnabar px-3 text-sm font-medium text-wj-cinnabar-ink transition-colors hover:bg-wj-cinnabar/90"
-                  >
-                    <span className="truncate">
-                      {next.ordinal}　{next.name}
-                    </span>
-                    <ArrowRight className="h-4 w-4 shrink-0" />
-                  </Link>
-                ) : (
-                  <span
-                    aria-disabled="true"
-                    title="答完本环节最后一道细问后解锁"
-                    className="inline-flex h-9 min-w-0 cursor-not-allowed items-center gap-2 rounded border border-wj-line px-3 text-sm text-wj-dim"
-                  >
-                    <Lock className="h-4 w-4 shrink-0" />
-                    <span className="truncate">答完本环节后解锁</span>
-                  </span>
-                ))}
-            </nav>
-            </div>
             )}
           </div>
         </article>
