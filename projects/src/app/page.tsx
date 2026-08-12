@@ -7,7 +7,7 @@ import { SECTIONS, STAGES } from '@/lib/workshop/content';
 import { useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { ExhibitionHall } from '@/components/workshop/ExhibitionHall';
-import { ArrowRight, Award, Check, LogOut, RotateCcw } from 'lucide-react';
+import { ArrowRight, Award, Check, LogOut, Play, RotateCcw } from 'lucide-react';
 
 export default function WorkshopHall() {
   return (
@@ -164,6 +164,15 @@ function WorkshopHallInner() {
               {user && (
                 <span className="hidden text-xs text-wj-muted sm:inline">{user.email}</span>
               )}
+              <button
+                type="button"
+                onClick={() => window.__startDemo?.()}
+                className="flex items-center gap-1 rounded border border-wj-cinnabar/30 px-2.5 py-1.5 text-xs text-wj-cinnabar/80 transition-colors hover:border-wj-cinnabar hover:bg-wj-cinnabar/5 hover:text-wj-cinnabar"
+                title="演示模式"
+              >
+                <Play className="h-3.5 w-3.5" />
+                演示
+              </button>
               <button
                 type="button"
                 onClick={() => {

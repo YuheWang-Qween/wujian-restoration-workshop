@@ -4,6 +4,7 @@ import { SupabaseConfigProvider } from '@/lib/supabase-config-inject';
 import { AuthProvider } from '@/components/workshop/AuthProvider';
 import { ProgressSyncProvider } from '@/components/workshop/ProgressSyncProvider';
 import { GuideAvatarGate } from '@/components/workshop/GuideAvatarGate';
+import { DemoMode } from '@/components/workshop/DemoMode';
 
 export const metadata: Metadata = {
   title: {
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ProgressSyncProvider>
               {children}
               <GuideAvatarGate />
+              <DemoMode />
             </ProgressSyncProvider>
           </AuthProvider>
         </SupabaseConfigProvider>
