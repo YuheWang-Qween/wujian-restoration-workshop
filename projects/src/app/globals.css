@@ -247,6 +247,24 @@
   filter: drop-shadow(0 6px 14px color-mix(in oklab, var(--wj-ink) 28%, transparent));
 }
 
+/* 演示模式 Ken Burns 效果 */
+@keyframes demo-kb-zoom-in {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.15); }
+}
+@keyframes demo-kb-zoom-out {
+  0% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+@keyframes demo-kb-pan-right {
+  0% { transform: scale(1.1) translateX(0); }
+  100% { transform: scale(1.1) translateX(-3%); }
+}
+@keyframes demo-kb-pan-left {
+  0% { transform: scale(1.1) translateX(-3%); }
+  100% { transform: scale(1.1) translateX(0); }
+}
+
 /* 对话面板展开时正文让位：GuideAvatar 给 <html> 打 data-wj-chat-open 标，
    lg+ 视口下带本类的容器（环节页正文滚动区）右侧让出面板宽度
    （24rem，与 GuideChat 的 lg:w-96 一致），对话与阅读并排互不遮挡；
