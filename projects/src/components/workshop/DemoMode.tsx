@@ -74,6 +74,16 @@ const SCENES: DemoScene[] = [
     ],
   },
   {
+    title: '脱色 · 让墨迹重新可辨',
+    narration:
+      '简牍出水后几分钟就会变黑。脱色不是为好看，是让文字重新能读。连二亚硫酸钠法胜出。',
+    path: '/stage/5',
+    actions: [
+      { delay: 0, type: 'scroll', amount: 300 },
+      { delay: 3000, type: 'scroll', amount: 300 },
+    ],
+  },
+  {
     title: '脱水 · 含水率',
     narration:
       '简牍含水率高达471%，脱水就是给简找一个替身。最终选中十六醇，赢在颜色、收缩率和化学稳定性。',
