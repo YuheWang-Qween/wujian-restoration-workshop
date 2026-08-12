@@ -476,6 +476,16 @@ export function DemoMode() {
     return () => window.removeEventListener('keydown', onKey);
   }, [active, exitDemo, goNext, goPrev]);
 
+  // Add bottom padding to body when demo is active
+  useEffect(() => {
+    if (!active) return;
+    const prev = document.body.style.paddingBottom;
+    document.body.style.paddingBottom = '240px';
+    return () => {
+      document.body.style.paddingBottom = prev;
+    };
+  }, [active]);
+
   // Expose to global for the homepage button
   useEffect(() => {
     window.__startDemo = startDemo;
@@ -491,10 +501,6 @@ export function DemoMode() {
 
   return (
     <>
-      <div id="demo-mode" />
-      {/* Bottom padding to prevent content from being hidden behind the bar */}
-      <style>{`body:has(#demo-mode) { padding-bottom: 240px; }`}</style>
-
       {/* Image overlay for scenes using static screenshots */}
       {scene.image && (
         <div className="fixed inset-0 z-[9997] overflow-hidden">
