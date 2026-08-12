@@ -28,12 +28,7 @@ const SCENES: DemoScene[] = [
     narration:
       '欢迎来到走马楼三国吴简修复工坊。1996年，长沙走马楼古井出土十余万枚简牍。先登录你的账号，开始修复之旅。',
     image: '/demo-login.png',
-    actions: [
-      { delay: 500, type: 'highlight', rect: { x: '72%', y: '8%', w: '8%', h: '6%' } },
-      { delay: 3000, type: 'highlight', rect: { x: '67%', y: '28%', w: '28%', h: '8%' } },
-      { delay: 5000, type: 'highlight', rect: { x: '67%', y: '40%', w: '28%', h: '8%' } },
-      { delay: 7000, type: 'highlight', rect: { x: '67%', y: '52%', w: '28%', h: '7%' } },
-    ],
+    actions: [],
   },
   {
     title: '两个世界',
