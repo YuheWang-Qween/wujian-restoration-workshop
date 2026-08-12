@@ -126,7 +126,8 @@ const SCENES: DemoScene[] = [
     narration: '排序题。给你一组考古记录，排出正确的叠压层序。',
     path: '/stage/1',
     actions: [
-      { delay: 500, type: 'scroll', amount: 200 },
+      { delay: 800, type: 'click', selector: 'data:q-1' },
+      { delay: 1500, type: 'scroll', amount: 200 },
     ],
   },
   {
@@ -134,8 +135,8 @@ const SCENES: DemoScene[] = [
     narration: '判断题。逐条判断正误，错了要写出正确表述。',
     path: '/stage/1',
     actions: [
-      { delay: 500, type: 'scrollTo', selector: 'h2' },
-      { delay: 1000, type: 'scroll', amount: 600 },
+      { delay: 800, type: 'click', selector: 'data:q-2' },
+      { delay: 1500, type: 'scroll', amount: 200 },
     ],
   },
   {
@@ -143,7 +144,8 @@ const SCENES: DemoScene[] = [
     narration: '多选题。选出所有可行项，还要说明理由。',
     path: '/stage/3',
     actions: [
-      { delay: 500, type: 'scroll', amount: 400 },
+      { delay: 800, type: 'click', selector: 'data:q-3' },
+      { delay: 1500, type: 'scroll', amount: 200 },
     ],
   },
   {
@@ -151,7 +153,8 @@ const SCENES: DemoScene[] = [
     narration: '匹配题。把药剂和它作用的变色路径连起来。',
     path: '/stage/5',
     actions: [
-      { delay: 500, type: 'scroll', amount: 400 },
+      { delay: 800, type: 'click', selector: 'data:q-3' },
+      { delay: 1500, type: 'scroll', amount: 200 },
     ],
   },
   {
@@ -159,8 +162,8 @@ const SCENES: DemoScene[] = [
     narration: '画图题。画出简册卷起的横断面示意图。小简能看懂你画的图。',
     path: '/stage/1',
     actions: [
-      { delay: 500, type: 'scrollTo', selector: 'h2' },
-      { delay: 1000, type: 'scroll', amount: 1000 },
+      { delay: 800, type: 'click', selector: 'data:q-3' },
+      { delay: 1500, type: 'scroll', amount: 200 },
     ],
   },
   {

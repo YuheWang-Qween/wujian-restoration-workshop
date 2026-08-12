@@ -73,7 +73,8 @@ export function StageContent() {
   // 节数口径统一走 content.stageActTitles，与 GuideChat / guide-lines 一致
   const totalActs = stageActTitles(stage).length;
   const hasAct2 = totalActs === 3;
-  const revealed = Math.min(actsRevealedRaw, totalActs);
+  const isDemoStage = typeof window !== 'undefined' && (window as any).__DEMO_MODE__;
+  const revealed = isDemoStage ? totalActs : Math.min(actsRevealedRaw, totalActs);
   const nextAct =
     revealed >= totalActs
       ? null
@@ -380,6 +381,7 @@ function QuestionWizard({ stage, nextStage, isDone, allCompleted }: { stage: WjS
   const answered = stage.questions.map((_, i) => answeredBits[i] === '1');
   const total = stage.questions.length;
 
+  const isDemo = typeof window !== 'undefined' && (window as any).__DEMO_MODE__;
   const firstOpen = answered.indexOf(false);
   const [current, setCurrent] = useState(() => (firstOpen === -1 ? total - 1 : firstOpen));
 
@@ -403,7 +405,7 @@ function QuestionWizard({ stage, nextStage, isDone, allCompleted }: { stage: WjS
   const visibleParts = firstOpenPart === -1 ? q.parts.length : firstOpenPart + 1;
 
   // 顺序推进：第 i 题在 i===0 或前一题已答完时可进入
-  const canEnter = (i: number) => i === 0 || answered[i - 1];
+  const canEnter = (i: number) => isDemo || i === 0 || answered[i - 1];
 
   const goTo = (i: number) => {
     if (i < 0 || i >= total || !canEnter(i)) return;
@@ -426,6 +428,7 @@ function QuestionWizard({ stage, nextStage, isDone, allCompleted }: { stage: WjS
             <button
               key={question.id}
               type="button"
+              data-demo={`q-${i + 1}`}
               onClick={() => goTo(i)}
               disabled={!enterable || isCurrent}
               aria-current={isCurrent ? 'step' : undefined}
