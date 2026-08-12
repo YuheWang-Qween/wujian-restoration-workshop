@@ -231,7 +231,7 @@ export function DemoMode() {
 
   // Wait for an element to appear in the DOM (after page navigation)
   const waitForElement = useCallback(
-    (selector: string, timeout = 3000): Promise<HTMLElement | null> => {
+    (selector: string, timeout = 8000): Promise<HTMLElement | null> => {
       return new Promise((resolve) => {
         const find = () => {
           if (selector.startsWith('data:')) {
