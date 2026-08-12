@@ -27,7 +27,7 @@ export default function AchievementPage() {
   const [downloading, setDownloading] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const allDone = hydrated && completed.length >= TOTAL_STAGES;
+  const allDone = hydrated ? completed.length >= TOTAL_STAGES : false;
 
   // 如果已经填过，回填
   useEffect(() => {
@@ -61,14 +61,6 @@ export default function AchievementPage() {
     else if (v === '部分成立') verdictCounts.部分成立++;
     else if (v === '不成立') verdictCounts.不成立++;
   });
-
-  if (!hydrated) {
-    return (
-      <main className="flex min-h-dvh items-center justify-center">
-        <div className="text-sm text-wj-muted">加载中…</div>
-      </main>
-    );
-  }
 
   // 未完成全部环节
   if (!allDone) {

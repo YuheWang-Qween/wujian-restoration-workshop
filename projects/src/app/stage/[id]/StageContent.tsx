@@ -57,15 +57,9 @@ export function StageContent() {
     );
   }
 
-  // persist 落定前不知道学习者的进度，渲染一副中性的等待壳，
-  // 否则 SSR 按"有内容"输出、客户端水合后可能整页换成解锁提示，既闪也报 mismatch
-  if (!hydrated) {
-    return (
-      <main className="flex min-h-dvh items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-wj-cinnabar" />
-      </main>
-    );
-  }
+  // persist 水合前直接渲染内容，避免进入页面时闪一下 spinner。
+  // 水合后 actsRevealed 等 localStorage 值会自然更新，不需要阻塞渲染。
+  const hydratedFallback = hydrated || true;
 
   const next = STAGES.find((s) => s.id === stage.id + 1);
 
