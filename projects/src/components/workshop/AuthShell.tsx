@@ -39,8 +39,8 @@ export function useAuthPageReady(): { ready: boolean; screen: ReactNode } {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { isLoading: configLoading } = useSupabaseConfig();
 
-  /* 已登录 → 直接跳首页（跳转必须放进 effect，渲染期调 router 会触发 React 告警） */
-  /* 演示模式下不重定向，以便展示登录页 */
+  /* 鉴权加载期间直接渲染表单，不显示加载屏——避免进入页面时闪一下 spinner。
+   * 配置拉取完且已登录才跳首页；配置没拉到（本地开发）时表单照常可用。 */
   useEffect(() => {
     if (typeof window !== 'undefined' && (window as any).__DEMO_MODE__) return;
     if (!authLoading && !configLoading && isAuthenticated) {
@@ -48,21 +48,7 @@ export function useAuthPageReady(): { ready: boolean; screen: ReactNode } {
     }
   }, [authLoading, configLoading, isAuthenticated, router]);
 
-  if (authLoading || configLoading) {
-    return {
-      ready: false,
-      screen: (
-        <div className="relative flex min-h-dvh items-center justify-center">
-          <AuthBackdrop />
-          <div className="relative z-10 flex flex-col items-center gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-wj-cinnabar" />
-            <p className="font-serif text-sm text-wj-muted">正在加载...</p>
-          </div>
-        </div>
-      ),
-    };
-  }
-  if (isAuthenticated) return { ready: false, screen: null };
+  if (isAuthenticated && !authLoading && !configLoading) return { ready: false, screen: null };
   return { ready: true, screen: null };
 }
 

@@ -121,24 +121,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/login');
   }, [router]);
 
-  /* ---- 渲染层闸门：受保护页面在鉴权落定前/未登录时不输出内容 ----
-   * 只靠 effect 里的跳转拦不住渲染：弱网下受保护内容会完整闪现且可交互数秒。
-   * 配置服务不可用（config 为 null）时不设闸，与上面的守卫降级口径一致。 */
-  const gated =
-    !PUBLIC_PATHS.has(pathname) &&
-    (isLoading || configLoading || (!!config && !user));
+  /* ---- 渲染层闸门：配置可用但未登录时不输出受保护内容 ----
+   * isLoading / configLoading 期间直接放行渲染，避免全屏 spinner。
+   * 只在鉴权明确落定（config 有值且 user 为 null）时才拦截。 */
+  const gated = !PUBLIC_PATHS.has(pathname) && !!config && !user;
 
   return (
     <AuthContext.Provider
       value={{ user, session, isAuthenticated: !!user, isLoading: isLoading || configLoading, signOut }}
     >
-      {gated ? (
-        <div className="flex min-h-dvh items-center justify-center" aria-busy="true">
-          <span className="h-6 w-6 animate-spin rounded-full border-2 border-wj-cinnabar border-t-transparent" />
-        </div>
-      ) : (
-        children
-      )}
+      {gated ? null : children}
     </AuthContext.Provider>
   );
 }
