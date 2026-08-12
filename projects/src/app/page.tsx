@@ -165,16 +165,7 @@ function WorkshopHallInner() {
               {user && (
                 <span className="hidden text-xs text-wj-muted sm:inline">{user.email}</span>
               )}
-              <button
-                type="button"
-                onClick={() => window.__startDemo?.()}
-                data-demo="demo-btn"
-                className="flex items-center gap-1 rounded border border-wj-cinnabar/30 px-2.5 py-1.5 text-xs text-wj-cinnabar/80 transition-colors hover:border-wj-cinnabar hover:bg-wj-cinnabar/5 hover:text-wj-cinnabar"
-                title="演示模式"
-              >
-                <Play className="h-3.5 w-3.5" />
-                演示
-              </button>
+
               <button
                 type="button"
                 onClick={() => {
@@ -340,6 +331,21 @@ function WorkshopHallInner() {
       </section>
 
       </main>
+
+      <footer className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-6 sm:px-6">
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={() => window.__startDemo?.()}
+            data-demo="demo-btn"
+            className="flex items-center gap-1.5 rounded-full border border-wj-border/50 bg-wj-surface/60 px-4 py-1.5 text-xs text-wj-muted/70 transition-colors hover:border-wj-cinnabar/40 hover:text-wj-cinnabar"
+            title="演示模式"
+          >
+            <Play className="h-3 w-3" />
+            演示模式
+          </button>
+        </div>
+      </footer>
     </>
   );
 }
