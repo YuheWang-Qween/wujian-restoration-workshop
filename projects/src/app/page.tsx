@@ -7,7 +7,7 @@ import { SECTIONS, STAGES } from '@/lib/workshop/content';
 import { useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { ExhibitionHall } from '@/components/workshop/ExhibitionHall';
-import { ArrowRight, Award, Check, LogOut, RotateCcw, Video } from 'lucide-react';
+import { ArrowRight, Award, Check, LogOut, RotateCcw } from 'lucide-react';
 
 export default function WorkshopHall() {
   return (
@@ -293,27 +293,6 @@ function WorkshopHallInner() {
           );
         })}
         </div>
-
-        {/* 宣传视频入口 */}
-        <Link
-          href="/promo"
-          className="group mt-8 flex items-center justify-between rounded-lg border border-wj-border/70 bg-wj-surface p-5 transition-all duration-300 hover:border-wj-ochre/45 hover:shadow-[0_4px_8px_-2px_rgba(30,27,22,0.08),0_16px_40px_-16px_rgba(30,27,22,0.22)]"
-        >
-          <div className="flex items-center gap-4">
-            <div className="flex size-12 items-center justify-center rounded-full bg-wj-ochre/10">
-              <Video className="size-6 text-wj-ochre" />
-            </div>
-            <div>
-              <div className="font-serif text-base font-semibold text-wj-ink">
-                修复工坊宣传短片
-              </div>
-              <div className="mt-0.5 text-sm text-wj-muted">
-                发现 · 修复 · 传承——三段影像讲述千年简牍的重生之旅
-              </div>
-            </div>
-          </div>
-          <ArrowRight className="h-5 w-5 text-wj-ochre transition-all duration-200 group-hover:translate-x-1" />
-        </Link>
 
         {/* 全环节完成后展示成就卡入口 */}
         {allCompleted && (
