@@ -7,7 +7,7 @@ import { ExhibitionShell, FigureCard, SlipText } from '@/components/workshop/Exh
 import { DataTable } from '@/components/workshop/DataTable';
 
 /**
- * 简牍展示篇 · 案例精读页
+ * 简牍鉴赏篇 · 案例精读页
  *
  * 五个案例共用同一副骨架，按字段驱动顺序渲染：
  * 背景 → 释文 → 对照表 → 图版 → 程序链 → 解读 → 补记。
@@ -25,7 +25,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const c = getCase(Number(id));
-  return { title: c ? `${c.title} · 简牍展示` : '简牍展示' };
+  return { title: c ? `${c.title} · 简牍鉴赏` : '简牍鉴赏' };
 }
 
 export default async function CasePage({ params }: { params: Promise<{ id: string }> }) {

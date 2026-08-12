@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import { COLOPHON, EXH_NAV } from '@/lib/workshop/exhibition';
 
 /**
- * 简牍展示篇 · 展厅首页（大厅「简牍展示」页签内）
+ * 简牍鉴赏篇 · 展厅首页（大厅「简牍鉴赏」页签内）
  *
  * 只做索引：五个板块入口卡。板块内容各自独立成页
  * （/exhibition/discovery|forms|themes|cases|reference，案例精读 /exhibition/case/N），

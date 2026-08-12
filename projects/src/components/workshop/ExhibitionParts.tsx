@@ -94,7 +94,7 @@ export function ExhibitionShell({
             返回展厅
           </Link>
           <span className="font-serif text-xs tracking-wide text-wj-muted">
-            简牍展示 · {crumb}
+            简牍鉴赏 · {crumb}
           </span>
         </div>
       </header>

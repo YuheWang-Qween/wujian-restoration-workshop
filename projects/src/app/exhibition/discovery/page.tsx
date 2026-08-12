@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { DISCOVERY, EXH_NAV } from '@/lib/workshop/exhibition';
 import { BoardHeader, ExhibitionShell, FigureCard } from '@/components/workshop/ExhibitionParts';
 
-export const metadata: Metadata = { title: '发现与归属 · 简牍展示' };
+export const metadata: Metadata = { title: '发现与归属 · 简牍鉴赏' };
 
 export default function DiscoveryPage() {
   const board = EXH_NAV[0];

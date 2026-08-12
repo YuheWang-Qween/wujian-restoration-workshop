@@ -3,7 +3,7 @@ import { EXH_NAV, TERMS } from '@/lib/workshop/exhibition';
 import { BoardHeader, ExhibitionShell, SectionHeading } from '@/components/workshop/ExhibitionParts';
 import { TermsAccordion } from './TermsAccordion';
 
-export const metadata: Metadata = { title: '术语·出版·来源 · 简牍展示' };
+export const metadata: Metadata = { title: '术语·出版·来源 · 简牍鉴赏' };
 
 export default function ReferencePage() {
   const board = EXH_NAV[4];

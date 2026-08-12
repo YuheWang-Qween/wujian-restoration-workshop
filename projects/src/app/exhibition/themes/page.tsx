@@ -3,7 +3,7 @@ import { ADMIN_NOTE, EXH_NAV, THEMES } from '@/lib/workshop/exhibition';
 import { BoardHeader, ExhibitionShell } from '@/components/workshop/ExhibitionParts';
 import { ThemesAccordion } from './ThemesAccordion';
 
-export const metadata: Metadata = { title: '主题八类 · 简牍展示' };
+export const metadata: Metadata = { title: '主题八类 · 简牍鉴赏' };
 
 export default function ThemesPage() {
   const board = EXH_NAV[2];

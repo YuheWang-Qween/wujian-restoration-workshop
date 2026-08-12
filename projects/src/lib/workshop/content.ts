@@ -70,7 +70,7 @@ export interface WjStage {
 
 export const WORKSHOP = {
   title: '走马楼三国吴简 · 简牍修复工坊',
-  subtitle: '简牍发掘 · 简牍展示',
+  subtitle: '简牍发掘 · 简牍鉴赏',
   flow: ['揭取', '清洗', '绑夹与核对', '饱水保存', '脱色', '脱水'],
   source: '《长沙走马楼三国吴简的保护与整理》',
   intro: [
@@ -81,7 +81,7 @@ export const WORKSHOP = {
 
 /**
  * 工坊分两块，大厅顶部同排页签切换。
- * 「简牍发掘」即现有的六道修复工序；「简牍展示」目前只占位——
+ * 「简牍发掘」即现有的六道修复工序；「简牍鉴赏」目前只占位——
  * 环节划分与内容方案都还没有，这里不放任何未经报告核实的内容。
  */
 export interface WjSection {
@@ -101,7 +101,7 @@ export const SECTIONS: WjSection[] = [
   },
   {
     id: 'exhibition',
-    name: '简牍展示',
+    name: '简牍鉴赏',
     summary: '竹木上的孙吴王朝：形制六类、主题八类，与五枚代表简的精读。',
     status: 'ready',
   },

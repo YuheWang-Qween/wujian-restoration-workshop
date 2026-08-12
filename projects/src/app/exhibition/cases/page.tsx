@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import { CASES, EXH_NAV } from '@/lib/workshop/exhibition';
 import { BoardHeader, ExhibitionShell } from '@/components/workshop/ExhibitionParts';
 
-export const metadata: Metadata = { title: '案例精读 · 简牍展示' };
+export const metadata: Metadata = { title: '案例精读 · 简牍鉴赏' };
 
 export default function CasesPage() {
   const board = EXH_NAV[3];

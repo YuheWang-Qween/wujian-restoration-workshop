@@ -51,7 +51,7 @@ function WorkshopHallInner() {
     return { total, answered, verified };
   }
 
-  // 案例精读页回展厅时带 ?tab=exhibition，初始落回「简牍展示」页签
+  // 案例精读页回展厅时带 ?tab=exhibition，初始落回「简牍鉴赏」页签
   const searchParams = useSearchParams();
   const [active, setActive] = useState(() =>
     searchParams.get('tab') === exhibition.id ? exhibition.id : excavation.id,
