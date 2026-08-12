@@ -18,7 +18,7 @@ const SCENES: DemoScene[] = [
     narration:
       '1996年10月，长沙走马楼街，一台施工机械挖开了一口古井。井里涌出的不是泥土，而是十余万枚竹木简牍。它们在地下沉睡了一千七百多年，记录着一个我们从未如此近距离观察过的王朝：三国孙吴。这批简牍的总量，超过此前全国历年出土简牍的总和。',
     path: '/',
-    image: '/demo-images/scene-01-well.jpg',
+    image: '/demo-images/scene-01-well-real.png',
     kenBurns: 'zoom-in',
   },
   {
