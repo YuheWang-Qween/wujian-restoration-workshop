@@ -27,8 +27,8 @@ const SCENES: DemoScene[] = [
       '1996年，长沙走马楼，一口古井中出土了十余万枚三国孙吴简牍。这个工坊，带你亲历从井底到书桌的修复之旅。',
     path: '/',
     actions: [
-      { delay: 3000, type: 'scroll', amount: 300 },
-      { delay: 6000, type: 'scroll', amount: -300 },
+      { delay: 0, type: 'scroll', amount: 200 },
+      { delay: 4000, type: 'scroll', amount: -200 },
     ],
   },
   {
@@ -37,10 +37,10 @@ const SCENES: DemoScene[] = [
       '工坊有两个页签。鉴赏是展厅，浏览简牍的发现、形制与主题。发掘是工坊，六道工序按真实顺序排列。你来做修复。',
     path: '/',
     actions: [
-      { delay: 2000, type: 'click', selector: '#tab-exhibition' },
-      { delay: 4000, type: 'scroll', amount: 400 },
-      { delay: 7000, type: 'scroll', amount: -400 },
-      { delay: 9000, type: 'click', selector: '#tab-excavation' },
+      { delay: 0, type: 'click', selector: '#tab-exhibition' },
+      { delay: 3000, type: 'scroll', amount: 400 },
+      { delay: 6000, type: 'scroll', amount: -400 },
+      { delay: 8000, type: 'click', selector: '#tab-excavation' },
     ],
   },
   {
@@ -49,8 +49,8 @@ const SCENES: DemoScene[] = [
       '第一道工序，揭取。给你原始叠压数据，排出层序。合法答案不止一种，还要指出哪些关系无法确定。',
     path: '/stage/1',
     actions: [
-      { delay: 2500, type: 'scroll', amount: 350 },
-      { delay: 5000, type: 'scroll', amount: 350 },
+      { delay: 0, type: 'scroll', amount: 300 },
+      { delay: 3000, type: 'scroll', amount: 300 },
     ],
   },
   {
@@ -59,8 +59,8 @@ const SCENES: DemoScene[] = [
       '清洗环节。七万枚竹简，每枚四十到五十分钟。你来算需要多少工人、工期多长。',
     path: '/stage/2',
     actions: [
-      { delay: 2000, type: 'scroll', amount: 400 },
-      { delay: 5000, type: 'highlight', selector: 'main' },
+      { delay: 0, type: 'scroll', amount: 300 },
+      { delay: 3000, type: 'scroll', amount: 300 },
     ],
   },
   {
@@ -69,8 +69,8 @@ const SCENES: DemoScene[] = [
       '四种药剂都能保存，但有一列叫"对人的影响"——这一列才是真正的筛选维度。',
     path: '/stage/4',
     actions: [
-      { delay: 2000, type: 'scroll', amount: 400 },
-      { delay: 4000, type: 'scroll', amount: 300 },
+      { delay: 0, type: 'scroll', amount: 300 },
+      { delay: 3000, type: 'scroll', amount: 300 },
     ],
   },
   {
@@ -79,8 +79,8 @@ const SCENES: DemoScene[] = [
       '简牍含水率高达471%，脱水就是给简找一个替身。最终选中十六醇，赢在颜色、收缩率和化学稳定性。',
     path: '/stage/6',
     actions: [
-      { delay: 2000, type: 'scroll', amount: 400 },
-      { delay: 5000, type: 'scroll', amount: 300 },
+      { delay: 0, type: 'scroll', amount: 300 },
+      { delay: 3000, type: 'scroll', amount: 300 },
     ],
   },
   {
@@ -89,9 +89,8 @@ const SCENES: DemoScene[] = [
       '数字人小简全程陪伴。它知道你在哪一环节，能从知识库检索回答你的问题，还能实时评阅你的答案。',
     path: '/stage/1',
     actions: [
-      { delay: 2500, type: 'scroll', amount: -600 },
-      { delay: 4000, type: 'click', selector: '.wj-guide-float' },
-      { delay: 8000, type: 'click', selector: '.wj-guide-float' },
+      { delay: 1000, type: 'click', selector: '.wj-guide-float' },
+      { delay: 5000, type: 'click', selector: '.wj-guide-float' },
     ],
   },
   {
@@ -100,8 +99,8 @@ const SCENES: DemoScene[] = [
       '五种题型对应五种思维：排序、选择、判断、匹配，还有画图——小简甚至能看懂你画的图。',
     path: '/stage/2',
     actions: [
-      { delay: 2000, type: 'scroll', amount: 300 },
-      { delay: 4000, type: 'scroll', amount: 300 },
+      { delay: 0, type: 'scroll', amount: 300 },
+      { delay: 3000, type: 'scroll', amount: 300 },
     ],
   },
   {
@@ -110,9 +109,9 @@ const SCENES: DemoScene[] = [
       '作答自动保存，进度云端同步。每张卡片显示完成情况，一键重做。',
     path: '/',
     actions: [
-      { delay: 2000, type: 'scroll', amount: 250 },
-      { delay: 4000, type: 'highlight', selector: 'a[href="/stage/1"]' },
-      { delay: 6000, type: 'scroll', amount: -250 },
+      { delay: 500, type: 'scroll', amount: 200 },
+      { delay: 2000, type: 'highlight', selector: 'a[href="/stage/1"]' },
+      { delay: 4000, type: 'scroll', amount: -200 },
     ],
   },
   {
@@ -128,35 +127,11 @@ const SCENES: DemoScene[] = [
       '它把一份考古报告变成了一段旅程。每一步，都是你自己走的。',
     path: '/',
     actions: [
-      { delay: 2000, type: 'scroll', amount: 200 },
-      { delay: 5000, type: 'scroll', amount: -200 },
+      { delay: 0, type: 'scroll', amount: 150 },
+      { delay: 3000, type: 'scroll', amount: -150 },
     ],
   },
 ];
-
-function executeAction(action: DemoAction) {
-  if (action.type === 'scroll') {
-    window.scrollBy({ top: action.amount ?? 300, behavior: 'smooth' });
-  } else if (action.type === 'scrollTo' && action.selector) {
-    const el = document.querySelector(action.selector);
-    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  } else if (action.type === 'click' && action.selector) {
-    const el = document.querySelector(action.selector) as HTMLElement;
-    el?.click();
-  } else if (action.type === 'highlight' && action.selector) {
-    const el = document.querySelector(action.selector);
-    if (el) {
-      const rect = el.getBoundingClientRect();
-      const overlay = document.createElement('div');
-      overlay.style.cssText = `position:fixed;left:${rect.left - 6}px;top:${rect.top - 6}px;width:${rect.width + 12}px;height:${rect.height + 12}px;border:2px solid #a02828;border-radius:8px;pointer-events:none;z-index:9997;transition:opacity 0.3s;box-shadow:0 0 16px rgba(160,40,40,0.3);`;
-      document.body.appendChild(overlay);
-      setTimeout(() => {
-        overlay.style.opacity = '0';
-        setTimeout(() => overlay.remove(), 400);
-      }, 1500);
-    }
-  }
-}
 
 export function DemoMode() {
   const [active, setActive] = useState(false);
@@ -237,31 +212,73 @@ export function DemoMode() {
     [stopAudio, clearActionTimers],
   );
 
-  // Execute scene actions with timers
-  useEffect(() => {
-    if (!active) return;
-    const scene = SCENES[sceneIdx];
-    if (!scene.actions?.length) return;
-
-    clearActionTimers();
-    for (const action of scene.actions) {
-      const timer = setTimeout(() => {
-        executeAction(action);
-      }, action.delay);
-      actionTimersRef.current.push(timer);
-    }
-
-    return clearActionTimers;
-  }, [active, sceneIdx, clearActionTimers]);
-
   // Navigate to the scene's path when sceneIdx changes
   useEffect(() => {
     if (!active) return;
     const scene = SCENES[sceneIdx];
     if (scene.path) {
+      window.scrollTo(0, 0);
       router.push(scene.path);
     }
   }, [active, sceneIdx, router]);
+
+  // Wait for an element to appear in the DOM (after page navigation)
+  const waitForElement = useCallback(
+    (selector: string, timeout = 3000): Promise<HTMLElement | null> => {
+      return new Promise((resolve) => {
+        const el = document.querySelector(selector) as HTMLElement | null;
+        if (el) return resolve(el);
+        const start = Date.now();
+        const interval = setInterval(() => {
+          const el = document.querySelector(selector) as HTMLElement | null;
+          if (el) {
+            clearInterval(interval);
+            resolve(el);
+          } else if (Date.now() - start > timeout) {
+            clearInterval(interval);
+            resolve(null);
+          }
+        }, 100);
+      });
+    },
+    [],
+  );
+
+  // Execute scene actions — triggered AFTER audio starts playing
+  const startSceneActions = useCallback(
+    (scene: DemoScene) => {
+      clearActionTimers();
+      if (!scene.actions?.length) return;
+
+      for (const action of scene.actions) {
+        const timer = setTimeout(async () => {
+          if (action.type === 'click' && action.selector) {
+            const el = await waitForElement(action.selector);
+            el?.click();
+          } else if (action.type === 'highlight' && action.selector) {
+            const el = await waitForElement(action.selector);
+            if (el) {
+              const rect = el.getBoundingClientRect();
+              const overlay = document.createElement('div');
+              overlay.style.cssText = `position:fixed;left:${rect.left - 6}px;top:${rect.top - 6}px;width:${rect.width + 12}px;height:${rect.height + 12}px;border:2px solid #a02828;border-radius:8px;pointer-events:none;z-index:9997;transition:opacity 0.3s;box-shadow:0 0 16px rgba(160,40,40,0.3);`;
+              document.body.appendChild(overlay);
+              setTimeout(() => {
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 400);
+              }, 1500);
+            }
+          } else if (action.type === 'scrollTo' && action.selector) {
+            const el = await waitForElement(action.selector);
+            el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } else if (action.type === 'scroll') {
+            window.scrollBy({ top: action.amount ?? 300, behavior: 'smooth' });
+          }
+        }, action.delay);
+        actionTimersRef.current.push(timer);
+      }
+    },
+    [clearActionTimers, waitForElement],
+  );
 
   // Fetch and play audio for current scene
   useEffect(() => {
@@ -275,6 +292,7 @@ export function DemoMode() {
     const playAudio = async (uri: string, key: number) => {
       if (key !== currentAudioKeyRef.current) return;
       stopAudio();
+      clearActionTimers();
       const audio = new Audio(uri);
       audioRef.current = audio;
 
@@ -297,6 +315,8 @@ export function DemoMode() {
               setAudioError(true);
               setAudioLoading(false);
             });
+            // Start scene actions AFTER audio begins playing
+            startSceneActions(scene);
           }
         }
       };
@@ -323,6 +343,14 @@ export function DemoMode() {
           if (sceneIdx === currentAudioKeyRef.current) {
             setAudioError(true);
             setAudioLoading(false);
+            // Fallback: start actions without audio after 1s
+            setTimeout(() => startSceneActions(scene), 1000);
+            // Auto-advance after estimated narration time
+            const estimatedMs = Math.max(3000, scene.narration.length * 200);
+            const fallbackTimer = setTimeout(() => {
+              if (sceneIdx === currentAudioKeyRef.current) goNext();
+            }, estimatedMs);
+            actionTimersRef.current.push(fallbackTimer);
           }
         });
     }
@@ -330,7 +358,7 @@ export function DemoMode() {
     return () => {
       stopAudio();
     };
-  }, [active, sceneIdx, playing, goNext, stopAudio]);
+  }, [active, sceneIdx, playing, goNext, stopAudio, clearActionTimers, startSceneActions]);
 
   // Show narration text after a short delay
   useEffect(() => {
