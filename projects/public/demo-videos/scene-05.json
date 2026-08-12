@@ -1,0 +1,53 @@
+{
+  "id": "cgt-20260812163321-vdhrg",
+  "model": "doubao-seedance-1-5-pro-251215",
+  "status": "succeeded",
+  "content": {
+    "video_url": "https://coze-coding-project.tos.coze.site/coze_storage_7672099628447465535/video/video_generate_cgt-20260812163321-vdhrg.mp4?sign=1818059674-58f90c93ad-0-2df62172e36f93b2e025de0ccbbfc0b9038b42ec84df712af40bfad9b1c6a797",
+    "last_frame_url": "",
+    "file_url": ""
+  },
+  "usage": {
+    "prompt_tokens": 0,
+    "completion_tokens": 108900,
+    "total_tokens": 108900,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "frames": null,
+  "framespersecond": 24,
+  "resolution": "720p",
+  "ratio": "16:9",
+  "duration": 5,
+  "created_at": 1786523601,
+  "updated_at": 1786523670,
+  "seed": 96473,
+  "service_tier": "default",
+  "execution_expires_after": 172800,
+  "generate_audio": true,
+  "draft": false,
+  "HttpHeader": {
+    "Content-Type": [
+      "application/json; charset=utf-8"
+    ],
+    "Date": [
+      "Wed, 12 Aug 2026 08:34:33 GMT"
+    ],
+    "Server": [
+      "istio-envoy"
+    ],
+    "Vary": [
+      "Accept-Encoding"
+    ],
+    "X-Envoy-Upstream-Service-Time": [
+      "10"
+    ],
+    "X-Request-Id": [
+      "02178652367409438b4ca612c111379c83d27b4a8b1bb376e92cc"
+    ]
+  }
+}

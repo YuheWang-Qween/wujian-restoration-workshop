@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Play, Pause, SkipForward, SkipBack, X, Volume2, Loader2 } from 'lucide-react';
+import { DEMO_VIDEO_URLS } from '@/lib/workshop/demo-videos';
 
 interface DemoScene {
   title: string;
   narration: string;
   path?: string;
-  image?: string;
-  kenBurns?: 'zoom-in' | 'zoom-out' | 'pan-right' | 'pan-left';
+  video?: string;
 }
 
 const SCENES: DemoScene[] = [
@@ -18,48 +18,42 @@ const SCENES: DemoScene[] = [
     narration:
       '1996年10月，长沙走马楼街，一台施工机械挖开了一口古井。井里涌出的不是泥土，而是十余万枚竹木简牍。它们在地下沉睡了一千七百多年，记录着一个我们从未如此近距离观察过的王朝：三国孙吴。这批简牍的总量，超过此前全国历年出土简牍的总和。',
     path: '/',
-    image: '/demo-images/scene-01-well-real.png',
-    kenBurns: 'zoom-in',
+    video: 'scene-01',
   },
   {
     title: '两个世界',
     narration:
       '打开工坊，顶部并排两个页签：简牍发掘与简牍鉴赏。简牍鉴赏是展厅，像逛博物馆一样浏览发现经过、形制六类、主题八类，甚至逐句精读五枚代表简。简牍发掘是工坊，六道修复工序按真实顺序排列。你不是在看修复，你是在做修复。',
     path: '/',
-    image: '/demo-images/scene-02-scroll.jpg',
-    kenBurns: 'pan-right',
+    video: 'scene-02',
   },
   {
     title: '揭取 · 叠压排序',
     narration:
       '走进第一道工序——揭取。大木简总共2480枚，其中井内原位228枚带着层位与揭剥图，另外2000余枚从扰土里捡回，没有层位，只剩自身。工坊给你原始数据，I区五小坨的叠压记录，让你排列层序。合法排列不止一种，你还要指出哪些关系无法确定。这不是填空，这是考古现场的真实判断。',
     path: '/stage/1',
-    image: '/demo-images/scene-03-excavate.jpg',
-    kenBurns: 'zoom-out',
+    video: 'scene-03',
   },
   {
     title: '清洗 · 工时反推',
     narration:
       '清洗环节。竹简73631枚，每枚清洗40到50分钟。工坊让你算：五年内完成需要多少工人？只有一半人手，工期拉长到多少年？',
     path: '/stage/2',
-    image: '/demo-images/scene-04-clean.jpg',
-    kenBurns: 'pan-left',
+    video: 'scene-04',
   },
   {
     title: '饱水保存 · 药剂筛选',
     narration:
       '饱水保存环节。1999年暴发蚀斑病，四种候选药剂摆在面前，都是好保存剂。但表格里有一列叫对人的影响，这一列才是真正的筛选维度。',
     path: '/stage/4',
-    image: '/demo-images/scene-05-preserve.jpg',
-    kenBurns: 'zoom-in',
+    video: 'scene-05',
   },
   {
     title: '脱水 · 含水率与收缩',
     narration:
       '脱水环节。简牍含水率高达471%，撤水不填充，宽度平均要缩50.6%。脱水就是给简找一个替身，最终选中十六醇，赢在颜色、收缩率、化学稳定性。六道工序走下来，你经历的是真实工程中的约束、权衡、试错和决策。',
     path: '/stage/6',
-    image: '/demo-images/scene-06-dehydrate.jpg',
-    kenBurns: 'zoom-out',
+    video: 'scene-06',
   },
   {
     title: '小简 · 数字人助教',
@@ -90,17 +84,9 @@ const SCENES: DemoScene[] = [
     narration:
       '走马楼吴简修复工坊做的事情很简单：它把一份考古修复报告，变成了一段可以亲手走过的旅程。小简在你身边，随时回答你的问题，随时评阅你的答案。但它不会替你走完任何一步。因为这条路的价值，正在于每一步都是你自己走的。',
     path: '/',
-    image: '/demo-images/scene-11-ending.jpg',
-    kenBurns: 'zoom-in',
+    video: 'scene-11',
   },
 ];
-
-const KEN_BURNS_STYLES: Record<string, string> = {
-  'zoom-in': 'demo-kb-zoom-in 20s ease-out forwards',
-  'zoom-out': 'demo-kb-zoom-out 20s ease-out forwards',
-  'pan-right': 'demo-kb-pan-right 20s ease-out forwards',
-  'pan-left': 'demo-kb-pan-left 20s ease-out forwards',
-};
 
 export function DemoMode() {
   const [active, setActive] = useState(false);
@@ -109,9 +95,10 @@ export function DemoMode() {
   const [narrationVisible, setNarrationVisible] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [audioError, setAudioError] = useState(false);
-  const [imageVisible, setImageVisible] = useState(false);
+  const [videoVisible, setVideoVisible] = useState(false);
   const router = useRouter();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const savedPathRef = useRef<string>('');
   const audioCacheRef = useRef<Map<number, string>>(new Map());
   const currentAudioKeyRef = useRef<number>(-1);
@@ -138,7 +125,7 @@ export function DemoMode() {
   const goNext = useCallback(() => {
     stopAudio();
     setNarrationVisible(false);
-    setImageVisible(false);
+    setVideoVisible(false);
     const next = sceneIdx + 1;
     if (next >= SCENES.length) {
       setActive(false);
@@ -152,7 +139,7 @@ export function DemoMode() {
   const goPrev = useCallback(() => {
     stopAudio();
     setNarrationVisible(false);
-    setImageVisible(false);
+    setVideoVisible(false);
     const prevIdx = Math.max(0, sceneIdx - 1);
     if (prevIdx === sceneIdx) return;
     setSceneIdx(prevIdx);
@@ -172,7 +159,7 @@ export function DemoMode() {
     stopAudio();
     setActive(false);
     setPlaying(false);
-    setImageVisible(false);
+    setVideoVisible(false);
     if (savedPathRef.current) router.push(savedPathRef.current);
   }, [router, stopAudio]);
 
@@ -184,8 +171,8 @@ export function DemoMode() {
     setAudioError(false);
     setAudioLoading(true);
 
-    if (scene.image) {
-      setImageVisible(true);
+    if (scene.video) {
+      setVideoVisible(true);
     }
 
     const playAudio = async (uri: string, key: number) => {
@@ -259,8 +246,10 @@ export function DemoMode() {
     if (!active) return;
     if (playing) {
       audioRef.current?.play().catch(() => {});
+      videoRef.current?.play().catch(() => {});
     } else {
       audioRef.current?.pause();
+      videoRef.current?.pause();
     }
   }, [playing, active]);
 
@@ -294,25 +283,27 @@ export function DemoMode() {
 
   const scene = SCENES[sceneIdx];
   const progress = ((sceneIdx + 1) / SCENES.length) * 100;
+  const hasVideo = scene.video && DEMO_VIDEO_URLS[scene.video];
 
   return (
     <>
-      {/* Cinematic image overlay */}
-      {scene.image && imageVisible && (
+      {/* Cinematic video overlay */}
+      {hasVideo && videoVisible && (
         <div
           className="fixed inset-0 z-[9997]"
           style={{
-            opacity: imageVisible ? 1 : 0,
+            opacity: videoVisible ? 1 : 0,
             transition: 'opacity 1.2s ease-in-out',
           }}
         >
-          <img
-            src={scene.image}
-            alt=""
+          <video
+            ref={videoRef}
+            src={DEMO_VIDEO_URLS[scene.video!]}
+            autoPlay
+            muted
+            loop
+            playsInline
             className="h-full w-full object-cover"
-            style={{
-              animation: scene.kenBurns ? KEN_BURNS_STYLES[scene.kenBurns] : undefined,
-            }}
           />
           {/* Dark gradient for text readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30" />
@@ -395,25 +386,25 @@ export function DemoMode() {
           <div
             className="rounded-lg border px-6 py-5 shadow-[0_-4px_24px_-8px_rgba(30,27,22,0.2)] backdrop-blur-md"
             style={{
-              borderColor: scene.image ? 'rgba(255,255,255,0.15)' : 'rgba(213,194,163,0.4)',
-              backgroundColor: scene.image ? 'rgba(0,0,0,0.6)' : 'rgba(250,246,240,0.92)',
+              borderColor: hasVideo ? 'rgba(255,255,255,0.15)' : 'rgba(213,194,163,0.4)',
+              backgroundColor: hasVideo ? 'rgba(0,0,0,0.6)' : 'rgba(250,246,240,0.92)',
             }}
           >
             <div className="mb-2 flex items-center gap-2">
               <Volume2
                 className="h-3 w-3"
-                style={{ color: scene.image ? 'rgba(220,38,38,0.8)' : 'rgba(220,38,38,0.6)' }}
+                style={{ color: hasVideo ? 'rgba(220,38,38,0.8)' : 'rgba(220,38,38,0.6)' }}
               />
               <span
                 className="font-serif text-xs font-semibold tracking-wide"
-                style={{ color: scene.image ? '#f5e6d3' : '#dc2626' }}
+                style={{ color: hasVideo ? '#f5e6d3' : '#dc2626' }}
               >
                 {scene.title}
               </span>
             </div>
             <p
               className="text-[15px] leading-[1.8]"
-              style={{ color: scene.image ? '#f5f0e8' : '#292524' }}
+              style={{ color: hasVideo ? '#f5f0e8' : '#292524' }}
             >
               {scene.narration}
             </p>
@@ -430,7 +421,7 @@ export function DemoMode() {
             onClick={() => {
               stopAudio();
               setNarrationVisible(false);
-              setImageVisible(false);
+              setVideoVisible(false);
               setSceneIdx(i);
               navigateToScene(i);
             }}
