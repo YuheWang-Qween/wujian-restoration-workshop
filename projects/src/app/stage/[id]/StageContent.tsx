@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, ArrowRight, ArrowUp, Check, ChevronDown, ChevronUp, Loader2, Lock, LogOut, MessagesSquare, PenLine, RotateCcw, ScrollText, Stamp, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUp, Check, ChevronDown, ChevronUp, Loader2, Lock, LogOut, MessagesSquare, PenLine, ScrollText, Stamp, X } from 'lucide-react';
 import { ACT_DATA, ACT_QUESTIONS, ACT_WHY, STAGES, getStage, stageActTitles, type WjPart, type WjQuestion, type WjStage } from '@/lib/workshop/content';
 import { DataTable } from '@/components/workshop/DataTable';
 import { askGuide } from '@/lib/workshop/guide-bridge';
@@ -1198,7 +1198,6 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
   const setVerdictStore = useWorkshopStore((s) => s.setVerdict);
   const storedImage = useWorkshopStore((s) => s.images[key]);
   const setImageStore = useWorkshopStore((s) => s.setImage);
-  const resetPartStore = useWorkshopStore((s) => s.resetPart);
   const { session } = useAuth();
 
   // persist 落定之前一律按空串渲染，与服务端输出保持一致，避免 hydration 不匹配
@@ -1212,20 +1211,8 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
   const [analysis, setAnalysis] = useState('');
   const [gradeError, setGradeError] = useState<string | null>(null);
   const [imageData, setImageData] = useState<string | null>(null);
-  const [resetConfirm, setResetConfirm] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   useEffect(() => () => abortRef.current?.abort(), []);
-
-  const handleResetPart = () => {
-    abortRef.current?.abort();
-    resetPartStore(stageId, question.id, part?.label);
-    setVerdict(null);
-    setAnalysis('');
-    setGradeError(null);
-    setImageData(null);
-    setRefDraft('');
-    setResetConfirm(false);
-  };
 
   // hydrated 后从 store 恢复评阅状态
   useEffect(() => {
@@ -1489,43 +1476,12 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
             {verdict}
           </span>
         )}
-        {isSubmitted && (
+        {isSubmitted ? (
           <span className="inline-flex items-center gap-1 text-[11px] text-wj-dim">
             <Lock className="h-3 w-3" />
             已提交定稿
           </span>
-        )}
-        {isSubmitted && (
-          resetConfirm ? (
-            <>
-              <span className="text-[11px] text-wj-ochre">重做将清除本小问的全部记录</span>
-              <button
-                type="button"
-                onClick={() => setResetConfirm(false)}
-                className="rounded border border-wj-line bg-wj-raised px-2.5 py-1 text-[11px] text-wj-ink2 transition-colors hover:border-wj-dim"
-              >
-                取消
-              </button>
-              <button
-                type="button"
-                onClick={handleResetPart}
-                className="inline-flex items-center gap-1.5 rounded border border-wj-cinnabar/40 bg-wj-cinnabar/10 px-2.5 py-1 text-[11px] text-wj-cinnabar transition-colors hover:bg-wj-cinnabar/20"
-              >
-                确认重做
-              </button>
-            </>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setResetConfirm(true)}
-              className="inline-flex items-center gap-1.5 rounded border border-wj-line bg-wj-raised px-2.5 py-1 text-[11px] text-wj-ink2 transition-colors hover:border-wj-cinnabar/60 hover:text-wj-cinnabar"
-            >
-              <RotateCcw className="h-3 w-3" />
-              重新作答
-            </button>
-          )
-        )}
-        {!isSubmitted && confirming && (
+        ) : confirming ? (
           <>
             <span className="text-[11px] text-wj-ochre">提交后即定稿，不可再修改</span>
             <button
@@ -1544,8 +1500,7 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
               确认提交
             </button>
           </>
-        )}
-        {!isSubmitted && !confirming && (
+        ) : (
           <>
             <button
               type="button"
