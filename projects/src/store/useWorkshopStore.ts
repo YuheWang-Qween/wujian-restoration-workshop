@@ -40,6 +40,7 @@ interface WorkshopState {
   setStudentInfo: (studentId: string, name: string) => void;
   revealNextAct: (stageId: number, totalActs: number) => void;
   revealPrevAct: (stageId: number) => void;
+  resetPart: (stageId: number, questionId: string, part?: string) => void;
   resetAll: () => void;
 }
 
@@ -131,6 +132,25 @@ export const useWorkshopStore = create<WorkshopState>()(
           if (cur <= 1) return s;
           return { actsRevealed: { ...s.actsRevealed, [stageId]: cur - 1 } };
         }),
+
+      resetPart: (stageId, questionId, part) => {
+        const key = answerKey(stageId, questionId, part);
+        set((s) => {
+          const answers = { ...s.answers };
+          const submitted = { ...s.submitted };
+          const referenceAnswers = { ...s.referenceAnswers };
+          const verdicts = { ...s.verdicts };
+          const analyses = { ...s.analyses };
+          const images = { ...s.images };
+          delete answers[key];
+          delete submitted[key];
+          delete referenceAnswers[key];
+          delete verdicts[key];
+          delete analyses[key];
+          delete images[key];
+          return { answers, submitted, referenceAnswers, verdicts, analyses, images };
+        });
+      },
 
       resetAll: () =>
         set({
