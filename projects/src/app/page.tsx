@@ -21,6 +21,7 @@ function WorkshopHallInner() {
   const completed = useWorkshopStore((s) => s.completed);
   const hydrated = useWorkshopStore((s) => s.hydrated);
   const achievementUnlocked = useWorkshopStore((s) => s.achievementUnlocked);
+  const resetAll = useWorkshopStore((s) => s.resetAll);
   const done = hydrated ? completed : [];
   const allCompleted = done.length >= STAGES.length;
   const { user, signOut } = useAuth();
@@ -135,19 +136,23 @@ function WorkshopHallInner() {
               })}
             </div>
 
-            {user && (
-              <div className="flex shrink-0 items-center gap-2 pb-1">
+            <div className="flex shrink-0 items-center gap-2 pb-1">
+              {user && (
                 <span className="hidden text-xs text-wj-muted sm:inline">{user.email}</span>
-                <button
-                  type="button"
-                  onClick={signOut}
-                  className="flex items-center gap-1 rounded border border-wj-border px-2.5 py-1.5 text-xs text-wj-muted transition-colors hover:border-wj-cinnabar hover:text-wj-cinnabar"
-                >
-                  <LogOut className="h-3.5 w-3.5" />
-                  登出
-                </button>
-              </div>
-            )}
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  if (user) signOut();
+                  resetAll();
+                  setActive('excavation');
+                }}
+                className="flex items-center gap-1 rounded border border-wj-border px-2.5 py-1.5 text-xs text-wj-muted transition-colors hover:border-wj-cinnabar hover:text-wj-cinnabar"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                退出
+              </button>
+            </div>
           </div>
         </div>
       </header>
