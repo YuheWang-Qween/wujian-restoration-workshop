@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Play, Pause, SkipForward, SkipBack, X, Volume2, Loader2, Mail, Lock } from 'lucide-react';
+import { Play, Pause, SkipForward, SkipBack, X, Volume2, Loader2 } from 'lucide-react';
 
 type ActionType = 'scroll' | 'scrollTo' | 'click' | 'highlight';
 
@@ -17,7 +17,6 @@ interface DemoScene {
   title: string;
   narration: string;
   path?: string;
-  overlay?: 'login';
   actions?: DemoAction[];
 }
 
@@ -26,12 +25,12 @@ const SCENES: DemoScene[] = [
     title: '登录',
     narration:
       '欢迎来到走马楼三国吴简修复工坊。1996年，长沙走马楼古井出土十余万枚简牍。先登录你的账号，开始修复之旅。',
-    overlay: 'login',
+    path: '/login',
     actions: [
-      { delay: 500, type: 'highlight', selector: 'data:demo-login-logo' },
-      { delay: 3000, type: 'highlight', selector: 'data:demo-login-email' },
-      { delay: 5000, type: 'highlight', selector: 'data:demo-login-password' },
-      { delay: 7000, type: 'highlight', selector: 'data:demo-login-submit' },
+      { delay: 500, type: 'highlight', selector: 'data:login-logo' },
+      { delay: 3000, type: 'highlight', selector: 'data:login-field-email' },
+      { delay: 5000, type: 'highlight', selector: 'data:login-field-password' },
+      { delay: 7000, type: 'highlight', selector: 'data:login-submit' },
     ],
   },
   {
@@ -192,6 +191,7 @@ export function DemoMode() {
   const startDemo = useCallback(() => {
     savedPathRef.current = window.location.pathname + window.location.search;
     audioCacheRef.current.clear();
+    (window as any).__DEMO_MODE__ = true;
     setSceneIdx(0);
     setActive(true);
     setPlaying(true);
@@ -200,6 +200,7 @@ export function DemoMode() {
   const exitDemo = useCallback(() => {
     stopAudio();
     clearActionTimers();
+    (window as any).__DEMO_MODE__ = false;
     setActive(false);
     setPlaying(false);
     if (savedPathRef.current) router.push(savedPathRef.current);
@@ -222,7 +223,6 @@ export function DemoMode() {
     // Clean up any highlight overlays from previous scene
     document.querySelectorAll('.wj-demo-highlight').forEach((el) => el.remove());
     const scene = SCENES[sceneIdx];
-    if (scene.overlay) return;
     if (scene.path) {
       window.scrollTo(0, 0);
       router.push(scene.path);
@@ -500,72 +500,6 @@ export function DemoMode() {
           />
         </div>
       </div>
-
-      {/* Login overlay for first scene */}
-      {scene.overlay === 'login' && (
-        <div className="fixed inset-0 z-[9997] bg-wj-bg">
-          <div className="relative flex min-h-dvh items-center justify-center px-4 py-12 lg:justify-end lg:pr-16 xl:pr-24">
-            {/* Backdrop */}
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_40%,rgba(163,57,42,0.06),transparent_60%)]" />
-              <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent_0px,transparent_60px,rgba(30,27,22,0.02)_60px,rgba(30,27,22,0.02)_61px),repeating-linear-gradient(90deg,transparent_0px,transparent_60px,rgba(30,27,22,0.02)_60px,rgba(30,27,22,0.02)_61px)]" />
-            </div>
-            {/* Login card */}
-            <div className="relative z-10 w-full max-w-md">
-              <div className="mb-10 flex flex-col items-center">
-                <div
-                  className="mb-5 flex size-14 flex-col items-center justify-center rounded bg-wj-cinnabar ring-2 ring-wj-cinnabar/20 ring-offset-2 ring-offset-transparent shadow-[0_4px_16px_-2px_rgba(163,57,42,0.3)]"
-                  data-demo="demo-login-logo"
-                >
-                  <span className="wj-seal text-lg leading-none text-wj-cinnabar-ink">吴</span>
-                  <span className="wj-seal text-lg leading-none text-wj-cinnabar-ink">簡</span>
-                </div>
-                <h1 className="mt-4 font-serif text-2xl font-semibold tracking-[0.15em] text-wj-ink sm:text-3xl">
-                  走马楼三国吴简·简牍修复工坊
-                </h1>
-                <p className="mt-2 font-serif text-sm tracking-wider text-wj-muted">
-                  虚拟仿真教学实验平台
-                </p>
-              </div>
-              <div className="relative overflow-hidden rounded-lg border border-wj-border/60 bg-wj-surface/[0.97] shadow-[0_8px_32px_-8px_rgba(30,27,22,0.12),0_2px_8px_-2px_rgba(30,27,22,0.06)] backdrop-blur-md">
-                <div className="h-[3px] bg-gradient-to-r from-wj-cinnabar/0 via-wj-cinnabar to-wj-cinnabar/0" />
-                <div className="p-8">
-                  <h2 className="mb-6 text-center font-serif text-lg font-medium tracking-wide text-wj-ink">
-                    账号登录
-                  </h2>
-                  <div className="space-y-4">
-                    <div data-demo="demo-login-email">
-                      <label className="mb-1.5 block text-xs font-medium text-wj-muted">邮箱</label>
-                      <div className="flex items-center gap-2 rounded border border-wj-border bg-wj-bg/50 px-3 py-2.5">
-                        <Mail className="h-4 w-4 text-wj-muted" />
-                        <span className="text-sm text-wj-dim">请输入邮箱地址</span>
-                      </div>
-                    </div>
-                    <div data-demo="demo-login-password">
-                      <label className="mb-1.5 block text-xs font-medium text-wj-muted">密码</label>
-                      <div className="flex items-center gap-2 rounded border border-wj-border bg-wj-bg/50 px-3 py-2.5">
-                        <Lock className="h-4 w-4 text-wj-muted" />
-                        <span className="text-sm text-wj-dim">请输入密码</span>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      className="w-full rounded bg-wj-cinnabar py-2.5 text-center font-serif text-sm font-medium text-white transition-colors hover:bg-wj-cinnabar/90"
-                      data-demo="demo-login-submit"
-                    >
-                      进入工坊
-                    </button>
-                  </div>
-                  <p className="mt-4 text-center text-xs text-wj-muted">
-                    还没有账号？
-                    <span className="ml-1 text-wj-cinnabar/80 underline-offset-2 hover:underline">去注册</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Bottom narration subtitle */}
       <div className="fixed bottom-0 left-0 right-0 z-[9998] pointer-events-none">

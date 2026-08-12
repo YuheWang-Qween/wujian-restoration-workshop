@@ -40,7 +40,9 @@ export function useAuthPageReady(): { ready: boolean; screen: ReactNode } {
   const { isLoading: configLoading } = useSupabaseConfig();
 
   /* 已登录 → 直接跳首页（跳转必须放进 effect，渲染期调 router 会触发 React 告警） */
+  /* 演示模式下不重定向，以便展示登录页 */
   useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).__DEMO_MODE__) return;
     if (!authLoading && !configLoading && isAuthenticated) {
       router.replace('/');
     }
