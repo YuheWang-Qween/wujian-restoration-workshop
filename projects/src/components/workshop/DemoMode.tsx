@@ -64,6 +64,16 @@ const SCENES: DemoScene[] = [
     ],
   },
   {
+    title: '绑夹与核对 · 身份不能掉线',
+    narration:
+      '简牍在工序之间搬运，编号一旦错乱，信息就断了。绑夹与核对，就是给每枚简一个不脱落的身份。',
+    path: '/stage/3',
+    actions: [
+      { delay: 0, type: 'scroll', amount: 300 },
+      { delay: 3000, type: 'scroll', amount: 300 },
+    ],
+  },
+  {
     title: '饱水保存 · 药剂筛选',
     narration:
       '四种药剂都能保存，但有一列叫"对人的影响"——这一列才是真正的筛选维度。',
