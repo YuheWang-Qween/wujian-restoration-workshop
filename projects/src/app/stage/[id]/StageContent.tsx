@@ -28,7 +28,7 @@ export function StageContent() {
   // 无小问的题要求整题答题框非空。只订阅布尔值，不随每次按键重渲染
   const lastQuestion = stage?.questions[stage.questions.length - 1];
   const lastAnswered = useWorkshopStore((s) =>
-    stage && lastQuestion ? isQuestionAnswered(s.answers, stage.id, lastQuestion) : false,
+    stage && lastQuestion ? isQuestionAnswered(s.answers, s.images, stage.id, lastQuestion) : false,
   );
 
   // 完成不需要手动点：最后一题答完即自动标记。
@@ -402,13 +402,17 @@ function SectionHeading({ title, note }: { title: string; note?: string }) {
  */
 function isQuestionAnswered(
   answers: Record<string, string>,
+  images: Record<string, string>,
   stageId: number,
   q: WjQuestion,
 ): boolean {
   if (q.parts.length === 0) return (answers[answerKey(stageId, q.id)] ?? '').trim().length > 0;
-  return q.parts.every(
-    (p) => (answers[answerKey(stageId, q.id, p.label)] ?? '').trim().length > 0,
-  );
+  return q.parts.every((p) => {
+    const k = answerKey(stageId, q.id, p.label);
+    const hasText = (answers[k] ?? '').trim().length > 0;
+    const hasImage = p.input?.type === 'drawing' && (images[k] ?? '').trim().length > 0;
+    return hasText || hasImage;
+  });
 }
 
 /**
@@ -422,7 +426,7 @@ function QuestionWizard({ stage, nextStage, isDone, allCompleted }: { stage: WjS
   // 只有某题「未答完 ↔ 答完」翻转时才重渲染，不随每次按键动
   const answeredBits = useWorkshopStore((s) =>
     stage.questions
-      .map((q) => (isQuestionAnswered(s.answers, stage.id, q) ? '1' : '0'))
+      .map((q) => (isQuestionAnswered(s.answers, s.images, stage.id, q) ? '1' : '0'))
       .join(''),
   );
   const answered = stage.questions.map((_, i) => answeredBits[i] === '1');
@@ -438,7 +442,12 @@ function QuestionWizard({ stage, nextStage, isDone, allCompleted }: { stage: WjS
   // 小问逐个展开：已答的全部保留，再多露一个未答的
   const partBits = useWorkshopStore((s) =>
     q.parts
-      .map((p) => ((s.answers[answerKey(stage.id, q.id, p.label)] ?? '').trim() ? '1' : '0'))
+      .map((p) => {
+        const k = answerKey(stage.id, q.id, p.label);
+        const hasText = (s.answers[k] ?? '').trim().length > 0;
+        const hasImage = p.input?.type === 'drawing' && !!(s.images[k] ?? '').trim();
+        return hasText || hasImage ? '1' : '0';
+      })
       .join(''),
   );
   const partAnswered = q.parts.map((_, i) => partBits[i] === '1');
