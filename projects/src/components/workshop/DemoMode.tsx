@@ -45,60 +45,42 @@ const SCENES: DemoScene[] = [
     narration:
       '第一道工序，揭取。给你原始叠压数据，排出层序。合法答案不止一种。',
     path: '/stage/1',
-    actions: [
-      { delay: 0, type: 'scroll', amount: 300 },
-      { delay: 3000, type: 'scroll', amount: 300 },
-    ],
+    actions: [],
   },
   {
     title: '清洗 · 工时反推',
     narration:
       '清洗环节。七万枚竹简，每枚四十到五十分钟。你来算需要多少工人、工期多长。',
     path: '/stage/2',
-    actions: [
-      { delay: 0, type: 'scroll', amount: 300 },
-      { delay: 3000, type: 'scroll', amount: 300 },
-    ],
+    actions: [],
   },
   {
     title: '绑夹与核对 · 身份不能掉线',
     narration:
       '简牍在工序之间搬运，编号一旦错乱，信息就断了。绑夹与核对，就是给每枚简一个不脱落的身份。',
     path: '/stage/3',
-    actions: [
-      { delay: 0, type: 'scroll', amount: 300 },
-      { delay: 3000, type: 'scroll', amount: 300 },
-    ],
+    actions: [],
   },
   {
     title: '饱水保存 · 药剂筛选',
     narration:
       '四种药剂都能保存，但有一列叫"对人的影响"——这一列才是真正的筛选维度。',
     path: '/stage/4',
-    actions: [
-      { delay: 0, type: 'scroll', amount: 300 },
-      { delay: 3000, type: 'scroll', amount: 300 },
-    ],
+    actions: [],
   },
   {
     title: '脱色 · 让墨迹重新可辨',
     narration:
       '简牍出水后几分钟就会变黑。脱色不是为好看，是让文字重新能读。连二亚硫酸钠法胜出。',
     path: '/stage/5',
-    actions: [
-      { delay: 0, type: 'scroll', amount: 300 },
-      { delay: 3000, type: 'scroll', amount: 300 },
-    ],
+    actions: [],
   },
   {
     title: '脱水 · 含水率',
     narration:
       '简牍含水率高达471%，脱水就是给简找一个替身。最终选中十六醇，赢在颜色、收缩率和化学稳定性。',
     path: '/stage/6',
-    actions: [
-      { delay: 0, type: 'scroll', amount: 300 },
-      { delay: 3000, type: 'scroll', amount: 300 },
-    ],
+    actions: [],
   },
   {
     title: '简牍鉴赏',
