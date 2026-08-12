@@ -39,14 +39,16 @@ function buildPayload(s: ReturnType<typeof useWorkshopStore.getState>): Progress
 export function useProgressSync() {
   const { user } = useAuth();
   const hydrated = useWorkshopStore((s) => s.hydrated);
-  const loadedFromDb = useRef(false);
+  const userId = user?.id ?? null;
+  const loadedForUser = useRef<string | null>(null);
   const syncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSync = useRef<string>('');
 
-  // 登录后从数据库拉取进度
+  // 登录后从数据库拉取进度（user 变化时重新拉取）
   useEffect(() => {
-    if (!user || !hydrated || loadedFromDb.current) return;
-    loadedFromDb.current = true;
+    if (!userId || !hydrated) return;
+    if (loadedForUser.current === userId) return;
+    loadedForUser.current = userId;
 
     (async () => {
       try {
@@ -64,22 +66,22 @@ export function useProgressSync() {
         if (!data) return;
 
         const s = useWorkshopStore.getState();
-        const dbUpdated = Object.keys(data.answers ?? {}).length;
+        const dbAnswerCount = Object.keys(data.answers ?? {}).length;
+        const localAnswerCount = Object.keys(s.answers).length;
 
-        // 数据库有记录且比本地新（按答题数判断），用数据库覆盖本地
-        const localAnswered = Object.keys(s.answers).length;
-        if (dbUpdated > 0 && dbUpdated > localAnswered) {
+        // 数据库有记录就合并到本地（数据库优先，但保留本地已有的）
+        if (dbAnswerCount > 0) {
           useWorkshopStore.setState({
             completed: data.completed ?? s.completed,
-            answers: { ...s.answers, ...data.answers },
-            submitted: { ...s.submitted, ...data.submitted },
-            referenceAnswers: { ...s.referenceAnswers, ...data.referenceAnswers },
-            verdicts: { ...s.verdicts, ...data.verdicts },
-            analyses: { ...s.analyses, ...data.analyses },
-            images: { ...s.images, ...data.images },
+            answers: { ...data.answers, ...s.answers },
+            submitted: { ...data.submitted, ...s.submitted },
+            referenceAnswers: { ...data.referenceAnswers, ...s.referenceAnswers },
+            verdicts: { ...data.verdicts, ...s.verdicts },
+            analyses: { ...data.analyses, ...s.analyses },
+            images: { ...data.images, ...s.images },
             studentInfo: data.studentInfo ?? s.studentInfo,
             achievementUnlocked: data.achievementUnlocked ?? s.achievementUnlocked,
-            actsRevealed: { ...s.actsRevealed, ...data.actsRevealed },
+            actsRevealed: { ...data.actsRevealed, ...s.actsRevealed },
           });
         }
 
@@ -88,11 +90,11 @@ export function useProgressSync() {
         // 拉取失败不影响本地使用
       }
     })();
-  }, [user, hydrated]);
+  }, [userId, hydrated]);
 
   // 本地变化时 debounce 推送到数据库
   useEffect(() => {
-    if (!user || !hydrated) return;
+    if (!userId || !hydrated) return;
 
     const unsub = useWorkshopStore.subscribe((s) => {
       if (syncTimer.current) clearTimeout(syncTimer.current);
@@ -128,5 +130,38 @@ export function useProgressSync() {
       unsub();
       if (syncTimer.current) clearTimeout(syncTimer.current);
     };
-  }, [user, hydrated]);
+  }, [userId, hydrated]);
+
+  // 退出登录时立即推送一次当前状态（在 token 失效前）
+  useEffect(() => {
+    if (userId) return;
+    // user 变为 null（退出登录），尝试最后一次推送
+    const pushOnce = async () => {
+      try {
+        const payload = buildPayload(useWorkshopStore.getState());
+        const payloadStr = JSON.stringify(payload);
+        if (payloadStr === lastSync.current) return;
+
+        const { getSupabaseBrowserClient } = await import('@/lib/supabase-browser');
+        const supabase = getSupabaseBrowserClient();
+        const { data: sessionData } = await supabase.auth.getSession();
+        const token = sessionData.session?.access_token;
+        if (!token) return;
+
+        await fetch('/api/progress', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+        lastSync.current = payloadStr;
+      } catch {
+        // 退出时推送失败可忽略，数据已在 localStorage
+      }
+    };
+    pushOnce();
+    loadedForUser.current = null;
+  }, [userId]);
 }
