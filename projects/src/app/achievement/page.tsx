@@ -6,7 +6,7 @@ import { toPng } from 'html-to-image';
 import { STAGES } from '@/lib/workshop/content';
 import { useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
-import { ArrowLeft, Award, BadgeCheck, Check, Download } from 'lucide-react';
+import { ArrowLeft, Award, BadgeCheck, Check, Download, RotateCcw } from 'lucide-react';
 
 const TOTAL_STAGES = STAGES.length;
 
@@ -18,6 +18,8 @@ export default function AchievementPage() {
   const setStudentInfo = useWorkshopStore((s) => s.setStudentInfo);
   const answers = useWorkshopStore((s) => s.answers);
   const verdicts = useWorkshopStore((s) => s.verdicts);
+  const resetAll = useWorkshopStore((s) => s.resetAll);
+  const { signOut } = useAuth();
 
   const [studentId, setStudentId] = useState('');
   const [name, setName] = useState('');
@@ -312,7 +314,7 @@ export default function AchievementPage() {
         </div>
 
         {/* 操作 */}
-        <div className="mt-6 flex items-center justify-center gap-4">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/"
             className="inline-flex h-9 items-center gap-2 rounded border border-wj-border px-4 text-sm text-wj-ink transition-colors hover:border-wj-cinnabar/60"
@@ -328,6 +330,20 @@ export default function AchievementPage() {
           >
             <Download className="h-4 w-4" />
             {downloading ? '生成中…' : '下载图片'}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (confirm('确定要退出吗？所有作答记录将被清除，且无法恢复。')) {
+                resetAll();
+                signOut();
+                window.location.href = '/';
+              }
+            }}
+            className="inline-flex h-9 items-center gap-2 rounded border border-wj-border px-4 text-sm text-wj-muted transition-colors hover:border-wj-cinnabar/60 hover:text-wj-cinnabar"
+          >
+            <RotateCcw className="h-4 w-4" />
+            退出并重置
           </button>
         </div>
       </div>
