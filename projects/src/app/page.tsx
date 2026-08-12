@@ -168,6 +168,17 @@ function WorkshopHallInner() {
 
               <button
                 type="button"
+                onClick={() => window.__startDemo?.()}
+                data-demo="demo-btn"
+                className="flex items-center gap-1 rounded border border-wj-border px-2.5 py-1.5 text-xs text-wj-muted transition-colors hover:border-wj-cinnabar hover:text-wj-cinnabar"
+                title="演示模式"
+              >
+                <Play className="h-3.5 w-3.5" />
+                演示
+              </button>
+
+              <button
+                type="button"
                 onClick={() => {
                   if (user) signOut();
                   setActive('excavation');
@@ -332,20 +343,6 @@ function WorkshopHallInner() {
 
       </main>
 
-      <footer className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-6 sm:px-6">
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={() => window.__startDemo?.()}
-            data-demo="demo-btn"
-            className="flex items-center gap-1.5 rounded-full border border-wj-border/50 bg-wj-surface/60 px-4 py-1.5 text-xs text-wj-muted/70 transition-colors hover:border-wj-cinnabar/40 hover:text-wj-cinnabar"
-            title="演示模式"
-          >
-            <Play className="h-3 w-3" />
-            演示模式
-          </button>
-        </div>
-      </footer>
     </>
   );
 }
