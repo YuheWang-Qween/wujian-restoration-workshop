@@ -446,73 +446,9 @@ export function DemoMode() {
 
   return (
     <>
-      {/* Top control bar */}
-      <div className="fixed top-0 left-0 right-0 z-[9998] border-b border-wj-cinnabar/20 bg-wj-bg/95 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5">
-          <div className="flex items-center gap-3">
-            <span className="font-serif text-sm font-semibold text-wj-cinnabar">
-              演示模式
-            </span>
-            {audioLoading && (
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-wj-muted" />
-            )}
-            {audioError && (
-              <span className="text-[10px] text-wj-ochre">语音加载失败，仅显示字幕</span>
-            )}
-            <span className="text-xs text-wj-muted">
-              {sceneIdx + 1} / {SCENES.length} · {scene.title}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={goPrev}
-              disabled={sceneIdx === 0}
-              className="rounded p-1.5 text-wj-muted transition-colors hover:bg-wj-surface hover:text-wj-ink disabled:opacity-30 disabled:hover:bg-transparent"
-              title="上一幕"
-            >
-              <SkipBack className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setPlaying((p) => !p)}
-              className="rounded p-1.5 text-wj-ink transition-colors hover:bg-wj-surface"
-              title={playing ? '暂停' : '播放'}
-            >
-              {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            </button>
-            <button
-              type="button"
-              onClick={goNext}
-              className="rounded p-1.5 text-wj-muted transition-colors hover:bg-wj-surface hover:text-wj-ink"
-              title="下一幕"
-            >
-              <SkipForward className="h-4 w-4" />
-            </button>
-            <div className="mx-1 h-4 w-px bg-wj-line" />
-            <button
-              type="button"
-              onClick={exitDemo}
-              className="flex items-center gap-1 rounded px-2 py-1.5 text-xs text-wj-muted transition-colors hover:bg-wj-surface hover:text-wj-ochre"
-              title="退出演示 (ESC)"
-            >
-              <X className="h-3.5 w-3.5" />
-              退出
-            </button>
-          </div>
-        </div>
-        {/* Progress bar */}
-        <div className="h-0.5 w-full bg-wj-line/30">
-          <div
-            className="h-full bg-wj-cinnabar transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
-
       {/* Image overlay for scenes using static screenshots */}
       {scene.image && (
-        <div className="fixed inset-0 top-[44px] bottom-0 z-[9997] overflow-hidden">
+        <div className="fixed inset-0 z-[9997] overflow-hidden">
           <img
             src={scene.image}
             alt={scene.title}
@@ -521,26 +457,84 @@ export function DemoMode() {
         </div>
       )}
 
-      {/* Bottom narration subtitle */}
-      <div className="fixed bottom-0 left-0 right-0 z-[9998] pointer-events-none">
-        <div
-          className="mx-auto max-w-3xl px-6 pb-8 pt-4"
-          style={{
-            opacity: narrationVisible ? 1 : 0,
-            transform: narrationVisible ? 'translateY(0)' : 'translateY(12px)',
-            transition: 'opacity 0.6s ease, transform 0.6s ease',
-          }}
-        >
-          <div className="rounded-lg border border-wj-border/60 bg-wj-bg/92 px-6 py-5 shadow-[0_-4px_24px_-8px_rgba(30,27,22,0.2)] backdrop-blur-md">
-            <div className="mb-2 flex items-center gap-2">
-              <Volume2 className="h-3 w-3 text-wj-cinnabar/60" />
-              <span className="font-serif text-xs font-semibold tracking-wide text-wj-cinnabar">
-                {scene.title}
-              </span>
+      {/* Bottom bar: controls + narration */}
+      <div className="fixed bottom-0 left-0 right-0 z-[9998]">
+        {/* Progress bar */}
+        <div className="h-0.5 w-full bg-wj-line/30">
+          <div
+            className="h-full bg-wj-cinnabar transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <div className="border-t border-wj-cinnabar/20 bg-wj-bg/95 backdrop-blur-md">
+          <div className="mx-auto max-w-3xl px-6 pt-4 pb-3">
+            {/* Narration */}
+            <div
+              style={{
+                opacity: narrationVisible ? 1 : 0,
+                transform: narrationVisible ? 'translateY(0)' : 'translateY(12px)',
+                transition: 'opacity 0.6s ease, transform 0.6s ease',
+              }}
+            >
+              <div className="mb-2 flex items-center gap-2">
+                <Volume2 className="h-3 w-3 text-wj-cinnabar/60" />
+                <span className="font-serif text-xs font-semibold tracking-wide text-wj-cinnabar">
+                  {scene.title}
+                </span>
+                {audioLoading && (
+                  <Loader2 className="h-3 w-3 animate-spin text-wj-muted" />
+                )}
+                {audioError && (
+                  <span className="text-[10px] text-wj-ochre">语音加载失败，仅显示字幕</span>
+                )}
+              </div>
+              <p className="text-[15px] leading-[1.8] text-wj-ink">
+                {scene.narration}
+              </p>
             </div>
-            <p className="text-[15px] leading-[1.8] text-wj-ink">
-              {scene.narration}
-            </p>
+            {/* Controls */}
+            <div className="mt-3 flex items-center justify-between">
+              <span className="text-xs text-wj-muted">
+                演示模式 · {sceneIdx + 1} / {SCENES.length}
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={goPrev}
+                  disabled={sceneIdx === 0}
+                  className="rounded p-1.5 text-wj-muted transition-colors hover:bg-wj-surface hover:text-wj-ink disabled:opacity-30 disabled:hover:bg-transparent"
+                  title="上一幕"
+                >
+                  <SkipBack className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPlaying((p) => !p)}
+                  className="rounded p-1.5 text-wj-ink transition-colors hover:bg-wj-surface"
+                  title={playing ? '暂停' : '播放'}
+                >
+                  {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={goNext}
+                  className="rounded p-1.5 text-wj-muted transition-colors hover:bg-wj-surface hover:text-wj-ink"
+                  title="下一幕"
+                >
+                  <SkipForward className="h-4 w-4" />
+                </button>
+                <div className="mx-1 h-4 w-px bg-wj-line" />
+                <button
+                  type="button"
+                  onClick={exitDemo}
+                  className="flex items-center gap-1 rounded px-2 py-1.5 text-xs text-wj-muted transition-colors hover:bg-wj-surface hover:text-wj-ochre"
+                  title="退出演示 (ESC)"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  退出
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
