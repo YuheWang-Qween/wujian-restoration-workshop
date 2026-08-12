@@ -517,11 +517,11 @@ export function DemoMode() {
 
       {/* Image overlay for scenes using static screenshots */}
       {scene.image && (
-        <div className="fixed inset-0 z-[9997]">
+        <div className="fixed inset-0 top-[44px] bottom-0 z-[9997] overflow-hidden">
           <img
             src={scene.image}
             alt={scene.title}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain bg-wj-bg"
           />
         </div>
       )}
