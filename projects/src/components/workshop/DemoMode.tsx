@@ -183,6 +183,7 @@ export function DemoMode() {
   const [sceneIdx, setSceneIdx] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [narrationVisible, setNarrationVisible] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [audioError, setAudioError] = useState(false);
   const router = useRouter();
@@ -264,6 +265,7 @@ export function DemoMode() {
     if (!active) return;
     // Clean up any highlight overlays from previous scene
     document.querySelectorAll('.wj-demo-highlight').forEach((el) => el.remove());
+    setImgLoaded(false);
     const scene = SCENES[sceneIdx];
     if (scene.path) {
       window.scrollTo(0, 0);
@@ -501,13 +503,15 @@ export function DemoMode() {
 
   return (
     <>
-      {/* Image overlay for scenes using static screenshots */}
+      {/* Opaque backdrop to prevent page flash before image loads */}
       {scene.image && (
-        <div className="fixed inset-0 z-[9997] overflow-hidden">
+        <div className="fixed inset-0 z-[9997] overflow-hidden bg-wj-bg">
           <img
             src={scene.image}
             alt={scene.title}
-            className="h-full w-full object-contain bg-wj-bg"
+            className="h-full w-full object-contain"
+            style={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.3s' }}
+            onLoad={() => setImgLoaded(true)}
           />
         </div>
       )}
