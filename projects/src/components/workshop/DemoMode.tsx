@@ -480,7 +480,7 @@ export function DemoMode() {
   useEffect(() => {
     if (!active) return;
     const prev = document.body.style.paddingBottom;
-    document.body.style.paddingBottom = '240px';
+    document.body.style.paddingBottom = '320px';
     return () => {
       document.body.style.paddingBottom = prev;
     };
@@ -522,16 +522,16 @@ export function DemoMode() {
           />
         </div>
         <div className="border-t border-wj-cinnabar/20 bg-wj-bg/95 backdrop-blur-md">
-          <div className="mx-auto max-w-3xl px-6 pt-4 pb-3">
+          <div className="mx-auto max-w-3xl px-6 pt-3 pb-2">
             {/* Narration */}
             <div
               style={{
                 opacity: narrationVisible ? 1 : 0,
-                transform: narrationVisible ? 'translateY(0)' : 'translateY(12px)',
+                transform: narrationVisible ? 'translateY(0)' : 'translateY(8px)',
                 transition: 'opacity 0.6s ease, transform 0.6s ease',
               }}
             >
-              <div className="mb-2 flex items-center gap-2">
+              <div className="mb-1 flex items-center gap-2">
                 <Volume2 className="h-3 w-3 text-wj-cinnabar/60" />
                 <span className="font-serif text-xs font-semibold tracking-wide text-wj-cinnabar">
                   {scene.title}
@@ -540,15 +540,15 @@ export function DemoMode() {
                   <Loader2 className="h-3 w-3 animate-spin text-wj-muted" />
                 )}
                 {audioError && (
-                  <span className="text-[10px] text-wj-ochre">语音加载失败，仅显示字幕</span>
+                  <span className="text-[10px] text-wj-ochre">语音加载失败</span>
                 )}
               </div>
-              <p className="text-[15px] leading-[1.8] text-wj-ink">
+              <p className="text-[14px] leading-[1.6] text-wj-ink">
                 {scene.narration}
               </p>
             </div>
             {/* Controls */}
-            <div className="mt-3 flex items-center justify-between">
+            <div className="mt-2 flex items-center justify-between">
               <span className="text-xs text-wj-muted">
                 演示模式 · {sceneIdx + 1} / {SCENES.length}
               </span>
