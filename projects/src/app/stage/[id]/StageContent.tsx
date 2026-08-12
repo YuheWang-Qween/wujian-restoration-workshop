@@ -1314,8 +1314,11 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
         }
         if (payload.error) setGradeError(payload.error);
       });
-      if (finalVerdict && !finalAnalysis.includes('error')) {
+      if (finalVerdict) {
         setVerdictStore(stageId, question.id, part?.label, finalVerdict, finalAnalysis);
+      } else if (finalAnalysis && !gradeError) {
+        // 模型未按格式返回判定，但有解析内容——存为"待判定"
+        setVerdictStore(stageId, question.id, part?.label, '待判定', finalAnalysis);
       }
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') return;

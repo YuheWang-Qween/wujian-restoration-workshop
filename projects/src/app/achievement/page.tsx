@@ -57,9 +57,9 @@ export default function AchievementPage() {
   const answeredCount = Object.entries(answers).filter(([, v]) => v.trim()).length;
   const verdictCounts = { 成立: 0, 部分成立: 0, 不成立: 0 };
   Object.values(verdicts).forEach((v) => {
-    if (v === '成立') verdictCounts.成立++;
-    else if (v === '部分成立') verdictCounts.部分成立++;
-    else if (v === '不成立') verdictCounts.不成立++;
+    if (v.includes('成立') && !v.includes('部分') && !v.includes('不')) verdictCounts.成立++;
+    else if (v.includes('部分成立')) verdictCounts.部分成立++;
+    else if (v.includes('不成立')) verdictCounts.不成立++;
   });
 
   // 未完成全部环节
