@@ -11,12 +11,14 @@ interface DemoAction {
   type: ActionType;
   selector?: string;
   amount?: number;
+  rect?: { x: string; y: string; w: string; h: string };
 }
 
 interface DemoScene {
   title: string;
   narration: string;
   path?: string;
+  image?: string;
   actions?: DemoAction[];
 }
 
@@ -25,12 +27,12 @@ const SCENES: DemoScene[] = [
     title: '登录',
     narration:
       '欢迎来到走马楼三国吴简修复工坊。1996年，长沙走马楼古井出土十余万枚简牍。先登录你的账号，开始修复之旅。',
-    path: '/login',
+    image: '/demo-login.png',
     actions: [
-      { delay: 500, type: 'highlight', selector: 'data:login-logo' },
-      { delay: 3000, type: 'highlight', selector: 'data:login-field-email' },
-      { delay: 5000, type: 'highlight', selector: 'data:login-field-password' },
-      { delay: 7000, type: 'highlight', selector: 'data:login-submit' },
+      { delay: 500, type: 'highlight', rect: { x: '72%', y: '8%', w: '8%', h: '6%' } },
+      { delay: 3000, type: 'highlight', rect: { x: '67%', y: '28%', w: '28%', h: '8%' } },
+      { delay: 5000, type: 'highlight', rect: { x: '67%', y: '40%', w: '28%', h: '8%' } },
+      { delay: 7000, type: 'highlight', rect: { x: '67%', y: '52%', w: '28%', h: '7%' } },
     ],
   },
   {
@@ -269,6 +271,18 @@ export function DemoMode() {
           if (action.type === 'click' && action.selector) {
             const el = await waitForElement(action.selector);
             el?.click();
+          } else if (action.type === 'highlight' && action.rect) {
+            document.querySelectorAll('.wj-demo-highlight').forEach((o) => o.remove());
+            const overlay = document.createElement('div');
+            overlay.className = 'wj-demo-highlight';
+            overlay.style.cssText = `position:fixed;left:${action.rect.x};top:${action.rect.y};width:${action.rect.w};height:${action.rect.h};border:2px solid #a02828;border-radius:8px;pointer-events:none;z-index:9999;transition:opacity 0.3s;box-shadow:0 0 20px rgba(160,40,40,0.4);background:rgba(160,40,40,0.05);`;
+            document.body.appendChild(overlay);
+            setTimeout(() => {
+              if (overlay.parentNode) {
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 400);
+              }
+            }, 4000);
           } else if (action.type === 'highlight' && action.selector) {
             const el = await waitForElement(action.selector);
             if (el) {
@@ -500,6 +514,17 @@ export function DemoMode() {
           />
         </div>
       </div>
+
+      {/* Image overlay for scenes using static screenshots */}
+      {scene.image && (
+        <div className="fixed inset-0 z-[9997]">
+          <img
+            src={scene.image}
+            alt={scene.title}
+            className="h-full w-full object-cover"
+          />
+        </div>
+      )}
 
       {/* Bottom narration subtitle */}
       <div className="fixed bottom-0 left-0 right-0 z-[9998] pointer-events-none">
