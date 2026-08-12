@@ -4,10 +4,10 @@ import { Suspense, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { SECTIONS, STAGES } from '@/lib/workshop/content';
-import { isStageUnlocked, useWorkshopStore } from '@/store/useWorkshopStore';
+import { useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { ExhibitionHall } from '@/components/workshop/ExhibitionHall';
-import { ArrowRight, Award, Check, Lock, LogOut } from 'lucide-react';
+import { ArrowRight, Award, Check, LogOut } from 'lucide-react';
 
 export default function WorkshopHall() {
   return (
@@ -192,59 +192,6 @@ function WorkshopHallInner() {
         <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {STAGES.map((stage) => {
           const isDone = done.includes(stage.id);
-          const unlocked = isStageUnlocked(stage.id, done);
-          const prevName = STAGES.find((s) => s.id === stage.id - 1)?.name;
-
-          /* 未解锁：同一副骨架渲染成置灰的 div，不能点，一眼看出"还差一步" */
-          if (!unlocked) {
-            return (
-              <div
-                key={stage.id}
-                aria-disabled="true"
-                className="relative flex flex-col overflow-hidden rounded-lg border border-wj-border/70 bg-wj-surface motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3"
-                style={{ animationDelay: `${stage.id * 80}ms`, animationFillMode: 'backwards' }}
-              >
-                <div className="relative h-52 overflow-hidden">
-                  <img
-                    src={`/stage-${stage.id}.jpeg`}
-                    alt={stage.name}
-                    loading="lazy"
-                    className="absolute inset-0 h-full w-full object-cover grayscale-[0.55] brightness-[0.82]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-black/15" />
-
-                  <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1 rounded-sm bg-black/45 px-2 py-0.5 text-xs text-white/85 backdrop-blur-sm">
-                    <Lock className="h-3.5 w-3.5" />
-                    未解锁
-                  </span>
-
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-[11px] tabular-nums tracking-[0.15em] text-white/55">
-                        {String(stage.id).padStart(2, '0')}
-                      </span>
-                      {stage.light && (
-                        <span className="text-[10px] text-white/40">轻量</span>
-                      )}
-                    </div>
-                    <h2 className="mt-1 font-serif text-2xl font-semibold tracking-wide text-white/85">
-                      {stage.name}
-                    </h2>
-                  </div>
-                </div>
-
-                <div className="flex flex-1 flex-col justify-between p-5">
-                  <p className="text-sm leading-relaxed text-wj-muted/75">{stage.tagline}</p>
-                  <div className="mt-4 flex items-center justify-end">
-                    <span className="inline-flex items-center gap-1.5 text-xs text-wj-muted">
-                      <Lock className="h-3.5 w-3.5" />
-                      答完「{prevName}」后解锁
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          }
 
           return (
             <Link

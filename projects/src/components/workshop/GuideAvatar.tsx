@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { RefreshCw, X } from 'lucide-react';
-import { isStageUnlocked, useWorkshopStore } from '@/store/useWorkshopStore';
+import { useWorkshopStore } from '@/store/useWorkshopStore';
 import { resolveGuideSpeech } from '@/lib/workshop/guide-lines';
 import { STAGES } from '@/lib/workshop/content';
 import { WJ_ASK_GUIDE_EVENT, type AskGuideDetail } from '@/lib/workshop/guide-bridge';
@@ -46,8 +46,6 @@ export function GuideAvatar() {
   // 对话框上下文跟随当前路由：环节页是该环节，其余页面是大厅总览
   const stageMatch = pathname.match(/^\/stage\/(\d+)/);
   const chatStage = STAGES.find((s) => s.id === Number(stageMatch?.[1])) ?? null;
-  // 未解锁的环节不开 AI 对话：带教内容也要跟着顺序解锁走（与环节页守卫同一口径）
-  const chatLocked = chatStage ? !isStageUnlocked(chatStage.id, completed) : false;
 
   const line = speech ? speech.lines[variant % speech.lines.length] : undefined;
   const text = line?.text ?? '';
@@ -110,13 +108,8 @@ export function GuideAvatar() {
 
   if (!speech || !line) return null;
 
-  // 点击立绘：就地展开 / 收起 AI 助教对话框（不离开当前页面）；
-  // 未解锁的环节不开对话，改为把提示气泡展开（气泡台词会指回该去的环节）
+  // 点击立绘：就地展开 / 收起 AI 助教对话框（不离开当前页面）
   const handleAvatarClick = () => {
-    if (chatLocked) {
-      setOpen(true);
-      return;
-    }
     setChatOpen((v) => !v);
   };
 
@@ -165,15 +158,13 @@ export function GuideAvatar() {
                     换一句
                   </button>
                 )}
-                {!chatLocked && (
-                  <button
-                    type="button"
-                    onClick={() => setChatOpen(true)}
-                    className="rounded px-1.5 py-1.5 text-xs font-medium text-wj-cinnabar transition-colors hover:opacity-80"
-                  >
-                    问小简 →
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => setChatOpen(true)}
+                  className="rounded px-1.5 py-1.5 text-xs font-medium text-wj-cinnabar transition-colors hover:opacity-80"
+                >
+                  问小简 →
+                </button>
               </div>
             </div>
             {/* 指向立绘的小尾巴（约对齐立绘中线） */}

@@ -7,7 +7,7 @@ import { ArrowLeft, ArrowRight, ArrowUp, Check, ChevronDown, ChevronUp, Loader2,
 import { ACT_DATA, ACT_QUESTIONS, ACT_WHY, STAGES, getStage, stageActTitles, type WjPart, type WjQuestion, type WjStage } from '@/lib/workshop/content';
 import { DataTable } from '@/components/workshop/DataTable';
 import { askGuide } from '@/lib/workshop/guide-bridge';
-import { answerKey, isStageUnlocked, useWorkshopStore } from '@/store/useWorkshopStore';
+import { answerKey, useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
 
 export function StageContent() {
@@ -63,45 +63,6 @@ export function StageContent() {
     return (
       <main className="flex min-h-dvh items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-wj-cinnabar" />
-      </main>
-    );
-  }
-
-  // 顺序解锁：直接输 URL 闯进来也拦。拦的是内容，不是人——指回该去的环节
-  if (!isStageUnlocked(stage.id, completed)) {
-    const lockedPrev = getStage(stage.id - 1);
-    return (
-      <main className="flex min-h-dvh items-center justify-center p-6">
-        <div className="max-w-md text-center">
-          <span className="mx-auto flex size-12 items-center justify-center rounded-md bg-wj-sunk">
-            <Lock className="h-6 w-6 text-wj-muted" />
-          </span>
-          <h1 className="mt-4 font-serif text-xl font-semibold text-wj-ink">
-            「{stage.name}」尚未解锁
-          </h1>
-          <p className="mt-3 text-sm leading-7 text-wj-muted">
-            六道工序按顺序进行。先答完{lockedPrev ? `「${lockedPrev.name}」` : '上一环节'}的最后一道细问，
-            这一环节才会打开。
-          </p>
-          <div className="mt-6 flex items-center justify-center gap-3">
-            <Link
-              href="/"
-              className="inline-flex h-9 items-center gap-2 rounded border border-wj-border px-4 text-sm text-wj-ink transition-colors hover:border-wj-cinnabar/60"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              返回工坊
-            </Link>
-            {lockedPrev && (
-              <Link
-                href={`/stage/${lockedPrev.id}`}
-                className="inline-flex h-9 items-center gap-2 rounded bg-wj-cinnabar px-4 text-sm font-medium text-wj-cinnabar-ink transition-colors hover:bg-wj-cinnabar/90"
-              >
-                前往「{lockedPrev.name}」
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            )}
-          </div>
-        </div>
       </main>
     );
   }
@@ -186,19 +147,6 @@ export function StageContent() {
 
           <nav aria-label="六道工序" className="ml-auto hidden items-center gap-1 md:flex">
             {STAGES.map((s) => {
-              if (s.id !== stage.id && !isStageUnlocked(s.id, completed)) {
-                return (
-                  <span
-                    key={s.id}
-                    aria-disabled="true"
-                    title={`答完上一环节后解锁`}
-                    className="inline-flex h-7 cursor-not-allowed items-center rounded px-2 text-xs text-wj-dim"
-                  >
-                    {s.name}
-                    <Lock className="ml-1 h-3 w-3" />
-                  </span>
-                );
-              }
               return (
                 <Link
                   key={s.id}
