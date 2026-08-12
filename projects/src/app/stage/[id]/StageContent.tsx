@@ -383,7 +383,7 @@ function QuestionWizard({ stage, nextStage, isDone, allCompleted }: { stage: WjS
 
   const isDemo = typeof window !== 'undefined' && (window as any).__DEMO_MODE__;
   const firstOpen = answered.indexOf(false);
-  const [current, setCurrent] = useState(() => (firstOpen === -1 ? total - 1 : firstOpen));
+  const [current, setCurrent] = useState(() => (isDemo ? 0 : firstOpen === -1 ? total - 1 : firstOpen));
 
   const q = stage.questions[current];
   const label = `细问 ${current + 1}`;
