@@ -22,10 +22,34 @@ function WorkshopHallInner() {
   const hydrated = useWorkshopStore((s) => s.hydrated);
   const achievementUnlocked = useWorkshopStore((s) => s.achievementUnlocked);
   const resetAll = useWorkshopStore((s) => s.resetAll);
+  const submitted = useWorkshopStore((s) => s.submitted);
+  const verdicts = useWorkshopStore((s) => s.verdicts);
   const done = hydrated ? completed : [];
   const allCompleted = done.length >= STAGES.length;
   const { user, signOut } = useAuth();
   const [excavation, exhibition] = SECTIONS;
+
+  function stageProgress(stageId: number) {
+    let total = 0;
+    let answered = 0;
+    let verified = 0;
+    for (const q of STAGES.find((s) => s.id === stageId)?.questions ?? []) {
+      if (q.parts) {
+        for (const p of q.parts) {
+          total++;
+          const key = `${stageId}-${q.id}-${p.label}`;
+          if (submitted[key]) answered++;
+          if (verdicts[key]) verified++;
+        }
+      } else {
+        total++;
+        const key = `${stageId}-${q.id}`;
+        if (submitted[key]) answered++;
+        if (verdicts[key]) verified++;
+      }
+    }
+    return { total, answered, verified };
+  }
 
   // 案例精读页回展厅时带 ?tab=exhibition，初始落回「简牍展示」页签
   const searchParams = useSearchParams();
@@ -265,7 +289,30 @@ function WorkshopHallInner() {
 
               {/* 文字内容 */}
               <div className="flex flex-1 flex-col justify-between p-5">
-                <p className="text-sm leading-relaxed text-wj-muted">{stage.tagline}</p>
+                <div>
+                  <p className="text-sm leading-relaxed text-wj-muted">{stage.tagline}</p>
+                  {(() => {
+                    const p = stageProgress(stage.id);
+                    if (p.total === 0) return null;
+                    return (
+                      <div className="mt-3 flex items-center gap-2 text-xs text-wj-dim">
+                        <span>进度 {p.answered}/{p.total}</span>
+                        {p.answered > 0 && (
+                          <>
+                            <span className="text-wj-line">·</span>
+                            <span>评阅 {p.verified}/{p.total}</span>
+                            <div className="ml-1 h-1 flex-1 max-w-[80px] overflow-hidden rounded-full bg-wj-line/40">
+                              <div
+                                className="h-full rounded-full bg-wj-cinnabar/60 transition-all duration-500"
+                                style={{ width: `${(p.answered / p.total) * 100}%` }}
+                              />
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
                 <div className="mt-4 flex items-center justify-end">
                   <span className="inline-flex items-center gap-1 text-sm text-wj-cinnabar/80 transition-all duration-200 group-hover:gap-2 group-hover:text-wj-cinnabar">
                     进入

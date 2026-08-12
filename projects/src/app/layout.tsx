@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { SupabaseConfigProvider } from '@/lib/supabase-config-inject';
 import { AuthProvider } from '@/components/workshop/AuthProvider';
+import { ProgressSyncProvider } from '@/components/workshop/ProgressSyncProvider';
 import { GuideAvatarGate } from '@/components/workshop/GuideAvatarGate';
 
 export const metadata: Metadata = {
@@ -19,8 +20,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <SupabaseConfigProvider>
           <AuthProvider>
-            {children}
-            <GuideAvatarGate />
+            <ProgressSyncProvider>
+              {children}
+              <GuideAvatarGate />
+            </ProgressSyncProvider>
           </AuthProvider>
         </SupabaseConfigProvider>
       </body>
