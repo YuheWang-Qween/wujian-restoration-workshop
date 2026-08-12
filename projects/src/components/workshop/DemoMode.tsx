@@ -3,13 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Play, Pause, SkipForward, SkipBack, X, Volume2, Loader2 } from 'lucide-react';
-import { DEMO_VIDEO_URLS } from '@/lib/workshop/demo-videos';
 
 interface DemoScene {
   title: string;
   narration: string;
   path?: string;
-  video?: string;
 }
 
 const SCENES: DemoScene[] = [
@@ -18,47 +16,41 @@ const SCENES: DemoScene[] = [
     narration:
       '1996年10月，长沙走马楼街，一台施工机械挖开了一口古井。井里涌出的不是泥土，而是十余万枚竹木简牍。它们在地下沉睡了一千七百多年，记录着一个我们从未如此近距离观察过的王朝：三国孙吴。这批简牍的总量，超过此前全国历年出土简牍的总和。',
     path: '/',
-    video: 'scene-01',
   },
   {
     title: '两个世界',
     narration:
       '打开工坊，顶部并排两个页签：简牍发掘与简牍鉴赏。简牍鉴赏是展厅，像逛博物馆一样浏览发现经过、形制六类、主题八类，甚至逐句精读五枚代表简。简牍发掘是工坊，六道修复工序按真实顺序排列。你不是在看修复，你是在做修复。',
     path: '/',
-    video: 'scene-02',
   },
   {
     title: '揭取 · 叠压排序',
     narration:
       '走进第一道工序——揭取。大木简总共2480枚，其中井内原位228枚带着层位与揭剥图，另外2000余枚从扰土里捡回，没有层位，只剩自身。工坊给你原始数据，I区五小坨的叠压记录，让你排列层序。合法排列不止一种，你还要指出哪些关系无法确定。这不是填空，这是考古现场的真实判断。',
     path: '/stage/1',
-    video: 'scene-03',
   },
   {
     title: '清洗 · 工时反推',
     narration:
       '清洗环节。竹简73631枚，每枚清洗40到50分钟。工坊让你算：五年内完成需要多少工人？只有一半人手，工期拉长到多少年？',
     path: '/stage/2',
-    video: 'scene-04',
   },
   {
     title: '饱水保存 · 药剂筛选',
     narration:
-      '饱水保存环节。1999年暴发蚀斑病，四种候选药剂摆在面前，都是好保存剂。但表格里有一列叫对人的影响，这一列才是真正的筛选维度。',
+      '饱水保存环节。1999年暴发蚀斑病，四种候选药剂摆在面前，都是好保存剂。但表格里有一列叫"对人的影响"，这一列才是真正的筛选维度。',
     path: '/stage/4',
-    video: 'scene-05',
   },
   {
     title: '脱水 · 含水率与收缩',
     narration:
       '脱水环节。简牍含水率高达471%，撤水不填充，宽度平均要缩50.6%。脱水就是给简找一个替身，最终选中十六醇，赢在颜色、收缩率、化学稳定性。六道工序走下来，你经历的是真实工程中的约束、权衡、试错和决策。',
     path: '/stage/6',
-    video: 'scene-06',
   },
   {
     title: '小简 · 数字人助教',
     narration:
-      '每个环节页面，数字人向导小简始终跟着你。它知道你在哪个环节、读到第几节、做完了哪些题，会根据你的位置切换台词。点开头像，对话框就地展开，你可以问任何问题，小简从知识库中检索回答。写完答案点请小简评阅，它会实时给出判定，告诉你哪里对了、哪里还有缺口，但不会端出完整标准答案。',
+      '每个环节页面，数字人向导小简始终跟着你。它知道你在哪个环节、读到第几节、做完了哪些题，会根据你的位置切换台词。点开头像，对话框就地展开，你可以问任何问题，小简从知识库中检索回答。写完答案点"请小简评阅"，它会实时给出判定，告诉你哪里对了、哪里还有缺口，但不会端出完整标准答案。',
     path: '/stage/1',
   },
   {
@@ -84,7 +76,6 @@ const SCENES: DemoScene[] = [
     narration:
       '走马楼吴简修复工坊做的事情很简单：它把一份考古修复报告，变成了一段可以亲手走过的旅程。小简在你身边，随时回答你的问题，随时评阅你的答案。但它不会替你走完任何一步。因为这条路的价值，正在于每一步都是你自己走的。',
     path: '/',
-    video: 'scene-11',
   },
 ];
 
@@ -95,10 +86,8 @@ export function DemoMode() {
   const [narrationVisible, setNarrationVisible] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [audioError, setAudioError] = useState(false);
-  const [videoVisible, setVideoVisible] = useState(false);
   const router = useRouter();
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const savedPathRef = useRef<string>('');
   const audioCacheRef = useRef<Map<number, string>>(new Map());
   const currentAudioKeyRef = useRef<number>(-1);
@@ -125,7 +114,6 @@ export function DemoMode() {
   const goNext = useCallback(() => {
     stopAudio();
     setNarrationVisible(false);
-    setVideoVisible(false);
     const next = sceneIdx + 1;
     if (next >= SCENES.length) {
       setActive(false);
@@ -139,7 +127,6 @@ export function DemoMode() {
   const goPrev = useCallback(() => {
     stopAudio();
     setNarrationVisible(false);
-    setVideoVisible(false);
     const prevIdx = Math.max(0, sceneIdx - 1);
     if (prevIdx === sceneIdx) return;
     setSceneIdx(prevIdx);
@@ -159,10 +146,10 @@ export function DemoMode() {
     stopAudio();
     setActive(false);
     setPlaying(false);
-    setVideoVisible(false);
     if (savedPathRef.current) router.push(savedPathRef.current);
   }, [router, stopAudio]);
 
+  // Fetch and play audio for current scene
   useEffect(() => {
     if (!active) return;
     const scene = SCENES[sceneIdx];
@@ -170,10 +157,6 @@ export function DemoMode() {
 
     setAudioError(false);
     setAudioLoading(true);
-
-    if (scene.video) {
-      setVideoVisible(true);
-    }
 
     const playAudio = async (uri: string, key: number) => {
       if (key !== currentAudioKeyRef.current) return;
@@ -235,28 +218,30 @@ export function DemoMode() {
     };
   }, [active, sceneIdx, playing, goNext, stopAudio]);
 
+  // Show narration text after a short delay
   useEffect(() => {
     if (!active) return;
     setNarrationVisible(false);
-    const showTimer = setTimeout(() => setNarrationVisible(true), 600);
+    const showTimer = setTimeout(() => setNarrationVisible(true), 400);
     return () => clearTimeout(showTimer);
   }, [active, sceneIdx]);
 
+  // Play/pause control
   useEffect(() => {
     if (!active) return;
     if (playing) {
       audioRef.current?.play().catch(() => {});
-      videoRef.current?.play().catch(() => {});
     } else {
       audioRef.current?.pause();
-      videoRef.current?.pause();
     }
   }, [playing, active]);
 
+  // Cleanup on unmount
   useEffect(() => {
     return () => stopAudio();
   }, [stopAudio]);
 
+  // Keyboard controls
   useEffect(() => {
     if (!active) return;
     const onKey = (e: KeyboardEvent) => {
@@ -272,6 +257,7 @@ export function DemoMode() {
     return () => window.removeEventListener('keydown', onKey);
   }, [active, exitDemo, goNext, goPrev]);
 
+  // Expose to global for the homepage button
   useEffect(() => {
     window.__startDemo = startDemo;
     return () => {
@@ -283,35 +269,11 @@ export function DemoMode() {
 
   const scene = SCENES[sceneIdx];
   const progress = ((sceneIdx + 1) / SCENES.length) * 100;
-  const hasVideo = scene.video && DEMO_VIDEO_URLS[scene.video];
 
   return (
     <>
-      {/* Cinematic video overlay */}
-      {hasVideo && videoVisible && (
-        <div
-          className="fixed inset-0 z-[9997]"
-          style={{
-            opacity: videoVisible ? 1 : 0,
-            transition: 'opacity 1.2s ease-in-out',
-          }}
-        >
-          <video
-            ref={videoRef}
-            src={DEMO_VIDEO_URLS[scene.video!]}
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="h-full w-full object-cover"
-          />
-          {/* Dark gradient for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30" />
-        </div>
-      )}
-
       {/* Top control bar */}
-      <div className="fixed top-0 left-0 right-0 z-[9999] border-b border-wj-cinnabar/20 bg-wj-bg/90 backdrop-blur-md">
+      <div className="fixed top-0 left-0 right-0 z-[9998] border-b border-wj-cinnabar/20 bg-wj-bg/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5">
           <div className="flex items-center gap-3">
             <span className="font-serif text-sm font-semibold text-wj-cinnabar">
@@ -365,6 +327,7 @@ export function DemoMode() {
             </button>
           </div>
         </div>
+        {/* Progress bar */}
         <div className="h-0.5 w-full bg-wj-line/30">
           <div
             className="h-full bg-wj-cinnabar transition-all duration-300"
@@ -374,7 +337,7 @@ export function DemoMode() {
       </div>
 
       {/* Bottom narration subtitle */}
-      <div className="fixed bottom-0 left-0 right-0 z-[9999] pointer-events-none">
+      <div className="fixed bottom-0 left-0 right-0 z-[9998] pointer-events-none">
         <div
           className="mx-auto max-w-3xl px-6 pb-8 pt-4"
           style={{
@@ -383,29 +346,14 @@ export function DemoMode() {
             transition: 'opacity 0.6s ease, transform 0.6s ease',
           }}
         >
-          <div
-            className="rounded-lg border px-6 py-5 shadow-[0_-4px_24px_-8px_rgba(30,27,22,0.2)] backdrop-blur-md"
-            style={{
-              borderColor: hasVideo ? 'rgba(255,255,255,0.15)' : 'rgba(213,194,163,0.4)',
-              backgroundColor: hasVideo ? 'rgba(0,0,0,0.6)' : 'rgba(250,246,240,0.92)',
-            }}
-          >
+          <div className="rounded-lg border border-wj-border/60 bg-wj-bg/92 px-6 py-5 shadow-[0_-4px_24px_-8px_rgba(30,27,22,0.2)] backdrop-blur-md">
             <div className="mb-2 flex items-center gap-2">
-              <Volume2
-                className="h-3 w-3"
-                style={{ color: hasVideo ? 'rgba(220,38,38,0.8)' : 'rgba(220,38,38,0.6)' }}
-              />
-              <span
-                className="font-serif text-xs font-semibold tracking-wide"
-                style={{ color: hasVideo ? '#f5e6d3' : '#dc2626' }}
-              >
+              <Volume2 className="h-3 w-3 text-wj-cinnabar/60" />
+              <span className="font-serif text-xs font-semibold tracking-wide text-wj-cinnabar">
                 {scene.title}
               </span>
             </div>
-            <p
-              className="text-[15px] leading-[1.8]"
-              style={{ color: hasVideo ? '#f5f0e8' : '#292524' }}
-            >
+            <p className="text-[15px] leading-[1.8] text-wj-ink">
               {scene.narration}
             </p>
           </div>
@@ -413,16 +361,15 @@ export function DemoMode() {
       </div>
 
       {/* Side scene navigation */}
-      <div className="fixed right-4 top-1/2 z-[9999] hidden -translate-y-1/2 flex-col gap-1.5 lg:flex">
+      <div className="fixed right-4 top-1/2 z-[9998] hidden -translate-y-1/2 flex-col gap-1.5 lg:flex">
         {SCENES.map((s, i) => (
           <button
             key={i}
             type="button"
             onClick={() => {
               stopAudio();
-              setNarrationVisible(false);
-              setVideoVisible(false);
               setSceneIdx(i);
+              setNarrationVisible(false);
               navigateToScene(i);
             }}
             className="group flex items-center gap-2"
