@@ -4,9 +4,8 @@ import dotenv from 'dotenv';
 import { getReportBuffer, createWrappedFetch } from 'coze-coding-dev-sdk';
 
 let envLoaded = false;
-/** 上次探测失败的时间：python3 子进程探测同步阻塞（最长 10 秒），失败后冷却期内不再重试 */
 let lastProbeFailedAt = 0;
-const PROBE_RETRY_COOLDOWN_MS = 60_000;
+const PROBE_RETRY_COOLDOWN_MS = 10_000;
 
 interface SupabaseCredentials {
   url: string;
@@ -70,9 +69,8 @@ except Exception as e:
     }
 
     envLoaded = true;
+    lastProbeFailedAt = 0;
   } catch {
-    // 记录失败时间进入冷却：不缓存的话，凭据缺失环境下每个请求都会
-    // 重新同步 spawn python3（最长阻塞 10 秒），少量并发即可拖死事件循环
     lastProbeFailedAt = Date.now();
   }
 }
