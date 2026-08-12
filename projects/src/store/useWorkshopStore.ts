@@ -41,6 +41,7 @@ interface WorkshopState {
   revealNextAct: (stageId: number, totalActs: number) => void;
   revealPrevAct: (stageId: number) => void;
   resetAll: () => void;
+  resetStage: (stageId: number) => void;
 }
 
 /**
@@ -145,6 +146,23 @@ export const useWorkshopStore = create<WorkshopState>()(
           achievementUnlocked: false,
           actsRevealed: {},
           sessionId: newSessionId(),
+        }),
+
+      resetStage: (stageId) =>
+        set((s) => {
+          const prefix = `${stageId}-`;
+          const filterStr = <T,>(obj: Record<string, T>) =>
+            Object.fromEntries(Object.entries(obj).filter(([k]) => !k.startsWith(prefix))) as Record<string, T>;
+          return {
+            completed: s.completed.filter((id) => id !== stageId),
+            answers: filterStr(s.answers),
+            submitted: filterStr(s.submitted),
+            referenceAnswers: filterStr(s.referenceAnswers),
+            verdicts: filterStr(s.verdicts),
+            analyses: filterStr(s.analyses),
+            images: filterStr(s.images),
+            actsRevealed: { ...s.actsRevealed, [stageId]: 1 },
+          };
         }),
     }),
     {

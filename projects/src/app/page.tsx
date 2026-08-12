@@ -7,7 +7,7 @@ import { SECTIONS, STAGES } from '@/lib/workshop/content';
 import { useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { ExhibitionHall } from '@/components/workshop/ExhibitionHall';
-import { ArrowRight, Award, Check, LogOut } from 'lucide-react';
+import { ArrowRight, Award, Check, LogOut, RotateCcw } from 'lucide-react';
 
 export default function WorkshopHall() {
   return (
@@ -22,6 +22,7 @@ function WorkshopHallInner() {
   const hydrated = useWorkshopStore((s) => s.hydrated);
   const achievementUnlocked = useWorkshopStore((s) => s.achievementUnlocked);
   const resetAll = useWorkshopStore((s) => s.resetAll);
+  const resetStage = useWorkshopStore((s) => s.resetStage);
   const submitted = useWorkshopStore((s) => s.submitted);
   const verdicts = useWorkshopStore((s) => s.verdicts);
   const done = hydrated ? completed : [];
@@ -260,7 +261,28 @@ function WorkshopHallInner() {
                     );
                   })()}
                 </div>
-                <div className="mt-4 flex items-center justify-end">
+                <div className="mt-4 flex items-center justify-between">
+                  {(() => {
+                    const p = stageProgress(stage.id);
+                    if (p.answered > 0) {
+                      return (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (confirm(`确定要重做「${stage.name}」吗？该环节的所有作答记录将被清除。`)) {
+                              resetStage(stage.id);
+                            }
+                          }}
+                          className="inline-flex items-center gap-1 text-xs text-wj-dim transition-colors hover:text-wj-ochre"
+                        >
+                          <RotateCcw className="h-3 w-3" />
+                          重做
+                        </button>
+                      );
+                    }
+                    return <span />;
+                  })()}
                   <span className="inline-flex items-center gap-1 text-sm text-wj-cinnabar/80 transition-all duration-200 group-hover:gap-2 group-hover:text-wj-cinnabar">
                     进入
                     <ArrowRight className="h-3.5 w-3.5" />
