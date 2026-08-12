@@ -179,16 +179,6 @@ export function DemoMode() {
     actionTimersRef.current = [];
   }, []);
 
-  const navigateToScene = useCallback(
-    (idx: number) => {
-      const scene = SCENES[idx];
-      if (scene.path) {
-        router.push(scene.path);
-      }
-    },
-    [router],
-  );
-
   const stopAudio = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -205,26 +195,22 @@ export function DemoMode() {
     setSceneIdx((prev) => {
       const next = prev + 1;
       if (next >= SCENES.length) {
-        setActive(false);
-        if (savedPathRef.current) router.push(savedPathRef.current);
+        setTimeout(() => {
+          setActive(false);
+          if (savedPathRef.current) router.push(savedPathRef.current);
+        }, 0);
         return prev;
       }
-      navigateToScene(next);
       return next;
     });
-  }, [navigateToScene, router, stopAudio, clearActionTimers]);
+  }, [stopAudio, clearActionTimers, router]);
 
   const goPrev = useCallback(() => {
     stopAudio();
     clearActionTimers();
     setNarrationVisible(false);
-    setSceneIdx((prev) => {
-      const prevIdx = Math.max(0, prev - 1);
-      if (prevIdx === prev) return prev;
-      navigateToScene(prevIdx);
-      return prevIdx;
-    });
-  }, [navigateToScene, stopAudio, clearActionTimers]);
+    setSceneIdx((prev) => Math.max(0, prev - 1));
+  }, [stopAudio, clearActionTimers]);
 
   const startDemo = useCallback(() => {
     savedPathRef.current = window.location.pathname + window.location.search;
@@ -232,8 +218,7 @@ export function DemoMode() {
     setSceneIdx(0);
     setActive(true);
     setPlaying(true);
-    navigateToScene(0);
-  }, [navigateToScene]);
+  }, []);
 
   const exitDemo = useCallback(() => {
     stopAudio();
@@ -250,9 +235,8 @@ export function DemoMode() {
       clearActionTimers();
       setNarrationVisible(false);
       setSceneIdx(idx);
-      navigateToScene(idx);
     },
-    [stopAudio, clearActionTimers, navigateToScene],
+    [stopAudio, clearActionTimers],
   );
 
   // Execute scene actions with timers
@@ -271,6 +255,15 @@ export function DemoMode() {
 
     return clearActionTimers;
   }, [active, sceneIdx, clearActionTimers]);
+
+  // Navigate to the scene's path when sceneIdx changes
+  useEffect(() => {
+    if (!active) return;
+    const scene = SCENES[sceneIdx];
+    if (scene.path) {
+      router.push(scene.path);
+    }
+  }, [active, sceneIdx, router]);
 
   // Fetch and play audio for current scene
   useEffect(() => {
