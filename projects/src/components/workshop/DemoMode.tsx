@@ -113,28 +113,25 @@ export function DemoMode() {
 
   const goNext = useCallback(() => {
     stopAudio();
-    setSceneIdx((prev) => {
-      const next = prev + 1;
-      if (next >= SCENES.length) {
-        setActive(false);
-        if (savedPathRef.current) router.push(savedPathRef.current);
-        return 0;
-      }
-      setNarrationVisible(false);
-      navigateToScene(next);
-      return next;
-    });
-  }, [navigateToScene, router, stopAudio]);
+    setNarrationVisible(false);
+    const next = sceneIdx + 1;
+    if (next >= SCENES.length) {
+      setActive(false);
+      if (savedPathRef.current) router.push(savedPathRef.current);
+      return;
+    }
+    setSceneIdx(next);
+    navigateToScene(next);
+  }, [sceneIdx, navigateToScene, router, stopAudio]);
 
   const goPrev = useCallback(() => {
     stopAudio();
-    setSceneIdx((prev) => {
-      const prevIdx = Math.max(0, prev - 1);
-      setNarrationVisible(false);
-      navigateToScene(prevIdx);
-      return prevIdx;
-    });
-  }, [navigateToScene, stopAudio]);
+    setNarrationVisible(false);
+    const prevIdx = Math.max(0, sceneIdx - 1);
+    if (prevIdx === sceneIdx) return;
+    setSceneIdx(prevIdx);
+    navigateToScene(prevIdx);
+  }, [sceneIdx, navigateToScene, stopAudio]);
 
   const startDemo = useCallback(() => {
     savedPathRef.current = window.location.pathname + window.location.search;
