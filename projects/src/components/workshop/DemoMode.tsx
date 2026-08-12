@@ -41,17 +41,6 @@ const SCENES: DemoScene[] = [
     ],
   },
   {
-    title: '简牍鉴赏',
-    narration:
-      '切到鉴赏页签，展厅里展出简牍的形制、主题与关键术语。',
-    path: '/',
-    actions: [
-      { delay: 0, type: 'click', selector: 'data:tab-exhibition' },
-      { delay: 2000, type: 'scroll', amount: 400 },
-      { delay: 5000, type: 'scroll', amount: -400 },
-    ],
-  },
-  {
     title: '揭取 · 叠压排序',
     narration:
       '第一道工序，揭取。给你原始叠压数据，排出层序。合法答案不止一种。',
@@ -109,6 +98,17 @@ const SCENES: DemoScene[] = [
     actions: [
       { delay: 0, type: 'scroll', amount: 300 },
       { delay: 3000, type: 'scroll', amount: 300 },
+    ],
+  },
+  {
+    title: '简牍鉴赏',
+    narration:
+      '修复之外，鉴赏页签里展出简牍的形制、主题与关键术语。',
+    path: '/',
+    actions: [
+      { delay: 0, type: 'click', selector: 'data:tab-exhibition' },
+      { delay: 2000, type: 'scroll', amount: 400 },
+      { delay: 5000, type: 'scroll', amount: -400 },
     ],
   },
   {
