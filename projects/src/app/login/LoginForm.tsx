@@ -56,7 +56,12 @@ export function LoginForm() {
         router.replace('/');
       }
     } catch {
-      setError('网络异常，请稍后重试');
+      const cfg = window.__SUPABASE_CONFIG__;
+      if (!cfg?.url || !cfg?.anonKey) {
+        setError('登录服务未就绪，请稍后再试或联系管理员');
+      } else {
+        setError('网络异常，请稍后重试');
+      }
     } finally {
       setSubmitting(false);
     }
