@@ -21,7 +21,6 @@ function WorkshopHallInner() {
   const completed = useWorkshopStore((s) => s.completed);
   const hydrated = useWorkshopStore((s) => s.hydrated);
   const achievementUnlocked = useWorkshopStore((s) => s.achievementUnlocked);
-  const resetAll = useWorkshopStore((s) => s.resetAll);
   const resetStage = useWorkshopStore((s) => s.resetStage);
   const submitted = useWorkshopStore((s) => s.submitted);
   const verdicts = useWorkshopStore((s) => s.verdicts);
@@ -169,7 +168,6 @@ function WorkshopHallInner() {
                 type="button"
                 onClick={() => {
                   if (user) signOut();
-                  resetAll();
                   setActive('excavation');
                 }}
                 className="flex items-center gap-1 rounded border border-wj-border px-2.5 py-1.5 text-xs text-wj-muted transition-colors hover:border-wj-cinnabar hover:text-wj-cinnabar"
