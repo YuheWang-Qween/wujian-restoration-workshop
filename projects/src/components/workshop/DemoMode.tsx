@@ -31,16 +31,24 @@ const SCENES: DemoScene[] = [
     actions: [],
   },
   {
-    title: '两个世界',
+    title: '简牍发掘',
     narration:
-      '登录后进入工坊大厅。两个页签：鉴赏是展厅，发掘是工坊。六道工序按真实顺序排列，你来做修复。',
+      '登录后进入工坊大厅。发掘页签里，六道工序按真实顺序排列，你来做修复。',
     path: '/',
     actions: [
       { delay: 500, type: 'highlight', selector: 'data:tab-excavation' },
-      { delay: 2000, type: 'click', selector: 'data:tab-exhibition' },
-      { delay: 3000, type: 'scroll', amount: 400 },
-      { delay: 6000, type: 'scroll', amount: -400 },
-      { delay: 7500, type: 'click', selector: 'data:tab-excavation' },
+      { delay: 2500, type: 'scroll', amount: 300 },
+    ],
+  },
+  {
+    title: '简牍鉴赏',
+    narration:
+      '切到鉴赏页签，展厅里展出简牍的形制、主题与关键术语。',
+    path: '/',
+    actions: [
+      { delay: 0, type: 'click', selector: 'data:tab-exhibition' },
+      { delay: 2000, type: 'scroll', amount: 400 },
+      { delay: 5000, type: 'scroll', amount: -400 },
     ],
   },
   {
