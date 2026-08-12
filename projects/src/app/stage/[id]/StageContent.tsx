@@ -402,7 +402,7 @@ function QuestionWizard({ stage, nextStage, isDone, allCompleted }: { stage: WjS
   );
   const partAnswered = q.parts.map((_, i) => partBits[i] === '1');
   const firstOpenPart = partAnswered.indexOf(false);
-  const visibleParts = firstOpenPart === -1 ? q.parts.length : firstOpenPart + 1;
+  const visibleParts = isDemo ? q.parts.length : (firstOpenPart === -1 ? q.parts.length : firstOpenPart + 1);
 
   // 顺序推进：第 i 题在 i===0 或前一题已答完时可进入
   const canEnter = (i: number) => isDemo || i === 0 || answered[i - 1];

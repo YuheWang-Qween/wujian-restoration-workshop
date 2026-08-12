@@ -126,8 +126,8 @@ const SCENES: DemoScene[] = [
     narration: '多选题。选出所有可行项，还要说明理由。',
     path: '/stage/3',
     actions: [
-      { delay: 800, type: 'click', selector: 'data:q-3' },
-      { delay: 1500, type: 'scroll', amount: 200 },
+      { delay: 800, type: 'click', selector: 'data:q-2' },
+      { delay: 1500, type: 'scroll', amount: 400 },
     ],
   },
   {
