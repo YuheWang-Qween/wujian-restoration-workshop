@@ -135,6 +135,7 @@ function WorkshopHallInner() {
                     type="button"
                     role="tab"
                     id={`tab-${s.id}`}
+                    data-demo={`tab-${s.id}`}
                     aria-selected={isActive}
                     aria-controls={`panel-${s.id}`}
                     tabIndex={isActive ? 0 : -1}
@@ -167,6 +168,7 @@ function WorkshopHallInner() {
               <button
                 type="button"
                 onClick={() => window.__startDemo?.()}
+                data-demo="demo-btn"
                 className="flex items-center gap-1 rounded border border-wj-cinnabar/30 px-2.5 py-1.5 text-xs text-wj-cinnabar/80 transition-colors hover:border-wj-cinnabar hover:bg-wj-cinnabar/5 hover:text-wj-cinnabar"
                 title="演示模式"
               >
@@ -205,6 +207,7 @@ function WorkshopHallInner() {
             <Link
               key={stage.id}
               href={`/stage/${stage.id}`}
+              data-demo={`stage-${stage.id}`}
               className="group relative flex flex-col overflow-hidden rounded-lg border border-wj-border/70 bg-wj-surface transition-all duration-300 hover:-translate-y-1 hover:border-wj-cinnabar/45 hover:shadow-[0_4px_8px_-2px_rgba(30,27,22,0.08),0_16px_40px_-16px_rgba(30,27,22,0.22)] motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3"
               style={{ animationDelay: `${stage.id * 80}ms`, animationFillMode: 'backwards' }}
             >

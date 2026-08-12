@@ -80,21 +80,21 @@ export function AuthShell({ cardTitle, altLink, children }: AuthShellProps) {
       <div className="relative z-10 w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700">
         {/* 标题区：印章 + 名称 */}
         <div className="mb-10 flex flex-col items-center">
-          <div className="mb-5 flex size-14 flex-col items-center justify-center rounded bg-wj-cinnabar ring-2 ring-wj-cinnabar/20 ring-offset-2 ring-offset-transparent shadow-[0_4px_16px_-2px_rgba(163,57,42,0.3)]">
+          <div className="mb-5 flex size-14 flex-col items-center justify-center rounded bg-wj-cinnabar ring-2 ring-wj-cinnabar/20 ring-offset-2 ring-offset-transparent shadow-[0_4px_16px_-2px_rgba(163,57,42,0.3)]" data-demo="login-logo">
             <span className="wj-seal text-lg leading-none text-wj-cinnabar-ink">吴</span>
             <span className="wj-seal text-lg leading-none text-wj-cinnabar-ink">簡</span>
           </div>
-          <h1 className="mt-4 font-serif text-2xl font-semibold tracking-[0.15em] text-wj-ink sm:text-3xl">
+          <h1 className="mt-4 font-serif text-2xl font-semibold tracking-[0.15em] text-wj-ink sm:text-3xl" data-demo="login-title">
             {APP_NAME}
           </h1>
-          <p className="mt-2 font-serif text-sm tracking-wider text-wj-muted">{APP_SUBTITLE}</p>
+          <p className="mt-2 font-serif text-sm tracking-wider text-wj-muted" data-demo="login-subtitle">{APP_SUBTITLE}</p>
         </div>
 
         {/* 卡片：竹简纹 + 顶部朱砂细线 */}
         <div className="wj-slip relative overflow-hidden rounded-lg border border-wj-border/60 bg-wj-surface/[0.97] bg-[repeating-linear-gradient(135deg,transparent_0px,transparent_3px,rgba(30,27,22,0.008)_3px,rgba(30,27,22,0.008)_4px)] shadow-[0_8px_32px_-8px_rgba(30,27,22,0.12),0_2px_8px_-2px_rgba(30,27,22,0.06)] backdrop-blur-md">
           <div className="h-[3px] bg-gradient-to-r from-wj-cinnabar/0 via-wj-cinnabar to-wj-cinnabar/0" />
           <div className="p-8">
-            <h2 className="mb-6 text-center font-serif text-lg font-medium tracking-wide text-wj-ink">
+            <h2 className="mb-6 text-center font-serif text-lg font-medium tracking-wide text-wj-ink" data-demo="login-cardtitle">
               {cardTitle}
             </h2>
 
@@ -110,6 +110,7 @@ export function AuthShell({ cardTitle, altLink, children }: AuthShellProps) {
               {altLink.hint}{' '}
               <Link
                 href={altLink.href}
+                data-demo="login-altlink"
                 className="font-medium text-wj-cinnabar underline-offset-4 transition-colors hover:text-wj-cinnabar/80 hover:underline"
               >
                 {altLink.label}
@@ -137,7 +138,7 @@ interface AuthFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export function AuthField({ id, label, icon: Icon, trailing, ...input }: AuthFieldProps) {
   return (
-    <div>
+    <div data-demo={`login-field-${id}`}>
       <label htmlFor={id} className="mb-2 block text-sm font-medium text-wj-muted">
         {label}
       </label>
@@ -179,6 +180,7 @@ export function AuthSubmitButton({
     <button
       type="submit"
       disabled={submitting}
+      data-demo="login-submit"
       className={cn(
         'w-full rounded bg-wj-cinnabar py-3 text-sm font-medium tracking-[0.2em] text-white shadow-[0_2px_8px_-1px_rgba(163,57,42,0.3)] transition-all hover:bg-wj-cinnabar/90 hover:shadow-[0_4px_16px_-2px_rgba(163,57,42,0.4)] active:scale-[0.98]',
         submitting && 'cursor-not-allowed opacity-60',

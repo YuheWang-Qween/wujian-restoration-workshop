@@ -22,31 +22,34 @@ interface DemoScene {
 
 const SCENES: DemoScene[] = [
   {
-    title: '开场',
+    title: '登录',
     narration:
-      '1996年，长沙走马楼，一口古井中出土了十余万枚三国孙吴简牍。这个工坊，带你亲历从井底到书桌的修复之旅。',
-    path: '/',
+      '欢迎来到走马楼三国吴简修复工坊。1996年，长沙走马楼古井出土十余万枚简牍。先登录你的账号，开始修复之旅。',
+    path: '/login',
     actions: [
-      { delay: 0, type: 'scroll', amount: 200 },
-      { delay: 4000, type: 'scroll', amount: -200 },
+      { delay: 500, type: 'highlight', selector: 'data:login-logo' },
+      { delay: 3000, type: 'highlight', selector: 'data:login-field-email' },
+      { delay: 5000, type: 'highlight', selector: 'data:login-field-password' },
+      { delay: 7000, type: 'highlight', selector: 'data:login-submit' },
     ],
   },
   {
     title: '两个世界',
     narration:
-      '工坊有两个页签。鉴赏是展厅，浏览简牍的发现、形制与主题。发掘是工坊，六道工序按真实顺序排列。你来做修复。',
+      '登录后进入工坊大厅。两个页签：鉴赏是展厅，发掘是工坊。六道工序按真实顺序排列，你来做修复。',
     path: '/',
     actions: [
-      { delay: 0, type: 'click', selector: '#tab-exhibition' },
+      { delay: 500, type: 'highlight', selector: 'data:tab-excavation' },
+      { delay: 2000, type: 'click', selector: 'data:tab-exhibition' },
       { delay: 3000, type: 'scroll', amount: 400 },
       { delay: 6000, type: 'scroll', amount: -400 },
-      { delay: 8000, type: 'click', selector: '#tab-excavation' },
+      { delay: 7500, type: 'click', selector: 'data:tab-excavation' },
     ],
   },
   {
     title: '揭取 · 叠压排序',
     narration:
-      '第一道工序，揭取。给你原始叠压数据，排出层序。合法答案不止一种，还要指出哪些关系无法确定。',
+      '第一道工序，揭取。给你原始叠压数据，排出层序。合法答案不止一种。',
     path: '/stage/1',
     actions: [
       { delay: 0, type: 'scroll', amount: 300 },
@@ -109,8 +112,8 @@ const SCENES: DemoScene[] = [
       '作答自动保存，进度云端同步。每张卡片显示完成情况，一键重做。',
     path: '/',
     actions: [
-      { delay: 500, type: 'scroll', amount: 200 },
-      { delay: 2000, type: 'highlight', selector: 'a[href="/stage/1"]' },
+      { delay: 500, type: 'highlight', selector: 'data:stage-1' },
+      { delay: 2000, type: 'scroll', amount: 200 },
       { delay: 4000, type: 'scroll', amount: -200 },
     ],
   },
@@ -215,6 +218,8 @@ export function DemoMode() {
   // Navigate to the scene's path when sceneIdx changes
   useEffect(() => {
     if (!active) return;
+    // Clean up any highlight overlays from previous scene
+    document.querySelectorAll('.wj-demo-highlight').forEach((el) => el.remove());
     const scene = SCENES[sceneIdx];
     if (scene.path) {
       window.scrollTo(0, 0);
@@ -226,11 +231,17 @@ export function DemoMode() {
   const waitForElement = useCallback(
     (selector: string, timeout = 3000): Promise<HTMLElement | null> => {
       return new Promise((resolve) => {
-        const el = document.querySelector(selector) as HTMLElement | null;
+        const find = () => {
+          if (selector.startsWith('data:')) {
+            return document.querySelector(`[data-demo="${selector.slice(5)}"]`) as HTMLElement | null;
+          }
+          return document.querySelector(selector) as HTMLElement | null;
+        };
+        const el = find();
         if (el) return resolve(el);
         const start = Date.now();
         const interval = setInterval(() => {
-          const el = document.querySelector(selector) as HTMLElement | null;
+          const el = find();
           if (el) {
             clearInterval(interval);
             resolve(el);
@@ -248,9 +259,10 @@ export function DemoMode() {
   const startSceneActions = useCallback(
     (scene: DemoScene) => {
       clearActionTimers();
-      if (!scene.actions?.length) return;
+      // Remove any previous highlight overlay
+      document.querySelectorAll('.wj-demo-highlight').forEach((el) => el.remove());
 
-      for (const action of scene.actions) {
+      for (const action of scene.actions ?? []) {
         const timer = setTimeout(async () => {
           if (action.type === 'click' && action.selector) {
             const el = await waitForElement(action.selector);
@@ -258,14 +270,20 @@ export function DemoMode() {
           } else if (action.type === 'highlight' && action.selector) {
             const el = await waitForElement(action.selector);
             if (el) {
+              // Remove previous highlight, add new one
+              document.querySelectorAll('.wj-demo-highlight').forEach((o) => o.remove());
               const rect = el.getBoundingClientRect();
               const overlay = document.createElement('div');
-              overlay.style.cssText = `position:fixed;left:${rect.left - 6}px;top:${rect.top - 6}px;width:${rect.width + 12}px;height:${rect.height + 12}px;border:2px solid #a02828;border-radius:8px;pointer-events:none;z-index:9997;transition:opacity 0.3s;box-shadow:0 0 16px rgba(160,40,40,0.3);`;
+              overlay.className = 'wj-demo-highlight';
+              overlay.style.cssText = `position:fixed;left:${rect.left - 6}px;top:${rect.top - 6}px;width:${rect.width + 12}px;height:${rect.height + 12}px;border:2px solid #a02828;border-radius:8px;pointer-events:none;z-index:9997;transition:opacity 0.3s;box-shadow:0 0 20px rgba(160,40,40,0.4);background:rgba(160,40,40,0.05);`;
               document.body.appendChild(overlay);
+              // Auto-remove after 4s or when next highlight appears
               setTimeout(() => {
-                overlay.style.opacity = '0';
-                setTimeout(() => overlay.remove(), 400);
-              }, 1500);
+                if (overlay.parentNode) {
+                  overlay.style.opacity = '0';
+                  setTimeout(() => overlay.remove(), 400);
+                }
+              }, 4000);
             }
           } else if (action.type === 'scrollTo' && action.selector) {
             const el = await waitForElement(action.selector);
