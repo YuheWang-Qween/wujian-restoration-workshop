@@ -10,6 +10,44 @@ import { askGuide } from '@/lib/workshop/guide-bridge';
 import { answerKey, useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
 
+function cleanLatex(text: string): string {
+  return text
+    .replace(/\$+/g, '')
+    .replace(/\\times/g, '×')
+    .replace(/\\div/g, '÷')
+    .replace(/\\approx/g, '≈')
+    .replace(/\\le/g, '≤')
+    .replace(/\\ge/g, '≥')
+    .replace(/\\ne/g, '≠')
+    .replace(/\\pm/g, '±')
+    .replace(/\\cdot/g, '·')
+    .replace(/\\text\{([^}]*)\}/g, '$1')
+    .replace(/\\,/g, ' ')
+    .replace(/\\;/g, ' ')
+    .replace(/\\!/g, '')
+    .replace(/\\left\(/g, '(')
+    .replace(/\\right\)/g, ')')
+    .replace(/\\to/g, '→')
+    .replace(/\\rightarrow/g, '→')
+    .replace(/\\Rightarrow/g, '⇒')
+    .replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, '($1)/($2)')
+    .replace(/\\sqrt\{([^}]*)\}/g, '√($1)')
+    .replace(/\\pi/g, 'π')
+    .replace(/\\alpha/g, 'α')
+    .replace(/\\beta/g, 'β')
+    .replace(/\\gamma/g, 'γ')
+    .replace(/\\delta/g, 'δ')
+    .replace(/\\theta/g, 'θ')
+    .replace(/\\lambda/g, 'λ')
+    .replace(/\\mu/g, 'μ')
+    .replace(/\\sigma/g, 'σ')
+    .replace(/\\infty/g, '∞')
+    .replace(/\\sum/g, 'Σ')
+    .replace(/\\partial/g, '∂')
+    .replace(/\\nabla/g, '∇')
+    .replace(/\\[a-zA-Z]+/g, '');
+}
+
 export function StageContent() {
   const params = useParams<{ id: string }>();
   const stageId = Number(params?.id);
@@ -1532,7 +1570,7 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
               : 'border-wj-line bg-wj-raised/70 text-wj-ink2'
           }`}
         >
-          {gradeError ?? analysis}
+          {gradeError ?? cleanLatex(analysis)}
         </div>
       )}
 
@@ -1555,7 +1593,7 @@ function AnswerBox({ stageId, question, label, part }: AnswerBoxProps) {
             </p>
           ) : referenceText ? (
             <p className="mt-1.5 whitespace-pre-wrap text-[12.5px] leading-6 text-wj-ink2">
-              {referenceText}
+              {cleanLatex(referenceText)}
               {refLoading && <Loader2 className="ml-1 inline h-3 w-3 animate-spin text-wj-dim" />}
             </p>
           ) : (
