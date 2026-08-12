@@ -382,16 +382,13 @@ export function DemoMode() {
         }
       };
       audio.oncanplay = () => {
-        if (key === currentAudioKeyRef.current) {
-          setAudioLoading(false);
-          if (playing) {
-            audio.play().catch(() => {
-              setAudioError(true);
-              setAudioLoading(false);
-            });
-            // Start scene actions AFTER audio begins playing
-            startSceneActions(scene);
-          }
+        if (key !== currentAudioKeyRef.current) return;
+        setAudioLoading(false);
+        if (playing) {
+          audio.play().catch(() => {
+            setAudioError(true);
+          });
+          startSceneActions(scene);
         }
       };
     };
@@ -449,6 +446,7 @@ export function DemoMode() {
       audioRef.current?.play().catch(() => {});
     } else {
       audioRef.current?.pause();
+      setAudioLoading(false);
     }
   }, [playing, active]);
 
