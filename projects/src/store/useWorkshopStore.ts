@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { WjSimRun } from '@/lib/workshop/sim';
 import { persist } from 'zustand/middleware';
 
 interface WorkshopState {
@@ -17,6 +18,8 @@ interface WorkshopState {
   analyses: Record<string, string>;
   /** 画板题的 base64 PNG，key 同 answers。刷新后保留 */
   images: Record<string, string>;
+  /** 仿真工作台的操作记录，key 为环节编号。只存已收工的那一次，刷新后回到验收页 */
+  simRuns: Record<number, WjSimRun>;
   /** 学生信息（学号 + 姓名），完成全部环节后填写 */
   studentInfo: { studentId: string; name: string } | null;
   /** 成就卡是否已解锁（填写学号姓名后标记） */
@@ -37,6 +40,8 @@ interface WorkshopState {
   setReferenceAnswer: (stageId: number, questionId: string, part: string | undefined, text: string) => void;
   setVerdict: (stageId: number, questionId: string, part: string | undefined, verdict: string, analysis: string) => void;
   setImage: (stageId: number, questionId: string, part: string | undefined, data: string) => void;
+  setSimRun: (stageId: number, run: WjSimRun) => void;
+  clearSimRun: (stageId: number) => void;
   setStudentInfo: (studentId: string, name: string) => void;
   revealNextAct: (stageId: number, totalActs: number) => void;
   revealPrevAct: (stageId: number) => void;
@@ -77,6 +82,7 @@ export const useWorkshopStore = create<WorkshopState>()(
       verdicts: {},
       analyses: {},
       images: {},
+      simRuns: {},
       studentInfo: null,
       achievementUnlocked: false,
       actsRevealed: {},
@@ -116,6 +122,16 @@ export const useWorkshopStore = create<WorkshopState>()(
           images: { ...s.images, [answerKey(stageId, questionId, part)]: data },
         })),
 
+      setSimRun: (stageId, run) =>
+        set((s) => ({ simRuns: { ...s.simRuns, [stageId]: run } })),
+
+      clearSimRun: (stageId) =>
+        set((s) => {
+          const next = { ...s.simRuns };
+          delete next[stageId];
+          return { simRuns: next };
+        }),
+
       setStudentInfo: (studentId, name) =>
         set({ studentInfo: { studentId, name }, achievementUnlocked: true }),
 
@@ -142,6 +158,7 @@ export const useWorkshopStore = create<WorkshopState>()(
           verdicts: {},
           analyses: {},
           images: {},
+          simRuns: {},
           studentInfo: null,
           achievementUnlocked: false,
           actsRevealed: {},
@@ -161,6 +178,9 @@ export const useWorkshopStore = create<WorkshopState>()(
             verdicts: filterStr(s.verdicts),
             analyses: filterStr(s.analyses),
             images: filterStr(s.images),
+            simRuns: Object.fromEntries(
+              Object.entries(s.simRuns).filter(([k]) => Number(k) !== stageId),
+            ) as Record<number, WjSimRun>,
             actsRevealed: { ...s.actsRevealed, [stageId]: 1 },
           };
         }),
@@ -177,6 +197,7 @@ export const useWorkshopStore = create<WorkshopState>()(
         verdicts: s.verdicts,
         analyses: s.analyses,
         images: s.images,
+        simRuns: s.simRuns,
         studentInfo: s.studentInfo,
         achievementUnlocked: s.achievementUnlocked,
         actsRevealed: s.actsRevealed,

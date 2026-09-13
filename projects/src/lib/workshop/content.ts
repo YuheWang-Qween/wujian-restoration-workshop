@@ -949,17 +949,29 @@ export function getStage(id: number): WjStage | undefined {
 /** 节标题常量：分支判断、API 白名单、界面文案都引用这里，不要再写字面量 */
 export const ACT_WHY = '工序说明';
 export const ACT_DATA = '关键数据';
+export const ACT_SIM = '上机操作';
 export const ACT_QUESTIONS = '细问';
 
 /**
  * 环节的节标题——「一个环节有几节、各叫什么」的唯一口径。
- * 有关键数据内容（facts / tables / figure 任一非空）为三节，否则两节
- * （figure 也属于关键数据节：漏了它，只配了示意图的环节会整节丢失）。
+ * 有关键数据内容（facts / tables / figure 任一非空）就有关键数据节
+ * （figure 也属于关键数据节：漏了它，只配了示意图的环节会整节丢失）；
+ * 配了虚拟仿真工作台（lib/workshop/sim.ts 的 SIMS）就有上机操作节，排在细问之前——
+ * 先动手，再被追问。
  * 环节页（一节一屏）、GuideChat（当前节透传给后端）、guide-lines（按节选台词）、
  * /api/chat 的 act 白名单都走这里，不要再各自计算。
  */
 export function stageActTitles(stage: WjStage): string[] {
-  return stage.facts.length > 0 || stage.tables.length > 0 || !!stage.figure
-    ? [ACT_WHY, ACT_DATA, ACT_QUESTIONS]
-    : [ACT_WHY, ACT_QUESTIONS];
+  const titles = [ACT_WHY];
+  if (stage.facts.length > 0 || stage.tables.length > 0 || stage.figure) titles.push(ACT_DATA);
+  if (SIM_STAGE_IDS.includes(stage.id)) titles.push(ACT_SIM);
+  titles.push(ACT_QUESTIONS);
+  return titles;
 }
+
+/**
+ * 哪些环节配了仿真工作台。
+ * 这里只放编号不 import sim.ts：content.ts 被服务端的 prompt / grade 链路引用，
+ * 不该把仿真的后果文案一并拖进那条链路的上下文。口径由 sim.ts 的测试守住。
+ */
+export const SIM_STAGE_IDS: number[] = [1, 2, 3, 4, 5, 6];

@@ -271,3 +271,66 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* 仿真工作台的参数滑杆：轨道由外层画（含安全带），这里只留滑块 */
+.wj-sim-range::-webkit-slider-thumb {
+  /* ::-webkit-slider-thumb 只认前缀属性，无前缀的 appearance 在这里不生效 */
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0;
+  border-radius: 9999px;
+  background: var(--wj-cinnabar);
+  border: 2px solid var(--wj-surface);
+  box-shadow: 0 1px 3px color-mix(in oklab, var(--wj-ink) 28%, transparent);
+  cursor: grab;
+}
+
+.wj-sim-range:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+
+.wj-sim-range::-moz-range-thumb {
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 9999px;
+  background: var(--wj-cinnabar);
+  border: 2px solid var(--wj-surface);
+  box-shadow: 0 1px 3px color-mix(in oklab, var(--wj-ink) 28%, transparent);
+  cursor: grab;
+}
+
+.wj-sim-range:focus-visible {
+  outline: 2px solid var(--wj-cinnabar);
+  outline-offset: 2px;
+  border-radius: 9999px;
+}
+
+.wj-sim-range:disabled::-webkit-slider-thumb {
+  background: var(--wj-dim);
+  cursor: not-allowed;
+}
+
+.wj-sim-range:disabled::-moz-range-thumb {
+  background: var(--wj-dim);
+  cursor: not-allowed;
+}
+
+/* 仿真工作台的液面：极缓的起伏，prefers-reduced-motion 总开关直接管到 */
+.wj-sim-ripple {
+  animation: wj-sim-ripple 7s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes wj-sim-ripple {
+  0%,
+  100% {
+    transform: translateX(0) scaleY(1);
+  }
+
+  50% {
+    transform: translateX(-6px) scaleY(1.25);
+  }
+}

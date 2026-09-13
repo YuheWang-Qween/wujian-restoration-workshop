@@ -8,7 +8,7 @@
  * 同口径），新增台词前先在 content.ts 里找到出处；拿不准的数字不要写进台词。
  */
 
-import { ACT_DATA, ACT_WHY, getStage, stageActTitles } from './content';
+import { ACT_DATA, ACT_SIM, ACT_WHY, getStage, stageActTitles } from './content';
 
 /** 表情四态：立绘差分图尚未到位，目前统一用 public/guide-avatar.png，待官方差分图后按态切换 */
 export type GuideMood = 'default' | 'pointing' | 'thinking' | 'happy';
@@ -33,10 +33,11 @@ export interface GuideContextInput {
   actsRevealed: Record<number, number>;
 }
 
-/** 每个环节三节的台词：why=第一节，data=第二节，question=细问节（未完成），done=本环节已完成 */
+/** 每个环节各节的台词：why / data / sim（上机操作）/ question（细问，未完成）/ done（本环节已完成） */
 interface StageLines {
   why: string;
   data: string;
+  sim: string;
   question: string;
   /** 完成时的贺词尾巴；会拼上「『下一环节名』已解锁」，最后一环则用整句 */
   done: string;
@@ -46,6 +47,7 @@ const STAGE_LINES: Record<number, StageLines> = {
   1: {
     why: '先读这一节——揭取为什么「不可重来」。I 区五小坨的叠压记录（a→b→c、b→d、d→e），后面的排序题要直接用。',
     data: '记住这组对比：井内原位 228 枚带着层位与揭剥图，扰土里追回的 2000 余枚只剩实物。同一批简，两种档案命运。',
+    sim: '上机去。次序一排错，被压住的那条叠压关系当场作废——这台工作台上唯一真正不可逆的，就是这一步。',
     question:
       '排序题先看清约定：箭头表示「压在其上」。实在确定不了先后的单位对，也要指出来、写明为什么。',
     done: '下一环，字迹要第一次露出来了。',
@@ -53,6 +55,7 @@ const STAGE_LINES: Record<number, StageLines> = {
   2: {
     why: '竹黄面好写但墨迹散淡，竹青面难写但字迹牢固——同一个材料学原因的两个后果，清洗顺序就藏在这里。',
     data: '73631 枚、每枚 40～50 分钟。规模一旦换算成工时，「要多少人、洗多少年」就是一道能算出来的题。',
+    sim: '力度那根滑杆是这一台的命门。绿带是报告给的区间，出了带，掉的是 1700 年后仅存的那点墨。',
     question:
       '三代工具题：先把每一代具体的失败机制写出来，再说尼龙勾线笔为什么能同时解决前两代的问题。',
     done: '那是六道工序里最轻的一环，只有两道细问。',
@@ -60,24 +63,28 @@ const STAGE_LINES: Record<number, StageLines> = {
   3: {
     why: '这一环管「身份」：揭剥号记空间位置，脱色号记批次顺序，核对对的是两套编号之间的映射。',
     data: '2003 年 7 月那次串槽编号混乱，是真实发生过的流程失败——从那以后，脱色前全部改为单面绑。',
+    sim: '这一台有一步是复现事故：不绑夹直接入槽。2003 年 7 月真这么干过，你可以亲手看一遍后果。',
     question: '只有两道题。q1 想编号映射丢了什么，q2 想那次串槽事故为什么不可逆。',
     done: '持续时间最长、失控风险最隐性的一环来了。',
   },
   4: {
     why: '蚀斑病暴发在 1999 年、在保存期，而不是出土时。这一阶段不是等待，是主动管理。',
     data: '四种候选药剂都是「好保存剂」。看表别只看抑菌性能——「对人的影响」那一列才是真正的筛选维度。',
+    sim: '选完药剂别急着推进——浓度和换液周期定完，24 个月才开始走。蚀斑病是慢慢长出来的。',
     question: 'q1 的手柄是那个关键事实：提高浓度后稳定有效。拿着它，先排除那条不相容的假设。',
     done: '简牍要从「能保存」变成「能使用」了。',
   },
   5: {
     why: '变色有两条路径：醌类氧化（有机）与铁络合物（无机）。后面的两步脱色操作，正好一步对一条。',
     data: '记几个数：1% EDTA 二钠泡 24 小时；1% 连二亚硫酸钠，60℃ 配制、保温 45～50℃。这场仗打了 11 年。',
+    sim: '盯住温度计和罗维朋蓝色值这两个读数。45～50℃ 那条绿带一旦掉出去，蓝值就停在高位不动了。',
     question: '反常数据题最绕：0.25% 时简内铁不降反升。先大胆提假说，再给每条假说配一个验证思路。',
     done: '最后一环，也是不可逆程度最高的一环。',
   },
   6: {
     why: '含水率 471% 的简体全靠水撑着；撤水不填充，宽度平均要缩 50.6%。脱水就是给简找一个「替身」。',
     data: '十六醇赢在三个指标：颜色、收缩率、化学稳定性。再记两个参数：熔点 49℃，填充量 205%。',
+    sim: '干燥推进的时候看右边两个收缩率读数。填充量不够，宽度那一栏会直接冲过 5% 的指标线，字跟着被压扁。',
     question: '流程题里藏着平方关系：扩散时间约与厚度平方成正比——6mm 的简要等的不是两倍，是四倍。',
     done: '从 J22 井底到十六醇填充，一枚简的路，你陪它走完了。',
   },
@@ -115,6 +122,7 @@ function stageSpeech(stageId: number, ctx: GuideContextInput): GuideSpeech | nul
 
   if (actTitle === ACT_WHY) return { where, lines: [{ text: lines.why, mood: 'pointing' }] };
   if (actTitle === ACT_DATA) return { where, lines: [{ text: lines.data, mood: 'pointing' }] };
+  if (actTitle === ACT_SIM) return { where, lines: [{ text: lines.sim, mood: 'pointing' }] };
 
   // 细问节
   if (isDone) {

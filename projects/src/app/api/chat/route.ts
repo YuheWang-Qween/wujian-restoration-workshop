@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { LLMClient, Config, HeaderUtils, type ContentPart } from 'coze-coding-dev-sdk';
 import { buildSystemPrompt } from '@/lib/workshop/prompt';
 import { retrieveReferencePages } from '@/lib/workshop/knowledge';
-import { ACT_DATA, ACT_QUESTIONS, ACT_WHY, STAGES } from '@/lib/workshop/content';
+import { ACT_DATA, ACT_QUESTIONS, ACT_SIM, ACT_WHY, STAGES } from '@/lib/workshop/content';
 import { getSupabaseCredentials } from '@/storage/database/supabase-client';
 
 interface ChatMessage {
@@ -174,7 +174,7 @@ export async function POST(req: NextRequest) {
     const stageId = Number(body?.stage);
     const validStage = STAGES.some((s) => s.id === stageId) ? stageId : 0;
     // act 可选：学习者当前读到的节名（环节页一节一屏，前端实时透传）
-    const ACT_TITLES = [ACT_WHY, ACT_DATA, ACT_QUESTIONS];
+    const ACT_TITLES = [ACT_WHY, ACT_DATA, ACT_SIM, ACT_QUESTIONS];
     const actTitle = ACT_TITLES.includes(body?.act) ? (body.act as string) : undefined;
     // noRag：hidden 触发消息（题卡唤起 / 翻节通知）不做知识库检索，免得无意义烧检索
     const noRag = body?.noRag === true;

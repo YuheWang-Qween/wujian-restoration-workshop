@@ -4,7 +4,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { ArrowLeft, ArrowRight, ArrowUp, Check, ChevronDown, ChevronUp, Loader2, Lock, LogOut, MessagesSquare, PenLine, ScrollText, Stamp, X } from 'lucide-react';
-import { ACT_DATA, ACT_QUESTIONS, ACT_WHY, STAGES, getStage, stageActTitles, type WjPart, type WjQuestion, type WjStage } from '@/lib/workshop/content';
+import { ACT_DATA, ACT_QUESTIONS, ACT_SIM, ACT_WHY, STAGES, getStage, stageActTitles, type WjPart, type WjQuestion, type WjStage } from '@/lib/workshop/content';
+import { getSim } from '@/lib/workshop/sim';
+import { StageSim } from '@/components/workshop/StageSim';
 import { DataTable } from '@/components/workshop/DataTable';
 import { askGuide } from '@/lib/workshop/guide-bridge';
 import { answerKey, useWorkshopStore } from '@/store/useWorkshopStore';
@@ -102,23 +104,16 @@ export function StageContent() {
   const next = STAGES.find((s) => s.id === stage.id + 1);
 
   // 一节一屏：同屏只出现当前这一节，上一节随切换离场；当前节序号存本机，刷新回到已读位置。
-  // 节数口径统一走 content.stageActTitles，与 GuideChat / guide-lines 一致
-  const totalActs = stageActTitles(stage).length;
-  const hasAct2 = totalActs === 3;
-  const isDemoStage = typeof window !== 'undefined' && (window as any).__DEMO_MODE__;
+  // 节数与节序统一走 content.stageActTitles，与 GuideChat / guide-lines 一致——
+  // 这里只把标题翻成锚点 key，不自己判断「第几节是什么」，加节时不必改这段
+  const acts = stageActTitles(stage).map((title) => ({ key: ACT_ANCHOR[title] ?? 'why', title }));
+  const totalActs = acts.length;
+  const isDemoStage = typeof window !== 'undefined' && window.__DEMO_MODE__;
   const revealed = isDemoStage ? totalActs : Math.min(actsRevealedRaw, totalActs);
-  const nextAct =
-    revealed >= totalActs
-      ? null
-      : revealed === 1 && hasAct2
-        ? { key: 'data', title: ACT_DATA }
-        : { key: 'questions', title: ACT_QUESTIONS };
-  const prevAct =
-    revealed <= 1
-      ? null
-      : revealed === 2
-        ? { key: 'why', title: ACT_WHY }
-        : { key: 'data', title: ACT_DATA };
+  const currentAct = acts[revealed - 1];
+  const nextAct = acts[revealed] ?? null;
+  const prevAct = revealed > 1 ? acts[revealed - 2] : null;
+  const sim = getSim(stage.id);
 
   // rAF 排在本轮状态提交之后执行，此时新节已经渲染出来，可以直接滚
   const scrollToAct = (key: string) => {
@@ -227,7 +222,7 @@ export function StageContent() {
         <article className="wj-scrollbar-none wj-chat-dodge min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6">
           <div className="mx-auto w-full max-w-3xl">
             {/* 工序说明（一节一屏：只在当前节是第一节时出现）。首节不加节小标，导语直接开篇 */}
-            {revealed === 1 && (
+            {currentAct.key === 'why' && (
               <section
                 id="stage-act-why"
                 className="wj-slip scroll-mt-4 rounded-lg border border-wj-border bg-wj-surface p-5 pl-6 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-500 sm:p-6 sm:pl-7"
@@ -251,7 +246,7 @@ export function StageContent() {
             )}
 
             {/* 二 · 关键数据（一节一屏：只在当前节是第二节时出现） */}
-            {hasAct2 && revealed === 2 && (
+            {currentAct.key === 'data' && (
               <section
                 id="stage-act-data"
                 className="scroll-mt-4 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 motion-safe:duration-500"
@@ -296,7 +291,21 @@ export function StageContent() {
             )}
 
             {/* 三 · 细问（最后一节，此时底部出现环节间导航） */}
-            {revealed === totalActs && (
+            {/* 三 · 上机操作：细问之前先动手，操作的后果就是这一节的反馈 */}
+            {currentAct.key === 'sim' && sim && (
+              <section
+                id="stage-act-sim"
+                className="scroll-mt-4 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 motion-safe:duration-500"
+              >
+                <SectionHeading
+                  title={ACT_SIM}
+                  note="按真实工序动手：排次序、挑工具、调参数、逐段推进，简牍的状态随操作实时变化"
+                />
+                <StageSim key={stage.id} sim={sim} />
+              </section>
+            )}
+
+            {currentAct.key === 'questions' && (
             <section
               id="stage-act-questions"
               className="scroll-mt-4 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 motion-safe:duration-500"
@@ -367,6 +376,14 @@ function renderRich(text: string) {
   );
 }
 
+/** 节标题 → 页面锚点 id 后缀。加节只要在这里补一行，节序仍由 content.stageActTitles 决定 */
+const ACT_ANCHOR: Record<string, string> = {
+  [ACT_WHY]: 'why',
+  [ACT_DATA]: 'data',
+  [ACT_SIM]: 'sim',
+  [ACT_QUESTIONS]: 'questions',
+};
+
 /** 节标题：环节资料按「节」推进——工序说明 → 关键数据 → 细问；首节无小标，后两节只留标题不编序号 */
 function SectionHeading({ title, note }: { title: string; note?: string }) {
   return (
@@ -413,7 +430,7 @@ function QuestionWizard({ stage, nextStage, isDone, allCompleted }: { stage: WjS
   const answered = stage.questions.map((_, i) => answeredBits[i] === '1');
   const total = stage.questions.length;
 
-  const isDemo = typeof window !== 'undefined' && (window as any).__DEMO_MODE__;
+  const isDemo = typeof window !== 'undefined' && window.__DEMO_MODE__;
   const firstOpen = answered.indexOf(false);
   const [current, setCurrent] = useState(() => (isDemo ? 0 : firstOpen === -1 ? total - 1 : firstOpen));
 
