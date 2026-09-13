@@ -601,9 +601,11 @@ const VB_W = 640;
 const VB_H = 290;
 
 // ───────────────────── 环节一　揭取：井内叠压 ─────────────────────
-function StackScene({ state, progress, orders }: SimViewProps) {
+function StackScene({ state, progress, picks }: SimViewProps) {
   const uid = useId().replace(/:/g, '');
-  const order = orders['s1-order'] ?? [];
+  // 建档方式决定这枚简身上挂的是什么：三样齐了才有揭剥号
+  const record = picks['s1-record'];
+  const tagText = record === 'full' ? '30-27-38' : record === 'photo' ? '有照 · 未登号' : record === 'none' ? '未建档' : '待建档';
   const damage = clamp01((100 - state.integrity) / 100);
   const tuo = ['a', 'b', 'c', 'd', 'e'];
   const top = 62;
@@ -637,7 +639,8 @@ function StackScene({ state, progress, orders }: SimViewProps) {
       <Caption x={44} y={22} text="J22 · I 区简牍层（横截面示意）" />
 
       {tuo.map((k, i) => {
-        const taken = order.includes(k);
+        // a 坨在这一枚剥离完成后即视为已揭
+        const taken = k === 'a' && progress >= 1;
         const y = top + i * lh;
         // 受井壁坍塌挤压，下面几坨略倾斜——报告记的就是一个已受扰动的堆积
         const skew = i >= 3 ? (i - 2) * 1.1 : 0;
@@ -719,7 +722,7 @@ function StackScene({ state, progress, orders }: SimViewProps) {
         seed={11}
         tilt={-1.1}
       />
-      <Tag x={548} y={78} text="30-27-38" />
+      <Tag x={548} y={78} text={tagText} />
       <Caption x={452} y={248} text="水润托片 · 剥出的简" />
     </g>
   );
