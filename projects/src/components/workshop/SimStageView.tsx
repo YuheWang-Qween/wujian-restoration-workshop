@@ -18,7 +18,13 @@
  * 免得被当成「这枚简上写着什么」。（展示篇的释文另有出处与声明，不搬到这里。）
  *
  * 颜色一律走 var(--wj-*) 令牌，不写十六进制字面量（见 DESIGN.md）。
- * 动效走 CSS 类，globals.css 里的 prefers-reduced-motion 总开关直接管到。
+ *
+ * 动效分两层，都是 CSS（globals.css 的 prefers-reduced-motion 总开关直接管到）：
+ *   - **动作**：每个工步落手，StageSim 发一个 cue（步 id + 选项 + nonce），场景据此
+ *     放一段一次性的动作——拍照闪光、下刀、点水、热浪、缠线、倒药、起简……
+ *     用 key=nonce 重挂，同一步再落手动效重放；
+ *   - **过渡**：状态量（刀口位置、泥污退线、汞柱、液色、简的收缩与漂移）挂 .wj-sim-anim，
+ *     用 transform / fill 过渡而不是直接改几何，画面不再「跳」到新状态。
  */
 
 import { useId, useMemo } from 'react';
@@ -417,16 +423,18 @@ function Slip({
         {/* 湿面高光：饱水时最亮，脱水后消失 */}
         {wet > 0.05 && <rect x={x} y={y} width={ww} height={hh} fill={`url(#sheen${uid})`} opacity={wet * 0.9} />}
 
-        {/* 泥污：从下往上退，边界不规则 */}
+        {/* 泥污：从下往上退，边界不规则；退线走 transform 过渡，一道一道往上滑 */}
         {hasMud && (
           <g filter={`url(#mud${uid})`}>
             <rect
+              className="wj-sim-anim"
               x={x - ww * 0.3}
-              y={y + hh * (1 - mud)}
+              y={y}
               width={ww * 1.6}
-              height={hh * mud + 3}
+              height={hh + 3}
               fill={`color-mix(in oklab, ${OCHRE} 58%, ${INK})`}
               opacity={0.84}
+              style={{ transform: `translateY(${hh * (1 - mud)}px)` }}
             />
           </g>
         )}
@@ -584,6 +592,154 @@ function Surface({ x, y, w, tint = WATER, animate = true }: { x: number; y: numb
   );
 }
 
+/** 最近一次落手：场景据此放一段对应的动作 */
+export interface SimCue {
+  step: string;
+  kind: 'pick' | 'dial' | 'order' | 'tick' | 'event';
+  choice?: string;
+  value?: number;
+  verdict?: 'good' | 'fair' | 'bad';
+  /** 变一次动效重放一次 */
+  nonce: number;
+}
+
+/** 只在 cue 命中时渲染，并以 nonce 为 key——重挂即重放 */
+function Fx({
+  cue,
+  step,
+  kind,
+  choice,
+  children,
+}: {
+  cue?: SimCue | null;
+  step: string;
+  kind?: SimCue['kind'];
+  choice?: string | string[];
+  children: React.ReactNode;
+}) {
+  if (!cue || cue.step !== step) return null;
+  if (kind && cue.kind !== kind) return null;
+  if (choice !== undefined) {
+    const ok = Array.isArray(choice) ? choice.includes(cue.choice ?? '') : cue.choice === choice;
+    if (!ok) return null;
+  }
+  return <g key={cue.nonce}>{children}</g>;
+}
+
+/** 闪光：拍照 */
+function Flash({ x, y, w, h }: { x: number; y: number; w: number; h: number }) {
+  return <rect className="wj-fx-flash" x={x} y={y} width={w} height={h} rx={4} fill={SURFACE} />;
+}
+
+/** 水滴：点蘸、淋水、换液 */
+function Droplets({ x, y, w, n = 6, tint = WATER, seed = 1 }: { x: number; y: number; w: number; n?: number; tint?: string; seed?: number }) {
+  return (
+    <g>
+      {Array.from({ length: n }).map((_, i) => (
+        <ellipse
+          key={i}
+          className="wj-fx-drop"
+          style={{ animationDelay: `${rand(seed + i) * 0.35}s` }}
+          cx={x + (i + 0.5) * (w / n) + (rand(seed * 3 + i) - 0.5) * 4}
+          cy={y}
+          rx={1.3}
+          ry={2}
+          fill={tint}
+          opacity={0.8}
+        />
+      ))}
+    </g>
+  );
+}
+
+/** 热气 / 蒸汽：升温、蒸煮 */
+function Steam({ x, y, n = 4, seed = 2 }: { x: number; y: number; n?: number; seed?: number }) {
+  return (
+    <g>
+      {Array.from({ length: n }).map((_, i) => (
+        <path
+          key={i}
+          className="wj-fx-steam"
+          style={{ animationDelay: `${i * 0.18}s` }}
+          d={`M ${x + i * 9} ${y} q 4 -8 0 -16 q -4 -8 0 -16`}
+          stroke={DIM}
+          strokeWidth={1.2}
+          fill="none"
+          strokeLinecap="round"
+          opacity={0.4 + rand(seed + i) * 0.2}
+        />
+      ))}
+    </g>
+  );
+}
+
+/** 一道倒下来的液流：下药、配液 */
+function Pour({ x0, y0, x1, y1, tint = WATER }: { x0: number; y0: number; x1: number; y1: number; tint?: string }) {
+  return (
+    <path
+      className="wj-fx-pour"
+      pathLength={1}
+      strokeDasharray="1"
+      d={`M ${x0} ${y0} Q ${(x0 + x1) / 2} ${y0 + 10} ${x1} ${y1}`}
+      stroke={tint}
+      strokeWidth={3}
+      strokeLinecap="round"
+      fill="none"
+      opacity={0.75}
+    />
+  );
+}
+
+/** 崩飞的碎屑：断裂、崩口 */
+function Debris({ x, y, n = 7, seed = 3 }: { x: number; y: number; n?: number; seed?: number }) {
+  return (
+    <g>
+      {Array.from({ length: n }).map((_, i) => (
+        <rect
+          key={i}
+          className="wj-fx-debris"
+          style={{
+            ['--dx' as string]: `${(rand(seed + i) - 0.5) * 36}px`,
+            ['--dy' as string]: `${-6 - rand(seed * 5 + i) * 22}px`,
+            animationDelay: `${rand(seed * 7 + i) * 0.12}s`,
+          }}
+          x={x}
+          y={y}
+          width={1.6 + rand(seed * 11 + i) * 1.6}
+          height={1 + rand(seed * 13 + i) * 1.2}
+          fill={`color-mix(in oklab, ${OCHRE} 45%, ${INK})`}
+        />
+      ))}
+    </g>
+  );
+}
+
+/** 扩散的圈：一记轻震 */
+function Ring({ cx, cy, r = 10, tint = CINNABAR }: { cx: number; cy: number; r?: number; tint?: string }) {
+  return <circle className="wj-fx-ring wj-fx-tb" cx={cx} cy={cy} r={r} fill="none" stroke={tint} strokeWidth={1.4} />;
+}
+
+/** 持续的热浪线：保温 / 熔融槽 */
+function Heat({ x, y, w, n = 5 }: { x: number; y: number; w: number; n?: number }) {
+  return (
+    <g>
+      {Array.from({ length: n }).map((_, i) => (
+        <path
+          key={i}
+          className="wj-fx-heat"
+          style={{ animationDelay: `${i * 0.25}s` }}
+          d={`M ${x + (i + 0.5) * (w / n)} ${y} q 3 -6 0 -12 q -3 -6 0 -12`}
+          stroke={CINNABAR}
+          strokeOpacity={0.35}
+          strokeWidth={1}
+          fill="none"
+          strokeLinecap="round"
+        />
+      ))}
+    </g>
+  );
+}
+
 export interface SimViewProps {
   scene: WjSimScene;
   state: WjSimState;
@@ -595,21 +751,29 @@ export interface SimViewProps {
   dials: Record<string, number>;
   /** 已排定的次序（step id → key 顺序） */
   orders: Record<string, string[]>;
+  /** 最近一次落手 */
+  cue?: SimCue | null;
 }
 
 const VB_W = 640;
 const VB_H = 290;
 
 // ───────────────────── 环节一　揭取：井内叠压 ─────────────────────
-function StackScene({ state, progress, picks }: SimViewProps) {
+function StackScene({ state, progress, picks, dials, cue }: SimViewProps) {
   const uid = useId().replace(/:/g, '');
-  // 建档方式决定这枚简身上挂的是什么：三样齐了才有揭剥号
-  const record = picks['s1-record'];
-  const tagText = record === 'full' ? '30-27-38' : record === 'photo' ? '有照 · 未登号' : record === 'none' ? '未建档' : '待建档';
   const damage = clamp01((100 - state.integrity) / 100);
   const tuo = ['a', 'b', 'c', 'd', 'e'];
   const top = 62;
   const lh = 31;
+  // 建档方式决定这枚简身上挂的是什么：三样齐了才有揭剥号
+  const record = picks['s1-record'];
+  const tagText = record === 'full' ? '30-27-38' : record === 'photo' ? '有照 · 未登号' : record === 'none' ? '未建档' : '待建档';
+  const tool = picks['s1-tool'];
+  const pitch = dials['s1-pitch'];
+  const seamY = top - 9;
+  const knifeX = 62 + 330 * progress;
+  const liftCue = cue?.step === 's1-lift' ? cue : null;
+  const shakeA = cue?.step === 's1-oil' && cue.choice === 'force';
 
   return (
     <g>
@@ -618,9 +782,12 @@ function StackScene({ state, progress, picks }: SimViewProps) {
           <stop offset="0%" stopColor={`color-mix(in oklab, ${INK} 8%, ${SUNK})`} />
           <stop offset="100%" stopColor={`color-mix(in oklab, ${INK} 26%, ${SUNK})`} />
         </linearGradient>
-        <filter id={`soft${uid}`} x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="2.4" />
-        </filter>
+        <clipPath id={`half-top${uid}`}>
+          <rect x={470} y={50} width={90} height={96} />
+        </clipPath>
+        <clipPath id={`half-bot${uid}`}>
+          <rect x={470} y={146} width={90} height={100} />
+        </clipPath>
       </defs>
 
       {/* 井壁：砖砌 + 内壁背光 */}
@@ -642,11 +809,14 @@ function StackScene({ state, progress, picks }: SimViewProps) {
         // a 坨在这一枚剥离完成后即视为已揭
         const taken = k === 'a' && progress >= 1;
         const y = top + i * lh;
-        // 受井壁坍塌挤压，下面几坨略倾斜——报告记的就是一个已受扰动的堆积
         const skew = i >= 3 ? (i - 2) * 1.1 : 0;
         return (
-          <g key={k} opacity={taken ? 0.26 : 1} transform={`rotate(${skew} 230 ${y + lh / 2})`}>
-            {/* 坨体：一层简 + 层间淤泥 */}
+          <g
+            key={k}
+            className={`wj-sim-anim${k === 'a' && shakeA ? ' wj-fx-shake' : ''}`}
+            style={{ opacity: taken ? 0.26 : 1 }}
+            transform={`rotate(${skew} 230 ${y + lh / 2})`}
+          >
             <rect
               x={62}
               y={y}
@@ -659,34 +829,16 @@ function StackScene({ state, progress, picks }: SimViewProps) {
             />
             {!taken &&
               Array.from({ length: 26 }).map((_, j) => (
-                <SlipEnd
-                  key={j}
-                  x={66 + j * 12.4}
-                  y={y + 3}
-                  w={9.6}
-                  h={lh - 13}
-                  tone={19 + i * 3}
-                  seed={100 + i * 20 + j}
-                />
+                <SlipEnd key={j} x={66 + j * 12.4} y={y + 3} w={9.6} h={lh - 13} tone={19 + i * 3} seed={100 + i * 20 + j} />
               ))}
-            {/* 层间淤泥 */}
             {!taken && (
-              <rect
-                x={62}
-                y={y + lh - 8}
-                width={330}
-                height={2.5}
-                fill={`color-mix(in oklab, ${OCHRE} 52%, ${INK})`}
-                opacity={0.35}
-              />
+              <rect x={62} y={y + lh - 8} width={330} height={2.5} fill={`color-mix(in oklab, ${OCHRE} 52%, ${INK})`} opacity={0.35} />
             )}
-            <text
-              x={50}
-              y={y + lh / 2 + 1}
-              fill={taken ? DIM : CINNABAR}
-              fontSize={12}
-              fontFamily="var(--font-serif, serif)"
-            >
+            {/* a 坨端面的淤泥：清理过就没了 */}
+            {k === 'a' && !taken && picks['s1-face'] !== 'clean' && (
+              <rect x={62} y={y} width={40} height={lh - 6} rx={3} fill={`color-mix(in oklab, ${OCHRE} 58%, ${INK})`} opacity={0.55} />
+            )}
+            <text x={50} y={y + lh / 2 + 1} fill={taken ? DIM : CINNABAR} fontSize={12} fontFamily="var(--font-serif, serif)">
               {k}
             </text>
             {taken && <Caption x={398} y={y + lh / 2 + 1} text="已揭" tone={BAMBOO} size={8.5} />}
@@ -694,34 +846,133 @@ function StackScene({ state, progress, picks }: SimViewProps) {
         );
       })}
 
-      {/* 刀口：竹刀尖沿界面推进，带一点金属反光 */}
+      {/* ── 动作：建档 ── */}
+      <Fx cue={cue} step="s1-record" choice={['full', 'photo']}>
+        <Flash x={40} y={30} w={378} h={220} />
+        <g className="wj-fx-fade">
+          {[[66, 58], [388, 58], [66, 86], [388, 86]].map(([cx, cy], i) => (
+            <path key={i} d={`M ${cx + (i % 2 ? -8 : 0)} ${cy + (i > 1 ? 0 : 0)} h 8 v ${i > 1 ? -8 : 8}`} stroke={CINNABAR} strokeWidth={1.4} fill="none" />
+          ))}
+        </g>
+      </Fx>
+      <Fx cue={cue} step="s1-record" choice="none">
+        <Ring cx={230} cy={top + 12} r={14} />
+      </Fx>
+
+      {/* ── 动作：找缝隙 ── */}
+      <Fx cue={cue} step="s1-face" choice="clean">
+        <rect className="wj-fx-fade" x={62} y={top} width={40} height={lh - 6} rx={3} fill={`color-mix(in oklab, ${OCHRE} 58%, ${INK})`} opacity={0.6} />
+        <Droplets x={62} y={top + 2} w={40} n={4} tint={`color-mix(in oklab, ${OCHRE} 55%, ${INK})`} />
+      </Fx>
+      <Fx cue={cue} step="s1-face" choice="guess">
+        <g className="wj-fx-plunge">
+          <path d={`M 150 ${top - 4} l 5 -12 l 5 12 z`} fill={`color-mix(in oklab, ${INK} 55%, ${SURFACE})`} />
+        </g>
+        <Debris x={155} y={top + 4} seed={5} />
+      </Fx>
+      <Fx cue={cue} step="s1-face" choice="wash">
+        <Droplets x={70} y={top - 14} w={320} n={16} seed={9} />
+      </Fx>
+
+      {/* ── 动作：工具进缝 ── */}
+      <Fx cue={cue} step="s1-tool">
+        <g className="wj-fx-slidein">
+          {tool === 'bamboo' && <path d={`M 70 ${seamY} l 52 -1.5 l 12 1.5 l -12 1.5 z`} fill={`color-mix(in oklab, ${OCHRE} 40%, ${SURFACE})`} stroke={INK} strokeOpacity={0.3} strokeWidth={0.6} />}
+          {tool === 'palette' && <path d={`M 70 ${seamY - 3} l 40 0 q 16 0 22 3 q -6 3 -22 3 l -40 0 z`} fill={`color-mix(in oklab, ${INK} 35%, ${SURFACE})`} />}
+          {tool === 'tweezer' && (
+            <g stroke={`color-mix(in oklab, ${INK} 45%, ${SURFACE})`} strokeWidth={2} fill="none">
+              <path d={`M 70 ${seamY - 5} l 50 3.5`} />
+              <path d={`M 70 ${seamY + 5} l 50 -3.5`} />
+            </g>
+          )}
+          {tool === 'hand' && <ellipse cx={104} cy={seamY} rx={22} ry={9} fill={`color-mix(in oklab, ${OCHRE} 22%, ${SURFACE})`} stroke={INK} strokeOpacity={0.25} />}
+        </g>
+        {(tool === 'tweezer' || tool === 'hand') && <Debris x={118} y={seamY} n={5} seed={7} />}
+      </Fx>
+
+      {/* ── 动作：润滑 ── */}
+      <Fx cue={cue} step="s1-lube" choice="brush">
+        <Droplets x={90} y={seamY - 8} w={120} n={7} seed={11} />
+      </Fx>
+      <Fx cue={cue} step="s1-lube" choice="pour">
+        <Droplets x={490} y={54} w={44} n={12} seed={13} />
+        <rect className="wj-fx-fade" x={496} y={90} width={32} height={80} rx={6} fill={INK} opacity={0.3} />
+      </Fx>
+      <Fx cue={cue} step="s1-lube" choice="dry">
+        <Debris x={110} y={seamY} n={5} seed={15} />
+      </Fx>
+
+      {/* ── 动作：油粘连处置 ── */}
+      <Fx cue={cue} step="s1-oil" choice="warm">
+        <Steam x={150} y={top - 12} n={6} />
+        <Heat x={62} y={top + 22} w={330} n={8} />
+      </Fx>
+      <Fx cue={cue} step="s1-oil" choice="force">
+        <Debris x={200} y={top + 6} n={9} seed={17} />
+      </Fx>
+      <Fx cue={cue} step="s1-oil" choice="solvent">
+        <Droplets x={490} y={54} w={44} n={6} tint={DIM} seed={19} />
+        <rect className="wj-fx-fade" x={498} y={70} width={28} height={140} rx={6} fill={INK} opacity={0.22} />
+      </Fx>
+
+      {/* ── 步距刻度：设定后沿界面画出停看点 ── */}
+      {pitch && (
+        <Fx cue={cue} step="s1-pitch">
+          <g>
+            {Array.from({ length: Math.floor(23 / pitch) }).map((_, i) => {
+              const x = 62 + ((i + 1) * pitch * 330) / 23;
+              return (
+                <line key={i} className="wj-fx-draw" pathLength={1} strokeDasharray="1" x1={x} y1={seamY - 6} x2={x} y2={seamY + 4} stroke={pitch > 3 ? CINNABAR : BAMBOO} strokeWidth={1} />
+              );
+            })}
+          </g>
+        </Fx>
+      )}
+
+      {/* 刀口：位置走过渡，不跳 */}
       {progress > 0 && (
         <g>
-          <line x1={62} y1={top - 9} x2={62 + 330 * progress} y2={top - 9} stroke={CINNABAR} strokeWidth={2.2} strokeLinecap="round" />
-          <path
-            d={`M ${62 + 330 * progress} ${top - 9} l 13 -4.5 l 0 9 z`}
-            fill={`color-mix(in oklab, ${INK} 55%, ${SURFACE})`}
-          />
-          <path d={`M ${62 + 330 * progress} ${top - 9} l 9 -2.4`} stroke={SURFACE} strokeOpacity={0.7} strokeWidth={0.9} />
-          <Caption x={62} y={top - 16} text={`刀口推进 ${(progress * 23).toFixed(1)} cm / 23 cm`} tone={CINNABAR} />
+          <line className="wj-sim-anim" x1={62} y1={seamY} x2={392} y2={seamY} style={{ transform: `scaleX(${Math.max(0.01, progress)})`, transformOrigin: `62px ${seamY}px` }} stroke={CINNABAR} strokeWidth={2.2} strokeLinecap="round" />
+          <g className="wj-sim-anim" style={{ transform: `translateX(${knifeX - 62}px)` }}>
+            <path d={`M 62 ${seamY} l 13 -4.5 l 0 9 z`} fill={`color-mix(in oklab, ${INK} 55%, ${SURFACE})`} />
+            <path d={`M 62 ${seamY} l 9 -2.4`} stroke={SURFACE} strokeOpacity={0.7} strokeWidth={0.9} />
+          </g>
+          <Caption x={62} y={seamY - 7} text={`刀口推进 ${(progress * 23).toFixed(1)} cm / 23 cm`} tone={CINNABAR} />
         </g>
       )}
+      <Fx cue={cue} step="s1-advance" kind="tick">
+        {state.risk > 25 ? <Debris x={knifeX} y={seamY + 6} n={Math.round(3 + state.risk / 15)} seed={cue?.nonce ?? 1} /> : <Droplets x={knifeX - 14} y={seamY - 4} w={14} n={2} seed={cue?.nonce ?? 1} />}
+      </Fx>
+      <Fx cue={cue} step="s1-advance" kind="event" choice="slow">
+        <Droplets x={knifeX - 20} y={seamY - 8} w={24} n={6} seed={21} />
+      </Fx>
+      <Fx cue={cue} step="s1-advance" kind="event" choice="push">
+        <Debris x={knifeX} y={seamY + 8} n={10} seed={23} />
+        <Ring cx={knifeX} cy={seamY + 6} r={8} />
+      </Fx>
 
       {/* 剥出的那一枚：托片上 */}
       <rect x={452} y={58} width={150} height={176} rx={5} fill={RAISED} stroke={BORDER} strokeWidth={1} />
       <rect x={452} y={58} width={150} height={176} rx={5} fill={SURFACE} opacity={0.25} />
-      <Slip
-        cx={512}
-        cy={146}
-        w={19}
-        h={178}
-        tone={26}
-        ink={state.legibility / 100}
-        damage={damage}
-        wet={0.95}
-        seed={11}
-        tilt={-1.1}
-      />
+      {/* 木板：托举时从下面滑进来 */}
+      <Fx cue={cue} step="s1-lift" choice="board">
+        <rect className="wj-fx-slidein" x={478} y={232} width={70} height={7} rx={2} fill={`color-mix(in oklab, ${OCHRE} 40%, ${SURFACE})`} stroke={INK} strokeOpacity={0.3} />
+      </Fx>
+      {liftCue?.choice === 'pinch' ? (
+        <g key={liftCue.nonce}>
+          <g className="wj-fx-snap-a wj-fx-tb" clipPath={`url(#half-top${uid})`}>
+            <Slip cx={512} cy={146} w={19} h={178} tone={26} ink={state.legibility / 100} damage={damage} wet={0.95} seed={11} tilt={-1.1} />
+          </g>
+          <g className="wj-fx-snap-b wj-fx-tb" clipPath={`url(#half-bot${uid})`}>
+            <Slip cx={512} cy={146} w={19} h={178} tone={26} ink={state.legibility / 100} damage={damage} wet={0.95} seed={11} tilt={-1.1} />
+          </g>
+          <Debris x={512} y={146} n={8} seed={29} />
+        </g>
+      ) : (
+        <g key={liftCue?.nonce ?? 'slip'} className={liftCue?.choice === 'board' ? 'wj-fx-lift' : liftCue?.choice === 'slide' ? 'wj-fx-scrub' : undefined}>
+          <Slip cx={512} cy={146} w={19} h={178} tone={26} ink={state.legibility / 100} damage={damage} wet={0.95} seed={11} tilt={-1.1} />
+        </g>
+      )}
       <Tag x={548} y={78} text={tagText} />
       <Caption x={452} y={248} text="水润托片 · 剥出的简" />
     </g>
@@ -729,13 +980,16 @@ function StackScene({ state, progress, picks }: SimViewProps) {
 }
 
 // ───────────────────── 环节二　清洗：泥污褪去 ─────────────────────
-function CleanScene({ state, progress, picks, dials }: SimViewProps) {
+function CleanScene({ state, progress, picks, dials, cue }: SimViewProps) {
   const uid = useId().replace(/:/g, '');
   const damage = clamp01((100 - state.integrity) / 100);
   const force = dials['s2-force'] ?? 0;
   const face = picks['s2-face'];
   const tool = picks['s2-tool'];
   const mud = 1 - progress;
+  const brushOn = force > 0 || !!tool;
+  const flipCue = cue?.step === 's2-face' ? cue : null;
+  const scrub = cue && (cue.step === 's2-force' || (cue.step === 's2-advance' && cue.kind === 'tick') || cue.step === 's2-tool');
 
   return (
     <g>
@@ -744,63 +998,61 @@ function CleanScene({ state, progress, picks, dials }: SimViewProps) {
       <Caption
         x={56}
         y={26}
-        text={
-          face === 'green'
-            ? '浅盘 · 清水 · 起手面：竹青面（背面）'
-            : face === 'yellow'
-              ? '浅盘 · 清水 · 起手面：竹黄面（正面）'
-              : '浅盘 · 清水'
-        }
+        text={face === 'green' ? '浅盘 · 清水 · 起手面：竹青面（背面）' : face === 'yellow' ? '浅盘 · 清水 · 起手面：竹黄面（正面）' : '浅盘 · 清水'}
       />
 
-      {/* 主简：竹青面色浅而致密，竹黄面偏黄 */}
-      <Slip
-        cx={236}
-        cy={146}
-        w={24}
-        h={200}
-        tone={face === 'green' ? 15 : 28}
-        ink={state.legibility / 100}
-        damage={damage}
-        wet={1}
-        mud={clamp01(mud)}
-        seed={21}
-        tilt={0.7}
-      />
-      <Tag x={210} y={256} text={face === 'green' ? '竹青面' : '竹黄面'} />
+      {/* 主简：换起手面时翻一下 */}
+      <g key={flipCue?.nonce ?? 'slip'} className={flipCue ? 'wj-fx-flip wj-fx-tb' : undefined}>
+        <Slip cx={236} cy={146} w={24} h={200} tone={face === 'green' ? 15 : 28} ink={state.legibility / 100} damage={damage} wet={1} mud={clamp01(mud)} seed={21} tilt={0.7} />
+      </g>
+      <Tag x={210} y={256} text={face === 'green' ? '竹青面' : face === 'yellow' ? '竹黄面' : '待定面'} />
 
-      {/* 尼龙勾线笔 / 毛笔：笔杆 + 金属箍 + 笔锋，力度越大压得越低、笔锋越弯 */}
-      {force > 0 && (
-        <g transform={`translate(300, ${112 + force * 3.2}) rotate(${30 + force * 1.8})`}>
-          {/* 笔杆投影 */}
-          <rect x={6} y={-2} width={122} height={7} rx={3.5} fill={INK} opacity={0.12} />
-          {/* 笔杆 */}
-          <rect
-            x={4}
-            y={-3.4}
-            width={120}
-            height={6.8}
-            rx={3.4}
-            fill={tool === 'nylon' ? `color-mix(in oklab, ${INK} 62%, ${SURFACE})` : `color-mix(in oklab, ${OCHRE} 46%, ${SURFACE})`}
-          />
-          <rect x={4} y={-3.4} width={120} height={2} rx={1} fill={SURFACE} opacity={0.28} />
-          {/* 金属箍 */}
-          <rect x={2} y={-4} width={11} height={8} rx={1.6} fill={`color-mix(in oklab, ${INK} 34%, ${SURFACE})`} />
-          <rect x={2} y={-4} width={11} height={2.6} rx={1} fill={SURFACE} opacity={0.45} />
-          {/* 笔锋：力度大时明显外撇 */}
-          <path
-            d={`M 2 0 q -11 ${(force - 4) * 1.15} -19 ${(force - 4) * 0.5} q 8 ${-(force - 4) * 1.6} 19 ${-(force - 4) * 0.5} z`}
-            fill={force > 5 ? CINNABAR : `color-mix(in oklab, ${INK} 70%, ${SURFACE})`}
-            opacity={0.9}
-          />
+      {/* 笔：选笔时滑入，运笔时来回擦 */}
+      {brushOn && (
+        <g key={scrub ? cue?.nonce : 'brush'} className={cue?.step === 's2-tool' ? 'wj-fx-slidein' : scrub ? 'wj-fx-scrub' : undefined}>
+          <g className="wj-sim-anim" style={{ transform: `translate(300px, ${112 + force * 3.2}px) rotate(${30 + force * 1.8}deg)` }}>
+            <rect x={6} y={-2} width={122} height={7} rx={3.5} fill={INK} opacity={0.12} />
+            <rect
+              x={4}
+              y={-3.4}
+              width={120}
+              height={6.8}
+              rx={3.4}
+              fill={tool === 'nylon' ? `color-mix(in oklab, ${INK} 62%, ${SURFACE})` : `color-mix(in oklab, ${OCHRE} 46%, ${SURFACE})`}
+            />
+            <rect x={4} y={-3.4} width={120} height={2} rx={1} fill={SURFACE} opacity={0.28} />
+            <rect x={2} y={-4} width={11} height={8} rx={1.6} fill={`color-mix(in oklab, ${INK} 34%, ${SURFACE})`} />
+            <rect x={2} y={-4} width={11} height={2.6} rx={1} fill={SURFACE} opacity={0.45} />
+            <path
+              d={`M 2 0 q -11 ${(force - 4) * 1.15} -19 ${(force - 4) * 0.5} q 8 ${-(force - 4) * 1.6} 19 ${-(force - 4) * 0.5} z`}
+              fill={force > 5 ? CINNABAR : `color-mix(in oklab, ${INK} 70%, ${SURFACE})`}
+              opacity={0.9}
+            />
+          </g>
         </g>
       )}
+
+      {/* ── 动作 ── */}
+      <Fx cue={cue} step="s2-force" kind="dial">
+        <Ring cx={262} cy={118 + force * 3} r={7} tint={force > 5 ? CINNABAR : BAMBOO} />
+      </Fx>
+      <Fx cue={cue} step="s2-advance" kind="tick">
+        <Droplets x={224} y={60 + 190 * (1 - mud) - 8} w={26} n={5} tint={`color-mix(in oklab, ${OCHRE} 55%, ${INK})`} seed={cue?.nonce ?? 1} />
+        {force > 5 && <rect className="wj-fx-fade" x={226} y={60 + 190 * (1 - mud)} width={20} height={16} rx={3} fill={INK} opacity={0.18} />}
+      </Fx>
+      <Fx cue={cue} step="s2-advance" kind="event" choice="slow">
+        <Ring cx={236} cy={146} r={16} tint={BAMBOO} />
+      </Fx>
+      <Fx cue={cue} step="s2-advance" kind="event" choice="same">
+        <rect className="wj-fx-fade" x={225} y={120} width={22} height={70} rx={4} fill={INK} opacity={0.3} />
+      </Fx>
 
       {/* 已洗下来的泥：在盘底散开 */}
       {progress > 0.1 &&
         Array.from({ length: Math.round(progress * 14) }).map((_, i) => (
           <ellipse
             key={i}
+            className="wj-fx-grow wj-fx-tb"
             cx={90 + rand(i + 3) * 350}
             cy={216 + rand(i + 40) * 26}
             rx={2 + rand(i + 80) * 5}
@@ -818,6 +1070,7 @@ function CleanScene({ state, progress, picks, dials }: SimViewProps) {
           return (
             <g key={i}>
               <rect
+                className="wj-sim-anim"
                 x={0}
                 y={12 + i * 22}
                 width={104}
@@ -828,13 +1081,7 @@ function CleanScene({ state, progress, picks, dials }: SimViewProps) {
                 strokeOpacity={passed ? 0.5 : 1}
                 strokeWidth={0.8}
               />
-              <text
-                x={7}
-                y={23 + i * 22}
-                fill={passed ? BAMBOO : DIM}
-                fontSize={8.6}
-                fontFamily="var(--font-mono, monospace)"
-              >
+              <text x={7} y={23 + i * 22} fill={passed ? BAMBOO : DIM} fontSize={8.6} fontFamily="var(--font-mono, monospace)">
                 {passed ? '✓' : '·'} 第 {i + 1} 道
               </text>
             </g>
@@ -847,68 +1094,58 @@ function CleanScene({ state, progress, picks, dials }: SimViewProps) {
 }
 
 // ───────────────────── 环节三　绑夹：约束与漂移 ─────────────────────
-function BindScene({ state, picks }: SimViewProps) {
+function BindScene({ state, picks, cue }: SimViewProps) {
   const uid = useId().replace(/:/g, '');
   const method = picks['s3-method'];
   const boiled = picks['s3-boil'];
   const damage = clamp01((100 - state.integrity) / 100);
   const drift = method === 'none';
+  const methodCue = cue?.step === 's3-method' ? cue : null;
+  const checkCue = cue?.step === 's3-check' ? cue : null;
 
   return (
     <g>
-      <Tray
-        x={48}
-        y={38}
-        w={438}
-        h={214}
-        liquid={drift ? `color-mix(in oklab, ${WATER} 13%, ${SURFACE})` : RAISED}
-        uid={uid}
-      />
+      <Tray x={48} y={38} w={438} h={214} liquid={drift ? `color-mix(in oklab, ${WATER} 13%, ${SURFACE})` : RAISED} uid={uid} />
       {drift && <Surface x={55} y={54} w={424} />}
       <Caption
         x={50}
         y={30}
-        text={drift ? '特制脱色槽 · 简未绑夹（2003 年 7 月第三批次）' : method === 'double' ? '绑夹台 · 双面无机玻璃条' : '绑夹台 · 单面「之」字形缠绕'}
+        text={drift ? '特制脱色槽 · 简未绑夹（2003 年 7 月第三批次）' : method === 'double' ? '绑夹台 · 双面无机玻璃条' : method === 'single' ? '绑夹台 · 单面「之」字形缠绕' : '绑夹台'}
         tone={drift ? CINNABAR : MUTED}
       />
 
+      {/* 棉线：线轴与蒸煮的小锅 */}
+      <g transform="translate(500, 176)">
+        <rect x={0} y={0} width={30} height={22} rx={3} fill={`color-mix(in oklab, ${INK} 30%, ${SURFACE})`} />
+        <rect x={-3} y={-3} width={36} height={4} rx={1} fill={`color-mix(in oklab, ${INK} 45%, ${SURFACE})`} />
+        <Caption x={-2} y={36} text={boiled === 'boil' ? '棉线 · 已蒸煮' : boiled === 'raw' ? '棉线 · 未蒸煮' : '棉线'} tone={boiled === 'raw' ? CINNABAR : DIM} size={8.4} />
+        <Fx cue={cue} step="s3-boil" choice="boil">
+          <Steam x={4} y={-6} n={4} />
+        </Fx>
+      </g>
+
       {[0, 1, 2].map((i) => {
         const baseX = 136 + i * 108;
-        // 漂移：薄小的那枚随水流串到别的槽里去
+        // 漂移：薄小的那枚随水流串到别的槽里去——位置走过渡
         const dx = drift ? (i === 1 ? 54 : (i - 1) * 26) : 0;
         const dy = drift && i === 1 ? 26 : 0;
         const tilt = drift && i === 1 ? 13 : (rand(i + 7) - 0.5) * 2.2;
+        const cordD = Array.from({ length: 8 })
+          .map((_, k) => {
+            const yy = 62 + k * 22;
+            const xx = baseX + (k % 2 === 0 ? -17 : 17);
+            return `${k === 0 ? 'M' : 'L'} ${xx} ${yy}`;
+          })
+          .join(' ');
         return (
-          <g key={i} transform={`translate(${dx}, ${dy})`}>
-            {/* 槽格：未绑夹时格子还在，简却不在格里 */}
+          <g key={i} className="wj-sim-anim" style={{ transform: `translate(${dx}px, ${dy}px)` }}>
             {drift && (
-              <rect
-                x={baseX - dx - 21}
-                y={56}
-                width={42}
-                height={170}
-                rx={3}
-                fill="none"
-                stroke={LINE}
-                strokeDasharray="3 3"
-                strokeWidth={0.9}
-              />
+              <rect x={baseX - dx - 21} y={56} width={42} height={170} rx={3} fill="none" stroke={LINE} strokeDasharray="3 3" strokeWidth={0.9} />
             )}
-            <Slip
-              cx={baseX}
-              cy={140}
-              w={19}
-              h={172}
-              tone={20}
-              ink={state.legibility / 100}
-              damage={damage}
-              wet={drift ? 1 : 0.55}
-              seed={31 + i * 5}
-              tilt={tilt}
-            />
-            {/* 双面无机玻璃条：夹住两面，药剂进不去 */}
+            <Slip cx={baseX} cy={140} w={19} h={172} tone={20} ink={state.legibility / 100} damage={damage} wet={drift ? 1 : 0.55} seed={31 + i * 5} tilt={tilt} />
+            {/* 双面无机玻璃条：滑入夹住 */}
             {method === 'double' && (
-              <g transform={`rotate(${tilt} ${baseX} 140)`}>
+              <g key={methodCue?.nonce ?? 'glass'} className={methodCue ? 'wj-fx-slidein' : undefined} transform={`rotate(${tilt} ${baseX} 140)`}>
                 <rect x={baseX - 22} y={54} width={44} height={174} rx={2} fill={WATER} opacity={0.13} />
                 <rect x={baseX - 22} y={54} width={44} height={174} rx={2} fill="none" stroke={WATER} strokeOpacity={0.45} strokeWidth={0.9} />
                 <line x1={baseX - 18} y1={58} x2={baseX + 18} y2={72} stroke={SURFACE} strokeOpacity={0.5} strokeWidth={1.2} />
@@ -920,64 +1157,58 @@ function BindScene({ state, picks }: SimViewProps) {
                 ))}
               </g>
             )}
-            {/* 单面「之」字形棉线：字迹一面朝外，药剂能进 */}
+            {/* 单面「之」字形棉线：一笔缠上去 */}
             {method === 'single' && (
               <g transform={`rotate(${tilt} ${baseX} 140)`}>
                 <path
-                  d={Array.from({ length: 8 })
-                    .map((_, k) => {
-                      const yy = 62 + k * 22;
-                      const xx = baseX + (k % 2 === 0 ? -17 : 17);
-                      return `${k === 0 ? 'M' : 'L'} ${xx} ${yy}`;
-                    })
-                    .join(' ')}
+                  key={methodCue?.nonce ?? 'cord'}
+                  className={methodCue ? 'wj-fx-draw' : undefined}
+                  style={methodCue ? { animationDelay: `${i * 0.25}s` } : undefined}
+                  pathLength={1}
+                  strokeDasharray="1"
+                  d={cordD}
                   stroke={boiled === 'raw' ? CINNABAR : `color-mix(in oklab, ${INK} 30%, ${SURFACE})`}
                   strokeWidth={boiled === 'raw' ? 3 : 1.8}
                   fill="none"
                   strokeLinejoin="round"
                 />
-                {/* 未蒸煮的棉线收缩勒进简面：留下压痕 */}
                 {boiled === 'raw' &&
                   Array.from({ length: 8 }).map((_, k) => (
-                    <line
-                      key={k}
-                      x1={baseX - 14}
-                      y1={62 + k * 22}
-                      x2={baseX + 14}
-                      y2={62 + k * 22}
-                      stroke={INK}
-                      strokeOpacity={0.22}
-                      strokeWidth={2.4}
-                    />
+                    <line key={k} x1={baseX - 14} y1={62 + k * 22} x2={baseX + 14} y2={62 + k * 22} stroke={INK} strokeOpacity={0.22} strokeWidth={2.4} />
                   ))}
               </g>
             )}
             {drift && i === 1 && <Caption x={baseX - 18} y={246} text="串槽" tone={CINNABAR} />}
             <Tag x={baseX - 26} y={drift && i === 1 ? 232 : 226} text={`脱色号 ${41878 + i}`} />
+
+            {/* 核对：逐枚拍照 / 只点数 / 抽查 */}
+            {checkCue && (checkCue.choice === 'each' || (checkCue.choice === 'sample' && i === 0)) && (
+              <g key={checkCue.nonce}>
+                <rect className="wj-fx-flash" style={{ animationDelay: `${i * 0.3}s` }} x={baseX - 28} y={52} width={56} height={180} rx={4} fill={SURFACE} />
+              </g>
+            )}
           </g>
         );
       })}
+      {drift && (
+        <Fx cue={cue} step="s3-method" choice="none">
+          <Droplets x={200} y={70} w={120} n={6} seed={31} />
+        </Fx>
+      )}
+      <Fx cue={cue} step="s3-check" choice="count">
+        <text className="wj-fx-pulse" x={267} y={150} textAnchor="middle" fill={CINNABAR} fontSize={26} fontFamily="var(--font-mono, monospace)" opacity={0.9}>
+          40
+        </text>
+      </Fx>
 
-      {boiled === 'raw' && <Caption x={50} y={274} text="棉线未蒸煮 · 遇水收缩，在 471% 含水率的简体上勒出压痕" tone={CINNABAR} />}
+      {boiled === 'raw' && <Caption x={50} y={274} text="棉线未蒸煮 · 遇水收缩，在简体上勒出压痕" tone={CINNABAR} />}
       <g transform="translate(506, 66)">
         <Caption x={0} y={0} text="编号身份" />
-        <text
-          x={0}
-          y={22}
-          fill={state.provenance < 80 ? CINNABAR : BAMBOO}
-          fontSize={22}
-          fontFamily="var(--font-mono, monospace)"
-        >
+        <text x={0} y={22} fill={state.provenance < 80 ? CINNABAR : BAMBOO} fontSize={22} fontFamily="var(--font-mono, monospace)">
           {Math.round(state.provenance)}%
         </text>
         <Caption x={0} y={42} text="药剂可及度" />
-        <text
-          x={0}
-          y={64}
-          fill={state.legibility < 80 ? CINNABAR : BAMBOO}
-          fontSize={22}
-          fontFamily="var(--font-mono, monospace)"
-        >
+        <text x={0} y={64} fill={state.legibility < 80 ? CINNABAR : BAMBOO} fontSize={22} fontFamily="var(--font-mono, monospace)">
           {Math.round(state.legibility)}%
         </text>
       </g>
@@ -986,7 +1217,7 @@ function BindScene({ state, picks }: SimViewProps) {
 }
 
 // ───────────────────── 环节四　饱水保存：菌斑生长 ─────────────────────
-function TankScene({ state, progress, picks, dials }: SimViewProps) {
+function TankScene({ state, progress, picks, dials, cue }: SimViewProps) {
   const uid = useId().replace(/:/g, '');
   const damage = clamp01((100 - state.integrity) / 100);
   const conc = dials['s4-conc'];
@@ -997,84 +1228,82 @@ function TankScene({ state, progress, picks, dials }: SimViewProps) {
       ? `color-mix(in oklab, ${WATER} 26%, ${SURFACE})`
       : agent === 'mold'
         ? `color-mix(in oklab, ${SURFACE} 92%, ${OCHRE})`
-        : `color-mix(in oklab, ${WATER} 11%, ${SURFACE})`;
+        : agent
+          ? `color-mix(in oklab, ${WATER} 14%, ${SURFACE})`
+          : `color-mix(in oklab, ${WATER} 9%, ${SURFACE})`;
+  const pourTint = agent === 'cuso4' ? WATER : agent === 'peracetic' ? CINNABAR : DIM;
 
   return (
     <g>
       <Tray x={48} y={44} w={452} h={196} liquid={liquid} uid={uid} />
+      {/* 液色过渡层：换药时颜色慢慢变 */}
+      <rect className="wj-sim-anim" x={55} y={51} width={438} height={182} rx={8} fill={liquid} />
       <Surface x={55} y={60} w={438} />
-      {/* 弯月面：贴着盘壁爬起来的一圈 */}
       <path d="M 57 58 q 4 8 0 16" stroke={WATER} strokeOpacity={0.3} strokeWidth={1.2} fill="none" />
       <path d="M 491 58 q -4 8 0 16" stroke={WATER} strokeOpacity={0.3} strokeWidth={1.2} fill="none" />
-      <Caption
-        x={50}
-        y={36}
-        text={`存放室 · ${agent ? '药液' : '清水'}${conc ? ` ${conc.toFixed(2)}%` : ''} · 第 ${Math.round(progress * 24)} 月`}
-      />
+      <Caption x={50} y={36} text={`存放室 · ${agent ? '药液' : '清水'}${conc ? ` ${conc.toFixed(2)}%` : ''} · 第 ${Math.round(progress * 24)} 月`} />
 
       {[0, 1, 2, 3].map((i) => (
         <g key={i}>
-          <Slip
-            cx={122 + i * 92}
-            cy={148}
-            w={17}
-            h={168}
-            tone={agent === 'cuso4' ? 30 : 22}
-            ink={state.legibility / 100}
-            damage={damage}
-            wet={1}
-            seed={41 + i * 7}
-            tilt={(rand(i + 11) - 0.5) * 2.6}
-          />
-          {/* 水下折射：液面之下的部分横向错开一点 */}
+          <Slip cx={122 + i * 92} cy={148} w={17} h={168} tone={agent === 'cuso4' ? 30 : 22} ink={state.legibility / 100} damage={damage} wet={1} seed={41 + i * 7} tilt={(rand(i + 11) - 0.5) * 2.6} />
           <rect x={112 + i * 92} y={68} width={19} height={5} fill={SURFACE} opacity={0.14} />
         </g>
       ))}
 
-      {/* 蚀斑病：白斑（半透明膜状）、黏液（发亮的涂层）、软腐（海绵孔） */}
+      {/* 蚀斑病：新长出来的斑从零放大出现 */}
       {Array.from({ length: spots }).map((_, i) => {
         const cx = 78 + rand(i + 60) * 400;
         const cy = 76 + rand(i + 130) * 148;
         const r = 2.4 + rand(i + 200) * 6;
         const kind = i % 3;
-        if (kind === 0)
-          // 白斑：膜状，一碰就碎
-          return (
-            <g key={i}>
-              <ellipse cx={cx} cy={cy} rx={r} ry={r * 0.78} fill={SURFACE} opacity={0.72} />
-              <ellipse cx={cx} cy={cy} rx={r} ry={r * 0.78} fill="none" stroke={BORDER} strokeWidth={0.6} />
-            </g>
-          );
-        if (kind === 1)
-          // 黏液：不破坏简体，但反光、且是真菌的碳源
-          return (
-            <ellipse
-              key={i}
-              cx={cx}
-              cy={cy}
-              rx={r * 1.3}
-              ry={r * 0.55}
-              fill={`color-mix(in oklab, ${OCHRE} 26%, ${SURFACE})`}
-              opacity={0.5}
-            />
-          );
-        // 软腐：简体如海绵
         return (
-          <g key={i} opacity={0.6}>
-            {Array.from({ length: 4 }).map((_, k) => (
-              <circle
-                key={k}
-                cx={cx + (rand(i * 9 + k) - 0.5) * r * 2}
-                cy={cy + (rand(i * 13 + k) - 0.5) * r * 2}
-                r={0.9 + rand(i * 17 + k) * 1.5}
-                fill={INK}
-                opacity={0.2}
-              />
-            ))}
+          <g key={i} className="wj-fx-grow wj-fx-tb">
+            {kind === 0 && (
+              <>
+                <ellipse cx={cx} cy={cy} rx={r} ry={r * 0.78} fill={SURFACE} opacity={0.72} />
+                <ellipse cx={cx} cy={cy} rx={r} ry={r * 0.78} fill="none" stroke={BORDER} strokeWidth={0.6} />
+              </>
+            )}
+            {kind === 1 && <ellipse cx={cx} cy={cy} rx={r * 1.3} ry={r * 0.55} fill={`color-mix(in oklab, ${OCHRE} 26%, ${SURFACE})`} opacity={0.5} />}
+            {kind === 2 &&
+              Array.from({ length: 4 }).map((_, k) => (
+                <circle key={k} cx={cx + (rand(i * 9 + k) - 0.5) * r * 2} cy={cy + (rand(i * 13 + k) - 0.5) * r * 2} r={0.9 + rand(i * 17 + k) * 1.5} fill={INK} opacity={0.2} />
+              ))}
           </g>
         );
       })}
       {spots > 6 && <Caption x={366} y={36} text="蚀斑病 · 白斑 / 黏液 / 软腐" tone={CINNABAR} />}
+
+      {/* ── 动作 ── */}
+      <Fx cue={cue} step="s4-agent">
+        <Pour x0={470} y0={20} x1={420} y1={64} tint={pourTint} />
+        <Droplets x={380} y={62} w={90} n={6} tint={pourTint} seed={41} />
+      </Fx>
+      <Fx cue={cue} step="s4-conc">
+        <Droplets x={80} y={58} w={400} n={12} tint={conc && conc > 0.6 ? CINNABAR : WATER} seed={43} />
+      </Fx>
+      <Fx cue={cue} step="s4-cycle">
+        <Pour x0={30} y0={30} x1={80} y1={64} />
+        <Droplets x={60} y={62} w={380} n={10} seed={47} />
+      </Fx>
+      <Fx cue={cue} step="s4-advance" kind="tick">
+        <text className="wj-fx-pulse" x={250} y={36} fill={DIM} fontSize={10} fontFamily="var(--font-mono, monospace)">
+          +2 月
+        </text>
+      </Fx>
+      <Fx cue={cue} step="s4-advance" kind="event" choice="raise">
+        <Pour x0={470} y0={20} x1={420} y1={64} tint={DIM} />
+        <Droplets x={80} y={58} w={400} n={10} seed={53} />
+      </Fx>
+      <Fx cue={cue} step="s4-advance" kind="event" choice="wash">
+        <g className="wj-fx-scrub">
+          <rect x={196} y={90} width={60} height={5} rx={2.5} fill={`color-mix(in oklab, ${INK} 60%, ${SURFACE})`} />
+        </g>
+        <Debris x={214} y={110} n={6} seed={59} />
+      </Fx>
+      <Fx cue={cue} step="s4-advance" kind="event" choice="wait">
+        <Ring cx={274} cy={148} r={30} />
+      </Fx>
 
       {/* 菌落监测：培养皿读数 */}
       <g transform="translate(518, 70)">
@@ -1086,24 +1315,10 @@ function TankScene({ state, progress, picks, dials }: SimViewProps) {
           const a = rand(i + 300) * Math.PI * 2;
           const rr = Math.sqrt(rand(i + 400)) * 34;
           return (
-            <circle
-              key={i}
-              cx={44 + Math.cos(a) * rr}
-              cy={54 + Math.sin(a) * rr}
-              r={1 + rand(i + 500) * 2.4}
-              fill={state.risk > 45 ? CINNABAR : BAMBOO}
-              opacity={0.5}
-            />
+            <circle key={i} className="wj-fx-grow wj-fx-tb" cx={44 + Math.cos(a) * rr} cy={54 + Math.sin(a) * rr} r={1 + rand(i + 500) * 2.4} fill={state.risk > 45 ? CINNABAR : BAMBOO} opacity={0.5} />
           );
         })}
-        <text
-          x={44}
-          y={116}
-          textAnchor="middle"
-          fill={state.risk > 45 ? CINNABAR : BAMBOO}
-          fontSize={15}
-          fontFamily="var(--font-mono, monospace)"
-        >
+        <text x={44} y={116} textAnchor="middle" fill={state.risk > 45 ? CINNABAR : BAMBOO} fontSize={15} fontFamily="var(--font-mono, monospace)">
           {Math.round(state.risk)} / 100
         </text>
       </g>
@@ -1112,80 +1327,107 @@ function TankScene({ state, progress, picks, dials }: SimViewProps) {
 }
 
 // ───────────────────── 环节五　脱色：恒温槽与蓝色值 ─────────────────────
-function BleachScene({ state, progress, picks, dials }: SimViewProps) {
+function BleachScene({ state, progress, picks, dials, cue }: SimViewProps) {
   const uid = useId().replace(/:/g, '');
   const damage = clamp01((100 - state.integrity) / 100);
   const temp = dials['s5-temp'] ?? 25;
   const agent = picks['s5-agent'];
+  const edtaConc = dials['s5-edta-conc'];
   // 罗维朋蓝色值：报告实测 连二亚硫酸钠 →3.1，草酸 →4.3，双氧水 →4.3
   const blueStart = 5.5;
   const blueEnd = agent === 'dithionite' ? 3.1 : agent === 'oxalic' ? 4.3 : agent === 'h2o2' ? 4.3 : 5.2;
   const inBand = temp >= 45 && temp <= 50;
   const eff = agent ? (inBand ? 1 : 0.45) : 0;
   const blue = blueStart - (blueStart - blueEnd) * progress * eff;
-  const tone = Math.max(6, 12 + (blue - 3) * 10);
   const collapsed = agent === 'nabh4' && progress > 0.1;
+  const heating = inBand && progress > 0;
+  const stopCue = cue?.step === 's5-advance' && cue.kind === 'event' && cue.choice === 'stop' ? cue : null;
 
-  // 温度计几何
   const TT = 58;
   const TB = 226;
   const tY = (t: number) => TB - ((t - 20) / 60) * (TB - TT);
+  const mercuryFrac = (temp - 20) / 60;
 
   return (
     <g>
       <Tray x={44} y={46} w={372} h={194} liquid={`color-mix(in oklab, ${WATER} 12%, ${SURFACE})`} uid={uid} />
+      {/* EDTA 配好之后液色略深一层 */}
+      <rect className="wj-sim-anim" x={51} y={53} width={358} height={180} rx={8} fill={OCHRE} style={{ opacity: edtaConc ? 0.03 + edtaConc * 0.025 : 0 }} />
       <Surface x={51} y={62} w={358} />
-      <Caption
-        x={46}
-        y={38}
-        text={`恒温槽 · ${agent ? '第二步 还原（保温）' : '待配液'} · ${temp}℃`}
-        tone={inBand ? BAMBOO : CINNABAR}
-      />
-      {/* 加热：保温时槽底起气泡 */}
-      {inBand &&
-        progress > 0 &&
-        Array.from({ length: 9 }).map((_, i) => (
+      <Caption x={46} y={38} text={`恒温槽 · ${agent ? '第二步 还原（保温）' : edtaConc ? '第一步 EDTA 螯合' : '待配液'} · ${temp}℃`} tone={inBand ? BAMBOO : CINNABAR} />
+
+      {/* 加热：保温时槽底连续起泡 */}
+      {heating &&
+        Array.from({ length: 10 }).map((_, i) => (
           <circle
             key={i}
-            cx={70 + rand(i + 9) * 320}
-            cy={214 - rand(i + 19) * (60 * progress)}
+            className="wj-fx-bubble"
+            style={{ animationDelay: `${rand(i + 9) * 2.2}s` }}
+            cx={70 + rand(i + 19) * 320}
+            cy={220}
             r={1.1 + rand(i + 29) * 1.7}
             fill={SURFACE}
             opacity={0.5}
           />
         ))}
+      {heating && <Heat x={60} y={244} w={340} n={9} />}
 
       {[0, 1, 2].map((i) => (
-        <g key={i} transform={collapsed ? `translate(0, ${-56 + i * 4}) rotate(${(i - 1) * 8} ${112 + i * 100} 150)` : undefined}>
-          <Slip
-            cx={112 + i * 100}
-            cy={150}
-            w={18}
-            h={172}
-            tone={tone}
-            ink={state.legibility / 100}
-            damage={collapsed ? 0.85 : damage}
-            wet={1}
-            seed={51 + i * 6}
-            tilt={(rand(i + 5) - 0.5) * 2.8}
-          />
+        <g
+          key={`${i}-${stopCue?.nonce ?? 's'}`}
+          className={`wj-sim-anim${stopCue ? ' wj-fx-lift' : ''}`}
+          style={{ transform: collapsed ? `translateY(${-56 + i * 4}px) rotate(${(i - 1) * 8}deg)` : 'none', transformOrigin: `${112 + i * 100}px 150px` }}
+        >
+          <Slip cx={112 + i * 100} cy={150} w={18} h={172} tone={10} ink={state.legibility / 100} damage={collapsed ? 0.85 : damage} wet={1} seed={51 + i * 6} tilt={(rand(i + 5) - 0.5) * 2.8} />
+          {/* 颜色层：随蓝色值下降慢慢变浅 */}
+          <rect className="wj-sim-anim" x={112 + i * 100 - 9} y={64} width={18} height={172} rx={3} fill={OCHRE} style={{ opacity: Math.max(0, (blue - 3.1) / 2.4) * 0.42 }} />
         </g>
       ))}
       {collapsed && <Caption x={52} y={230} text="竹简变腐松软、漂浮于液面" tone={CINNABAR} />}
 
-      {/* 温度计：球部 + 刻度 + 安全带 */}
+      {/* ── 动作 ── */}
+      <Fx cue={cue} step="s5-edta-conc">
+        <Pour x0={380} y0={22} x1={330} y1={66} tint={DIM} />
+      </Fx>
+      <Fx cue={cue} step="s5-edta-time">
+        <text className="wj-fx-pulse" x={230} y={36} fill={DIM} fontSize={10} fontFamily="var(--font-mono, monospace)">
+          浸泡 {dials['s5-edta-time'] ?? 0} h
+        </text>
+      </Fx>
+      <Fx cue={cue} step="s5-agent">
+        <Pour x0={380} y0={22} x1={330} y1={66} tint={agent === 'oxalic' || agent === 'nabh4' ? CINNABAR : WATER} />
+        <Droplets x={80} y={62} w={300} n={8} seed={61} />
+      </Fx>
+      <Fx cue={cue} step="s5-temp">
+        <Ring cx={443} cy={tY(temp)} r={9} tint={inBand ? BAMBOO : CINNABAR} />
+      </Fx>
+      <Fx cue={cue} step="s5-advance" kind="tick">
+        <text className="wj-fx-pulse" x={230} y={36} fill={DIM} fontSize={10} fontFamily="var(--font-mono, monospace)">
+          +5 min
+        </text>
+      </Fx>
+      <Fx cue={cue} step="s5-advance" kind="event" choice="extend">
+        <Heat x={60} y={244} w={340} n={12} />
+      </Fx>
+
+      {/* 温度计：汞柱走过渡 */}
       <g>
         <rect x={434} y={TT - 12} width={18} height={TB - TT + 18} rx={9} fill={SURFACE} stroke={BORDER} strokeWidth={1.1} />
-        {/* 报告给的保温区间 45～50℃ */}
         <rect x={431} y={tY(50)} width={24} height={tY(45) - tY(50)} fill={BAMBOO} opacity={0.2} />
         <line x1={431} y1={tY(50)} x2={455} y2={tY(50)} stroke={BAMBOO} strokeOpacity={0.6} strokeWidth={0.9} />
         <line x1={431} y1={tY(45)} x2={455} y2={tY(45)} stroke={BAMBOO} strokeOpacity={0.6} strokeWidth={0.9} />
-        {/* 汞柱 */}
-        <rect x={439} y={tY(temp)} width={8} height={TB - tY(temp)} fill={inBand ? BAMBOO : CINNABAR} />
-        <circle cx={443} cy={TB + 8} r={10} fill={inBand ? BAMBOO : CINNABAR} />
+        <rect
+          className="wj-sim-anim"
+          x={439}
+          y={TT}
+          width={8}
+          height={TB - TT}
+          fill={inBand ? BAMBOO : CINNABAR}
+          style={{ transform: `scaleY(${Math.max(0.01, mercuryFrac)})`, transformOrigin: `443px ${TB}px` }}
+        />
+        <circle className="wj-sim-anim" cx={443} cy={TB + 8} r={10} fill={inBand ? BAMBOO : CINNABAR} />
         <circle cx={440} cy={TB + 5} r={3} fill={SURFACE} opacity={0.35} />
         <rect x={440.5} y={TT - 10} width={2} height={TB - TT + 8} fill={SURFACE} opacity={0.35} />
-        {/* 刻度 */}
         {[20, 30, 40, 50, 60, 70, 80].map((t) => (
           <g key={t}>
             <line x1={452} y1={tY(t)} x2={458} y2={tY(t)} stroke={DIM} strokeWidth={0.8} />
@@ -1202,6 +1444,7 @@ function BleachScene({ state, progress, picks, dials }: SimViewProps) {
           return (
             <g key={v}>
               <rect
+                className="wj-sim-anim"
                 x={0}
                 y={10 + i * 21}
                 width={34}
@@ -1215,13 +1458,7 @@ function BleachScene({ state, progress, picks, dials }: SimViewProps) {
             </g>
           );
         })}
-        <text
-          x={0}
-          y={158}
-          fill={blue <= 3.4 ? BAMBOO : CINNABAR}
-          fontSize={22}
-          fontFamily="var(--font-mono, monospace)"
-        >
+        <text x={0} y={158} fill={blue <= 3.4 ? BAMBOO : CINNABAR} fontSize={22} fontFamily="var(--font-mono, monospace)">
           {blue.toFixed(2)}
         </text>
         <Caption x={0} y={174} text="越低越好" tone={DIM} size={8.6} />
@@ -1232,20 +1469,23 @@ function BleachScene({ state, progress, picks, dials }: SimViewProps) {
 }
 
 // ───────────────────── 环节六　脱水：收缩与字形压扁 ─────────────────────
-function DryScene({ state, progress, picks, dials }: SimViewProps) {
+function DryScene({ state, progress, picks, dials, cue }: SimViewProps) {
   const filler = picks['s6-material'];
   const route = picks['s6-triage'];
   const load = dials['s6-load'] ?? 0;
+  const temp = dials['s6-temp'];
   // 收缩率：填充到位 → 长 3% / 宽 5%；完全不填充 → 长 20.4% / 宽 50.6%
   const quality = clamp01(state.integrity / 100);
   const shrinkW = (0.506 - (0.506 - 0.05) * quality) * progress;
   const shrinkL = (0.204 - (0.204 - 0.03) * quality) * progress;
   const damage = clamp01((100 - state.integrity) / 100) * 0.6;
   const darkens = filler === 'peg' || filler === 'sucrose';
+  const molten = temp !== undefined && temp >= 49;
+  const fillFrac = filler && route !== 'natural' ? clamp01(load / 280) : 0;
+  const rushCue = cue?.step === 's6-advance' && cue.kind === 'event' && cue.choice === 'rush' ? cue : null;
 
   return (
     <g>
-      {/* 工作台面 */}
       <rect x={44} y={40} width={452} height={214} rx={8} fill={SUNK} stroke={BORDER} strokeWidth={1.2} />
       <rect x={51} y={47} width={438} height={200} rx={5} fill={RAISED} />
       <Caption
@@ -1254,12 +1494,24 @@ function DryScene({ state, progress, picks, dials }: SimViewProps) {
         text={`脱水台 · ${route === 'natural' ? '自然干燥（无填充）' : filler ? '填充脱水' : '待选材料'}${load ? ` · 填充量 ${load}%` : ''} · 干燥 ${Math.round(progress * 100)}%`}
       />
 
+      {/* 熔融槽：温度到了才是清亮的液态 */}
+      {filler && route !== 'natural' && (
+        <g transform="translate(212, 190)">
+          <rect x={0} y={0} width={56} height={30} rx={3} fill={SUNK} stroke={BORDER} strokeWidth={0.9} />
+          <rect className="wj-sim-anim" x={4} y={6} width={48} height={20} rx={2} fill={molten ? `color-mix(in oklab, ${OCHRE} 14%, ${SURFACE})` : SURFACE} style={{ opacity: temp ? 1 : 0.4 }} />
+          {temp !== undefined && !molten &&
+            Array.from({ length: 5 }).map((_, i) => (
+              <circle key={i} className="wj-fx-grow wj-fx-tb" cx={10 + i * 9} cy={16 + (rand(i + 70) - 0.5) * 8} r={2.4 + rand(i + 80) * 2} fill={SURFACE} stroke={BORDER} strokeWidth={0.5} />
+            ))}
+          {molten && <Heat x={4} y={40} w={48} n={4} />}
+          <Caption x={0} y={42} text={temp ? `熔融槽 ${temp}℃` : '熔融槽'} tone={temp ? (molten && temp <= 60 ? BAMBOO : CINNABAR) : DIM} size={8.4} />
+        </g>
+      )}
+
       {/* 对照：饱水原状 */}
       <Slip cx={140} cy={148} w={26} h={192} tone={17} ink={0.88} damage={0} wet={1} seed={61} />
       <Caption x={114} y={264} text="饱水原状" tone={DIM} />
       <Tag x={104} y={48} text="含水率 471%" />
-
-      {/* 卡尺：把两枚的宽度差直接量出来 */}
       <g opacity={0.75}>
         <line x1={127} y1={252} x2={153} y2={252} stroke={WATER} strokeWidth={0.9} />
         <line x1={127} y1={248} x2={127} y2={256} stroke={WATER} strokeWidth={0.9} />
@@ -1268,32 +1520,52 @@ function DryScene({ state, progress, picks, dials }: SimViewProps) {
 
       <path d="M 212 148 l 26 0 m -8 -5.5 l 8 5.5 l -8 5.5" stroke={DIM} strokeWidth={1.3} fill="none" strokeLinecap="round" />
 
-      {/* 干燥中：宽度缩得比长度快，字跟着被压扁 */}
-      <Slip
-        cx={330}
-        cy={148}
-        w={26}
-        h={192}
-        sx={1 - shrinkW}
-        sy={1 - shrinkL}
-        tone={17 + (darkens ? 46 : 0)}
-        ink={state.legibility / 100}
-        damage={damage}
-        wet={1 - progress}
-        crystal={filler === 'hexadecanol' ? progress * 0.9 : 0}
-        seed={61}
-      />
+      {/* 干燥中：收缩走过渡，字跟着被压扁 */}
+      <g key={rushCue?.nonce ?? 'dry'} className={rushCue ? 'wj-fx-shake' : undefined}>
+        <g className="wj-sim-anim" style={{ transform: `scale(${1 - shrinkW}, ${1 - shrinkL})`, transformOrigin: '330px 148px' }}>
+          <Slip cx={330} cy={148} w={26} h={192} tone={17 + (darkens ? 46 : 0)} ink={state.legibility / 100} damage={damage} wet={1 - progress} crystal={filler === 'hexadecanol' ? progress * 0.9 : 0} seed={61} />
+          {/* 填充液位：十六醇从下往上渗进去 */}
+          {fillFrac > 0 && progress < 1 && (
+            <rect className="wj-sim-anim" x={317} y={52} width={26} height={192} rx={3} fill={`color-mix(in oklab, ${OCHRE} 10%, ${SURFACE})`} opacity={0.5} style={{ transform: `scaleY(${fillFrac})`, transformOrigin: '330px 244px' }} />
+          )}
+        </g>
+      </g>
       <Caption x={306} y={264} text="脱水后" tone={shrinkW > 0.05 ? CINNABAR : BAMBOO} />
       {(() => {
         const half = (26 * (1 - shrinkW)) / 2;
+        const tone = shrinkW > 0.05 ? CINNABAR : BAMBOO;
         return (
-          <g opacity={0.75}>
-            <line x1={330 - half} y1={252} x2={330 + half} y2={252} stroke={shrinkW > 0.05 ? CINNABAR : BAMBOO} strokeWidth={0.9} />
-            <line x1={330 - half} y1={248} x2={330 - half} y2={256} stroke={shrinkW > 0.05 ? CINNABAR : BAMBOO} strokeWidth={0.9} />
-            <line x1={330 + half} y1={248} x2={330 + half} y2={256} stroke={shrinkW > 0.05 ? CINNABAR : BAMBOO} strokeWidth={0.9} />
+          <g className="wj-sim-anim" opacity={0.75}>
+            <line className="wj-sim-anim" x1={330 - half} y1={252} x2={330 + half} y2={252} stroke={tone} strokeWidth={0.9} />
+            <line className="wj-sim-anim" x1={330 - half} y1={248} x2={330 - half} y2={256} stroke={tone} strokeWidth={0.9} />
+            <line className="wj-sim-anim" x1={330 + half} y1={248} x2={330 + half} y2={256} stroke={tone} strokeWidth={0.9} />
           </g>
         );
       })()}
+
+      {/* ── 动作 ── */}
+      <Fx cue={cue} step="s6-triage" choice="natural">
+        <Steam x={318} y={60} n={5} />
+      </Fx>
+      <Fx cue={cue} step="s6-material">
+        <Pour x0={300} y0={170} x1={240} y1={196} tint={`color-mix(in oklab, ${OCHRE} 30%, ${SURFACE})`} />
+      </Fx>
+      <Fx cue={cue} step="s6-temp">
+        {molten ? <Steam x={222} y={186} n={4} /> : <Ring cx={240} cy={205} r={10} />}
+      </Fx>
+      <Fx cue={cue} step="s6-load">
+        <Droplets x={318} y={48} w={24} n={5} tint={`color-mix(in oklab, ${OCHRE} 30%, ${SURFACE})`} seed={71} />
+      </Fx>
+      <Fx cue={cue} step="s6-advance" kind="tick">
+        <Steam x={316} y={56 + shrinkL * 60} n={4} seed={cue?.nonce ?? 1} />
+      </Fx>
+      <Fx cue={cue} step="s6-advance" kind="event" choice="hold">
+        <Steam x={316} y={70} n={3} />
+      </Fx>
+      <Fx cue={cue} step="s6-advance" kind="event" choice="rush">
+        <Heat x={300} y={250} w={60} n={5} />
+        <Debris x={330} y={148} n={8} seed={73} />
+      </Fx>
 
       {/* 收缩率读数：5% 是指标线 */}
       <g transform="translate(516, 72)">
@@ -1301,9 +1573,8 @@ function DryScene({ state, progress, picks, dials }: SimViewProps) {
         <text x={0} y={22} fill={shrinkW > 0.05 ? CINNABAR : BAMBOO} fontSize={22} fontFamily="var(--font-mono, monospace)">
           {(shrinkW * 100).toFixed(1)}%
         </text>
-        {/* 指标线标尺 */}
         <rect x={0} y={30} width={92} height={5} rx={2.5} fill={SUNK} />
-        <rect x={0} y={30} width={Math.min(92, (shrinkW / 0.55) * 92)} height={5} rx={2.5} fill={shrinkW > 0.05 ? CINNABAR : BAMBOO} />
+        <rect className="wj-sim-anim" x={0} y={30} width={92} height={5} rx={2.5} fill={shrinkW > 0.05 ? CINNABAR : BAMBOO} style={{ transform: `scaleX(${Math.min(1, shrinkW / 0.55)})`, transformOrigin: '0 0' }} />
         <line x1={(0.05 / 0.55) * 92} y1={27} x2={(0.05 / 0.55) * 92} y2={38} stroke={OCHRE} strokeWidth={1.2} />
 
         <Caption x={0} y={58} text="长度收缩" />
@@ -1311,7 +1582,7 @@ function DryScene({ state, progress, picks, dials }: SimViewProps) {
           {(shrinkL * 100).toFixed(1)}%
         </text>
         <rect x={0} y={88} width={92} height={5} rx={2.5} fill={SUNK} />
-        <rect x={0} y={88} width={Math.min(92, (shrinkL / 0.55) * 92)} height={5} rx={2.5} fill={shrinkL > 0.05 ? CINNABAR : BAMBOO} />
+        <rect className="wj-sim-anim" x={0} y={88} width={92} height={5} rx={2.5} fill={shrinkL > 0.05 ? CINNABAR : BAMBOO} style={{ transform: `scaleX(${Math.min(1, shrinkL / 0.55)})`, transformOrigin: '0 0' }} />
         <line x1={(0.05 / 0.55) * 92} y1={85} x2={(0.05 / 0.55) * 92} y2={96} stroke={OCHRE} strokeWidth={1.2} />
 
         <Caption x={0} y={118} text="指标 ≤5%（橙线）" tone={DIM} size={8.6} />

@@ -187,6 +187,16 @@ pnpm lint:style   # Stylelint
   画面上做了压缩，但必须保持「细长」这个第一印象，画成宽条就不是简了；
   每列字数由 `Slip` 按几何算出（`h*0.92 / (w*0.68)`），字形才近方。
   脱水时字数按**未收缩**的尺寸算，字才会随简体一起被压扁。
+- **每个工步都有对应的动效，分两层**（都是 CSS，`prefers-reduced-motion` 总开关直接管到）：
+  **动作**——StageSim 在每次落手（pick / dial / order / tick / event）发一个 `SimCue`
+  （步 id + 选项 + nonce），场景用 `<Fx cue step choice>` 命中后渲染一段一次性动作
+  （`Flash` 拍照、`Droplets` 点水、`Steam` 升温、`Pour` 下药、`Debris` 崩口、`Ring` 轻震、
+  `Heat` 热浪，以及 lift / snap / scrub / flip / draw 几个类），以 nonce 为 key 重挂即重放；
+  **过渡**——状态量（刀口位置、泥污退线、汞柱、液色、简的收缩与漂移、色片）挂 `.wj-sim-anim`，
+  用 `style.transform` / `fill` 过渡而不是直接改几何，画面不再跳到新状态。
+  推进步走完之后 `sceneProgress` 停在 1（StageSim 按 advance 步的下标判断），
+  后面的工步不会让泥污或刀口倒回去。新加工步时，至少给它一个 `<Fx>`；
+  新加状态量时，用 transform 表达并挂 `.wj-sim-anim`。
 - **简面上的笔画不是释文**：只做笔墨质感，不拼成任何可读的字，图注里写明了这一点。
   展示篇的释文有自己的出处与声明，不搬到这里（两篇数据不互相搬用）。
 - **性能**：简坨里一坨几十枚简，走的是轻量的 `SlipEnd`（纯 rect，不带滤镜）；

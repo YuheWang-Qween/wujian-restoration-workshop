@@ -32,7 +32,7 @@ import {
   type WjSimStep,
 } from '@/lib/workshop/sim';
 import { useWorkshopStore } from '@/store/useWorkshopStore';
-import { SimStageView } from './SimStageView';
+import { SimStageView, type SimCue } from './SimStageView';
 
 const VERDICT_RING: Record<string, string> = {
   good: 'border-wj-bamboo/60 bg-wj-bamboo/[0.08]',
@@ -154,16 +154,21 @@ export function StageSim({ sim }: { sim: WjSim }) {
   const [firedEvents, setFiredEvents] = useState<number[]>([]);
   const [lastDelta, setLastDelta] = useState<WjSimEffect>({});
   const [settled, setSettled] = useState(false);
+  /** 最近一次落手：画面据此放一段对应的动效。nonce 变一次动效重放一次 */
+  const [cue, setCue] = useState<SimCue | null>(null);
+  const fire = (c: Omit<SimCue, 'nonce'>) => setCue({ ...c, nonce: Date.now() });
 
   const step: WjSimStep | undefined = sim.steps[cursor];
   const isLast = cursor >= sim.steps.length - 1;
 
-  // 逐段推进的实时进度（供画面用）
+  // 逐段推进的实时进度（供画面用）。推进步走完之后进度要停在 1——
+  // 泥已经洗掉、简已经剥出，后面的工步不能让画面倒回去
+  const advanceIdx = sim.steps.findIndex((st) => st.type === 'advance');
   const advanceProgress = useMemo(() => {
-    if (!step || step.type !== 'advance') return settled ? 1 : 0;
+    if (!step || step.type !== 'advance') return settled || (advanceIdx >= 0 && cursor > advanceIdx) ? 1 : 0;
     const per = step.perTickFrom ? (dials[step.perTickFrom] ?? 1) : (step.perTick ?? 1);
     return Math.min(1, (ticks * per) / step.total);
-  }, [step, ticks, dials, settled]);
+  }, [step, ticks, dials, settled, cursor, advanceIdx]);
 
   const sceneProgress = settled ? 1 : advanceProgress;
 
@@ -185,6 +190,7 @@ export function StageSim({ sim }: { sim: WjSim }) {
     setFiredEvents([]);
     setLastDelta({});
     setSettled(false);
+    setCue(null);
     setStarted(true);
   };
 
@@ -359,7 +365,7 @@ export function StageSim({ sim }: { sim: WjSim }) {
   // ── 操作屏 ──
   return (
     <div id="stage-act-sim-body" className="mt-4">
-      <SimStageView scene={sim.visual} state={state} progress={sceneProgress} picks={picks} dials={dials} orders={orders} />
+      <SimStageView scene={sim.visual} state={state} progress={sceneProgress} picks={picks} dials={dials} orders={orders} cue={cue} />
 
       {/* 指标面板 */}
       <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
@@ -395,6 +401,7 @@ export function StageSim({ sim }: { sim: WjSim }) {
             onPick={(c) => {
               setPicks((p) => ({ ...p, [step.id]: c.key }));
               apply(c.effect);
+              fire({ step: step.id, kind: 'pick', choice: c.key, verdict: c.verdict });
               setResolved({ verdict: c.verdict, text: c.feedback, irreversible: c.irreversible, effect: c.effect });
             }}
             locked={!!resolved}
@@ -417,6 +424,7 @@ export function StageSim({ sim }: { sim: WjSim }) {
               }
               setDials((d) => ({ ...d, [step.id]: v }));
               apply(e);
+              fire({ step: step.id, kind: 'dial', value: v, verdict: dev === 0 ? 'good' : 'bad' });
               setResolved({
                 verdict: dev === 0 ? 'good' : dev > (step.max - step.min) * 0.25 ? 'bad' : 'fair',
                 text: dev === 0 ? step.okFeedback : step.offFeedback,
@@ -440,6 +448,7 @@ export function StageSim({ sim }: { sim: WjSim }) {
               }
               setOrders((s) => ({ ...s, [step.id]: o }));
               apply(e);
+              fire({ step: step.id, kind: 'order', verdict: bad.length === 0 ? 'good' : 'bad' });
               setResolved({
                 verdict: bad.length === 0 ? 'good' : 'bad',
                 text:
@@ -478,6 +487,7 @@ export function StageSim({ sim }: { sim: WjSim }) {
               }
               apply(e);
               setTicks(nextTicks);
+              fire({ step: step.id, kind: 'tick', value: nextTicks, verdict: state.risk > 50 ? 'bad' : 'good' });
 
               // 触发处置
               const ev = (step.events ?? []).find(
@@ -496,6 +506,7 @@ export function StageSim({ sim }: { sim: WjSim }) {
             onResolveEvent={(c) => {
               apply(c.effect);
               setPending(null);
+              fire({ step: step.id, kind: 'event', choice: c.key, verdict: c.verdict });
               setResolved({ verdict: c.verdict, text: c.feedback, irreversible: c.irreversible, effect: c.effect });
             }}
           />
