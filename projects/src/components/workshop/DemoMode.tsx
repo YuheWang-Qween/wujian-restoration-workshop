@@ -233,7 +233,7 @@ export function DemoMode() {
   const startDemo = useCallback(() => {
     savedPathRef.current = window.location.pathname + window.location.search;
     audioCacheRef.current.clear();
-    (window as any).__DEMO_MODE__ = true;
+    window.__DEMO_MODE__ = true;
     setSceneIdx(0);
     setActive(true);
     setPlaying(true);
@@ -242,7 +242,7 @@ export function DemoMode() {
   const exitDemo = useCallback(() => {
     stopAudio();
     clearActionTimers();
-    (window as any).__DEMO_MODE__ = false;
+    window.__DEMO_MODE__ = false;
     setActive(false);
     setPlaying(false);
     if (savedPathRef.current) router.push(savedPathRef.current);
@@ -621,5 +621,7 @@ export function DemoMode() {
 declare global {
   interface Window {
     __startDemo?: () => void;
+    /** 演示模式开关：环节页据此放开节序与题序的顺序锁，AuthShell 据此跳过路由守卫 */
+    __DEMO_MODE__?: boolean;
   }
 }

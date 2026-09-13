@@ -42,7 +42,7 @@ export function useAuthPageReady(): { ready: boolean; screen: ReactNode } {
   /* 鉴权加载期间直接渲染表单，不显示加载屏——避免进入页面时闪一下 spinner。
    * 配置拉取完且已登录才跳首页；配置没拉到（本地开发）时表单照常可用。 */
   useEffect(() => {
-    if (typeof window !== 'undefined' && (window as any).__DEMO_MODE__) return;
+    if (typeof window !== 'undefined' && window.__DEMO_MODE__) return;
     if (!authLoading && !configLoading && isAuthenticated) {
       router.replace('/');
     }
