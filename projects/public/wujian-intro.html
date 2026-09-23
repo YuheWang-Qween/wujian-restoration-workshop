@@ -1,0 +1,2160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>走马楼三国吴简修复工坊 · 项目全录</title>
+<style>
+:root{
+  --paper:#f6f1e6;
+  --paper-deep:#efe8d8;
+  --ink:#2b2620;
+  --ink-soft:#4a4238;
+  --muted:#8a7f6e;
+  --cinnabar:#a83f2e;
+  --cinnabar-deep:#8f3223;
+  --bamboo:#4a7c59;
+  --ochre:#9c6b3f;
+  --line:#d8cdb6;
+  --card:#fbf8f0;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--paper);
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(179,64,42,.035),transparent 55%),
+    radial-gradient(ellipse at 85% 100%,rgba(74,124,89,.04),transparent 50%);
+  color:var(--ink);
+  font-family:'Noto Serif SC','Source Han Serif SC','Songti SC','STSong',serif;
+  line-height:1.95;
+  font-size:16px;
+}
+.hero{
+  max-width:1060px;margin:0 auto;padding:64px 32px 36px;text-align:center;
+}
+.hero .kicker{
+  display:inline-block;font-size:13px;letter-spacing:.5em;text-indent:.5em;
+  color:var(--cinnabar);border:1px solid rgba(168,63,46,.35);
+  padding:6px 18px;border-radius:2px;margin-bottom:26px;background:rgba(168,63,46,.05);
+}
+.hero h1{
+  font-size:44px;font-weight:700;letter-spacing:.08em;line-height:1.4;
+}
+.hero h1 .light{color:var(--cinnabar);}
+.hero .sub{
+  margin-top:14px;font-size:17px;color:var(--ink-soft);letter-spacing:.15em;
+}
+.hero .meta{
+  margin-top:26px;font-size:13px;color:var(--muted);letter-spacing:.2em;
+}
+.hero .divider{
+  width:72px;height:3px;background:var(--cinnabar);margin:30px auto 0;position:relative;
+}
+.hero .divider::before,.hero .divider::after{
+  content:'';position:absolute;top:-2.5px;width:8px;height:8px;
+  border:1.5px solid var(--cinnabar);background:var(--paper);transform:rotate(45deg);
+}
+.hero .divider::before{left:-16px;}
+.hero .divider::after{right:-16px;}
+.tabs{
+  position:sticky;top:0;z-index:50;
+  background:rgba(246,241,230,.96);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  display:flex;justify-content:center;gap:8px;
+  padding:14px 16px;flex-wrap:wrap;
+}
+.tabs button{
+  font-family:inherit;font-size:15.5px;letter-spacing:.12em;
+  padding:10px 26px;border:1px solid var(--line);background:var(--card);
+  color:var(--ink-soft);cursor:pointer;border-radius:2px;
+  transition:all .25s ease;position:relative;
+}
+.tabs button:hover{border-color:var(--cinnabar);color:var(--cinnabar);}
+.tabs button.active{
+  background:var(--cinnabar);border-color:var(--cinnabar);color:#fdf9ef;
+  box-shadow:0 4px 14px rgba(168,63,46,.28);
+}
+main{max-width:1000px;margin:0 auto;padding:52px 32px 40px;}
+.tab-panel{display:none;animation:fadein .5s ease;}
+.tab-panel.active{display:block;}
+@keyframes fadein{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.toc{
+  background:var(--card);border:1px solid var(--line);border-left:4px solid var(--cinnabar);
+  padding:26px 32px;margin-bottom:44px;border-radius:2px;
+}
+.toc h4{font-size:15px;letter-spacing:.3em;color:var(--cinnabar);margin-bottom:14px;}
+.toc ol{margin-left:22px;}
+.toc li{margin:7px 0;font-size:15px;}
+.toc a{color:var(--ink-soft);text-decoration:none;border-bottom:1px dashed rgba(74,66,56,.35);}
+.toc a:hover{color:var(--cinnabar);border-color:var(--cinnabar);}
+h2.sec{
+  font-size:29px;letter-spacing:.06em;margin:64px 0 10px;
+  padding-left:18px;position:relative;line-height:1.5;
+}
+h2.sec::before{
+  content:'';position:absolute;left:0;top:8px;bottom:8px;width:5px;
+  background:linear-gradient(180deg,var(--cinnabar),var(--ochre));
+}
+h2.sec .no{
+  font-size:15px;color:var(--muted);display:block;letter-spacing:.4em;margin-bottom:2px;font-weight:400;
+}
+h3.sub{
+  font-size:21px;margin:44px 0 14px;color:var(--ink);
+  padding-bottom:10px;border-bottom:1px solid var(--line);
+  letter-spacing:.05em;
+}
+h3.sub .tag{font-size:13px;color:var(--cinnabar);margin-right:10px;font-weight:400;letter-spacing:.2em;}
+h4.minor{font-size:17.5px;margin:32px 0 10px;color:var(--cinnabar-deep);letter-spacing:.04em;}
+p{margin:14px 0;text-align:justify;}
+p.lead{font-size:17px;color:var(--ink-soft);}
+strong{color:var(--cinnabar-deep);}
+em{font-style:normal;color:var(--bamboo);font-weight:600;}
+.quote{
+  background:var(--card);border:1px solid var(--line);border-left:4px solid var(--bamboo);
+  padding:18px 26px;margin:22px 0;border-radius:2px;color:var(--ink-soft);font-size:15.5px;
+}
+.quote .q-src{display:block;margin-top:8px;font-size:13px;color:var(--muted);letter-spacing:.1em;}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:3px;
+  padding:26px 30px;margin:22px 0;box-shadow:0 2px 10px rgba(60,50,30,.05);
+}
+.card h5{font-size:17px;color:var(--cinnabar);margin-bottom:10px;letter-spacing:.08em;}
+.card p{margin:8px 0;font-size:15px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr;}}
+table{
+  width:100%;border-collapse:collapse;margin:24px 0;background:var(--card);
+  font-size:14.5px;border:1px solid var(--line);
+}
+th{
+  background:var(--paper-deep);color:var(--ink);font-weight:600;
+  padding:11px 14px;border:1px solid var(--line);letter-spacing:.05em;text-align:left;
+}
+td{padding:10px 14px;border:1px solid var(--line);vertical-align:top;color:var(--ink-soft);}
+tr:nth-child(even) td{background:rgba(239,232,216,.4);}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap;}
+ul.dash{list-style:none;margin:14px 0;}
+ul.dash li{
+  padding:7px 0 7px 26px;position:relative;text-align:justify;
+}
+ul.dash li::before{
+  content:'—';position:absolute;left:0;color:var(--cinnabar);font-weight:700;
+}
+ol.cn{margin:14px 0 14px 26px;}
+ol.cn li{margin:9px 0;text-align:justify;padding-left:4px;}
+.metric-row{display:flex;gap:14px;flex-wrap:wrap;margin:20px 0;}
+.metric{
+  flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);
+  border-top:3px solid var(--cinnabar);padding:18px 20px;text-align:center;border-radius:2px;
+}
+.metric .v{font-size:30px;font-weight:700;color:var(--cinnabar);line-height:1.2;}
+.metric .l{font-size:13px;color:var(--muted);margin-top:6px;letter-spacing:.1em;}
+.stage-card{
+  background:var(--card);border:1px solid var(--line);border-radius:3px;
+  margin:28px 0;overflow:hidden;
+}
+.stage-card .head{
+  display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;
+  background:linear-gradient(135deg,rgba(168,63,46,.07),rgba(156,107,63,.06));
+  padding:20px 28px;border-bottom:1px solid var(--line);
+}
+.stage-card .head .ord{
+  font-size:38px;color:var(--cinnabar);font-weight:700;line-height:1;
+}
+.stage-card .head .nm{font-size:23px;font-weight:700;letter-spacing:.1em;}
+.stage-card .head .tg{font-size:14px;color:var(--ochre);letter-spacing:.06em;}
+.stage-card .body{padding:22px 28px;}
+.stage-card .body p{font-size:15px;margin:10px 0;}
+.pill{
+  display:inline-block;font-size:12.5px;padding:3px 12px;border-radius:20px;
+  border:1px solid var(--bamboo);color:var(--bamboo);margin:0 6px 6px 0;letter-spacing:.05em;
+}
+.pill.red{border-color:var(--cinnabar);color:var(--cinnabar);}
+.pill.ochre{border-color:var(--ochre);color:var(--ochre);}
+.scene{
+  display:grid;grid-template-columns:110px 1fr;gap:0;
+  background:var(--card);border:1px solid var(--line);border-radius:3px;margin:18px 0;overflow:hidden;
+}
+.scene .sc-no{
+  background:var(--cinnabar);color:#fdf9ef;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:14px 8px;gap:4px;
+}
+.scene .sc-no .n{font-size:26px;font-weight:700;}
+.scene .sc-no .t{font-size:11px;letter-spacing:.2em;writing-mode:vertical-rl;}
+.scene .sc-body{padding:18px 26px;}
+.scene .sc-body h6{font-size:16.5px;color:var(--cinnabar-deep);margin-bottom:8px;letter-spacing:.05em;}
+.scene .sc-body .visual{
+  font-size:13.5px;color:var(--muted);border-left:2px solid var(--line);
+  padding:4px 0 4px 14px;margin:10px 0;font-style:italic;
+}
+.scene .sc-body .say p{font-size:15px;margin:8px 0;text-align:justify;}
+@media(max-width:640px){.scene{grid-template-columns:70px 1fr;}}
+footer{
+  border-top:1px solid var(--line);margin-top:70px;padding:36px 32px 56px;
+  text-align:center;color:var(--muted);font-size:13.5px;letter-spacing:.15em;
+}
+.arch{
+  background:#2e2922;color:#e8dfc9;border-radius:4px;padding:26px 30px;margin:24px 0;
+  font-family:'SF Mono','Fira Code',Consolas,monospace;font-size:13.5px;line-height:2.1;
+  overflow-x:auto;white-space:pre;
+}
+.arch .hl{color:#e8927c;}
+.arch .hb{color:#9fc9a8;}
+.arch .hy{color:#d9b98a;}
+.tech-flow{
+  display:flex;flex-direction:column;gap:0;margin:26px 0;
+}
+.tech-flow .tf{
+  display:grid;grid-template-columns:170px 1fr;gap:20px;
+  padding:20px 0;border-bottom:1px dashed var(--line);
+}
+.tech-flow .tf:last-child{border-bottom:none;}
+.tech-flow .tf .t{
+  font-size:15px;color:var(--cinnabar);font-weight:700;letter-spacing:.05em;
+  padding-top:3px;
+}
+.tech-flow .tf .d p{font-size:14.5px;margin:6px 0;}
+.note{
+  background:rgba(156,107,63,.08);border:1px dashed var(--ochre);
+  padding:16px 22px;margin:20px 0;border-radius:2px;font-size:14.5px;color:var(--ink-soft);
+}
+.note b{color:var(--ochre);}
+@media print{.tabs{display:none;}.tab-panel{display:block !important;}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="kicker">项目全录 · 四卷</div>
+  <h1>走马楼三国吴简<span class="light">修复工坊</span></h1>
+  <div class="sub">生成式人工智能赋能文博考古教学的应用场景</div>
+  <div class="meta">应用全景 · 宣传文案 · 讲解逐字稿 · 技术路线</div>
+  <div class="divider"></div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="intro" class="active">壹 · 应用全景</button>
+  <button data-tab="promo">贰 · 宣传文案</button>
+  <button data-tab="script">叁 · 讲解逐字稿</button>
+  <button data-tab="tech">肆 · 技术路线</button>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════ 标签一：应用全景 ═══════════════════════ -->
+<section class="tab-panel active" id="panel-intro">
+
+<div class="toc">
+<h4>本卷目录</h4>
+<ol>
+<li><a href="#i-1">要解决的问题：文博教学的「三不可」困境</a></li>
+<li><a href="#i-2">建设理念：四条设计公理</a></li>
+<li><a href="#i-3">建设内容总览：一个智能体，两个世界</a></li>
+<li><a href="#i-4">六大环节详解：从井底到书页的完整修复链</a></li>
+<li><a href="#i-5">虚拟仿真工作台：先动手，再被追问</a></li>
+<li><a href="#i-6">数字人助教「小简」：位置感知与三档评阅</a></li>
+<li><a href="#i-7">简牍鉴赏展厅：竹木上的孙吴王朝</a></li>
+<li><a href="#i-8">五种题型：作答形式与认知维度的对位</a></li>
+<li><a href="#i-9">学习支持体系：进度、解锁、成就与演示</a></li>
+<li><a href="#i-10">教学价值与现实意义</a></li>
+</ol>
+</div>
+
+<h2 class="sec" id="i-1"><span class="no">卷一 · 第一章</span>要解决的问题：文博教学的「三不可」困境</h2>
+
+<h3 class="sub"><span class="tag">1.1</span>一件国宝的发现，与一门学科的难题</h3>
+
+<p class="lead">1996年10月，长沙市中心五一广场走马楼西侧的平和堂商厦工地，在编号J22的古井里，工作人员发现了沉睡一千七百余年的简牍。最终清点，出土简牍总数超过十万枚——<strong>超过此前全国出土简牍的总和</strong>。这批三国孙吴时期的简牍，内容涉及赋税、户籍、仓廪、司法、书信，几乎是一部埋在地下的孙吴基层行政档案全书，被学界誉为「二十世纪中国最重要的考古发现之一」。</p>
+
+<p>然而，从古井中重见天日，只是这批简牍「第二次生命」的开始。饱水、变形、粘连、霉变、字迹漫漶——要让一枚湿软如面条的竹简重新变得可读、可存、可研究，需要经历<strong>揭取、清洗、绑夹与核对、饱水保存、脱色、脱水</strong>六道工序，历时数年。每一道工序都是高度专业化的文物保护技术，每一个决策背后都有材料学、化学、生物学的依据。</p>
+
+<p>问题就出在这里。这样一门弥足珍贵、且极具教学价值的实践学科，在传统课堂上却几乎「没法教」，其困境可以概括为<strong>「三不可」</strong>：</p>
+
+<div class="grid3">
+  <div class="card">
+    <h5>不可及</h5>
+    <p>文物本体存于库房，修复现场不对外开放。学生一辈子可能都没有机会亲手触碰一枚饱水竹简——这枚竹简出土时含水率高达471%，手一抖就是一个不可挽回的损失。</p>
+  </div>
+  <div class="card">
+    <h5>不可逆</h5>
+    <p>修复是「一次性」的艺术。揭取时层位信息一旦破坏即永久丢失；脱色时温度失控，墨迹可能就此消失。真实文物上不容许任何试错，而「试错」恰恰是学习最核心的机制。</p>
+  </div>
+  <div class="card">
+    <h5>不可见</h5>
+    <p>修复决策的逻辑——为什么用竹刀不用铁铲、为什么浓度是0.2%而不是0.1%——全部沉淀在专家的头脑与几百页的考古报告里。学生看到的只是「结论」，看不到「得出结论的过程」。</p>
+  </div>
+</div>
+
+<h3 class="sub"><span class="tag">1.2</span>传统教学手段的四个失效</h3>
+
+<p><strong>其一，讲授失效。</strong>教师对着幻灯片讲「揭取要按叠压关系确定次序」，学生记住的是一句要背的话，而不是「面对a→b→c的叠压记录时如何推理」的能力。知识以结论的形式被灌输，考完即忘。</p>
+
+<p><strong>其二，视频失效。</strong>纪录片能展示画面，但学生始终是旁观者。看一百遍修复师傅运笔，不等于自己知道「力度出区间会怎样」——而后者才是修复决策的核心。</p>
+
+<p><strong>其三，题库失效。</strong>普通在线题库出不了好题：文物保护的题目需要真实数据、真实约束、真实后果，编造的情景题既不严谨也无说服力；而把考古报告原文丢给学生，又超出本科生的阅读负荷。</p>
+
+<p><strong>其四，评阅失效。</strong>即便设计出了好题，开放性作答的评阅需要教师逐份阅读、逐条批注。一个教学班几十人、每人十几道细问，反馈周期动辄一周——而学习科学早已证明，<strong>反馈延迟越久，教学效果衰减越严重</strong>。</p>
+
+<div class="quote">
+「学生面对的是结论，而非得出结论的过程；是文字，而非承载文字的文物本体。」
+<span class="q-src">—— 本工坊立项时的核心判断</span>
+</div>
+
+<h3 class="sub"><span class="tag">1.3</span>本应用场景给出的解法</h3>
+
+<p>走马楼三国吴简修复工坊，是一个以<strong>真实考古报告为唯一内容来源、以生成式人工智能为教学引擎</strong>的沉浸式虚拟实训场景。它不满足于「把课件搬上网」，而是针对三不可逐一对症：</p>
+
+<ul class="dash">
+<li><strong>以「虚拟仿真」破「不可及」</strong>——六个环节各建一台仿真工作台，学生在浏览器里就能排叠压次序、调药剂浓度、控制脱水温度，把十万枚简牍的修复现场搬到每个人面前；</li>
+<li><strong>以「允许失败」破「不可逆」</strong>——在仿真环境里，选错工具简会断在半空、浓度压不住菌第10个月就长白斑，每一次失败都被如实呈现为后果，但清零重来不花一分钱、不损一枚真简；</li>
+<li><strong>以「数据反推」破「不可见」</strong>——所有细问不预设结论，直接给出考古报告的原始数据（工时统计、测色数值、收缩率实测），学生必须自己走完「证据→推理→判断」的全链路；</li>
+<li><strong>以「AI即时评阅」破「评阅失效」</strong>——数字人助教「小简」依据教师预置的评阅要点，秒级给出「成立/部分成立/不成立」三档判定与流式解析，让每个学生都拥有一位全天候在线的专属导师。</li>
+</ul>
+
+<h2 class="sec" id="i-2"><span class="no">卷一 · 第二章</span>建设理念：四条设计公理</h2>
+
+<h3 class="sub"><span class="tag">2.1</span>公理一：让证据说话，让学生动手</h3>
+
+<p>本工坊的全部内容出自《长沙走马楼三国吴简的保护与整理》——这是修复工作的一手技术报告，记录了每一道工序的做法、参数、数据与教训。我们把这批材料视为<strong>唯一的内容来源</strong>，奉行严格的「内容纪律」：</p>
+
+<ul class="dash">
+<li>数据只能来自报告，改动任何数字前先确认章节出处；</li>
+<li>报告不同章节之间存在口径差异的六处（有字吴简总数、出土总数、大木简数量、坨数、纤维素结晶度、防腐药剂名），逐条登记在大厅「报告内部数字出入备案」中，明确本工坊采用哪一个口径，绝不私自统一；</li>
+<li>「新洁尔灭」（第二章筛选实验）与「复方新洁尔灭」（第三章实际使用）不是同一种药，绝不合并——这种「较真」本身就是学科精神的示范。</li>
+</ul>
+
+<p>在证据之上，学生不是读者，而是<strong>操作者与决策者</strong>。每一道题都不问「报告说了什么」，而问「你面对这些数据，怎么判断、怎么选、怎么做」。</p>
+
+<h3 class="sub"><span class="tag">2.2</span>公理二：有数据处，从数据反推结论</h3>
+
+<p>这是贯穿十七道细问的设计总纲。试举三例：</p>
+
+<div class="card">
+<h5>例一 · 揭取环节的排序题</h5>
+<p>给出揭取I区记录到的叠压关系：a→b→c、b→d、d→e，其中c坨自身细分为c①→c②→c③。学生要排出揭取次序——而系统接受<strong>任何满足先后约束的合法排列</strong>。因为考古证据本来就允许多解，把「与某一示例排列一致」作为唯一标准答案是反科学的。学生还必须单独指出哪些单位对的次序「不可判定」，这是本题的核心失分点。</p>
+</div>
+
+<div class="card">
+<h5>例二 · 清洗环节的工时反推题</h5>
+<p>给出真实已知条件：竹简共73631枚、每枚清洗耗时40～50分钟、分6道工序、每天工作10小时（按每月22个工作日计）。学生要反推总工期、并计算「人力减半后工期变为几年」——这不是算术题，是从真实数据理解工程决策：为什么修复工程要以「年」为单位规划。</p>
+</div>
+
+<div class="card">
+<h5>例三 · 脱色环节的反常数据解释题</h5>
+<p>给出AAS法实测铁含量：处理液中的铁随浓度升高单调递增（符合预期），但竹简中的铁在低浓度（0.1%、0.25%）时<strong>反而高于未处理的对照组</strong>，到0.5%以后才开始下降。学生要解释这条「反常曲线」——好的教学不是给规律，而是给反常，逼学生动用化学知识重构机理。</p>
+</div>
+
+<h3 class="sub"><span class="tag">2.3</span>公理三：仿真管「手」，细问管「脑」</h3>
+
+<p>每个环节页面分三节：<strong>「为什么必须有这个环节」（读）→「上机操作」（动手）→「细问」（动脑）</strong>。仿真工作台与细问之间有严格的分工纪律：</p>
+
+<ul class="dash">
+<li>仿真工步只做操作——排次序、挑工具、调参数、逐段推进；反馈只说三件事：<strong>发生了什么现象、指标掉了多少、规程怎么规定</strong>；</li>
+<li>仿真反馈<strong>不讲机理、不讲为什么</strong>——机理、推理、计算、设计全部留给紧跟其后的细问去追问。判据很硬：一条反馈若把某道细问的评阅要点说出来了，就是越界，必须改成只述现象；一个工步若本身就是某道细问的题干，就换成另一个手上的动作；</li>
+<li>仿真<strong>不判分、不进评阅链路</strong>——这一节不计入进度，产出是一份操作记录，学生可以「把这次操作记录带给小简」，导师会针对代价最大的那一步追问，但仍然坚持先答后评、不代他复盘。</li>
+</ul>
+
+<div class="note"><b>为什么这样分？</b>如果仿真把机理讲了，细问就变成复述；如果细问先于操作，学生就没有动手的体感。先动手、再被追问——顺序本身就是教学法。</div>
+
+<h3 class="sub"><span class="tag">2.4</span>公理四：先答后评，不代答</h3>
+
+<p>数字人导师「小简」的行为被写死在系统提示词总纲里，几条硬约束：</p>
+
+<ul class="dash">
+<li><strong>先答后评</strong>：学习者没给答案之前，不给答案、不给要点；</li>
+<li><strong>一次只推进一小问</strong>，不把(a)(b)(c)一次性抛出；</li>
+<li><strong>计算题必须要过程</strong>，只给数字的退回重做，口径（取中值、按几个工作日）要写明；</li>
+<li><strong>排序题必须问「哪些不可判定」</strong>——排出唯一序列而不指出不可判定的单位对，是本类题的核心失分点；</li>
+<li>评阅给「成立/部分成立/不成立」+依据+缺口，<strong>不打分数</strong>；</li>
+<li>只用注入的报告数据回答，<strong>不编造数字与出处</strong>；报告本身口径有出入的地方主动说明。</li>
+</ul>
+
+<p>这四条公理共同指向一个目标：<strong>把「教师在场的一对一教学」变成可规模化的软件形态</strong>，同时保住教育学最珍贵的东西——学生自己走完思考全程的权利。</p>
+
+<h2 class="sec" id="i-3"><span class="no">卷一 · 第三章</span>建设内容总览：一个智能体，两个世界</h2>
+
+<p class="lead">登录之后，学生进入「工坊大厅」。大厅顶部是同排双页签——<strong>「简牍发掘」</strong>与<strong>「简牍鉴赏」</strong>：一个管动手，一个管动眼；一个按修复工序推进，一个按博物馆陈列逻辑展开。两个世界同属一个智能体、一次部署，数据来源却严格分立。</p>
+
+<div class="metric-row">
+<div class="metric"><div class="v">6</div><div class="l">修复环节</div></div>
+<div class="metric"><div class="v">17</div><div class="l">道细问</div></div>
+<div class="metric"><div class="v">6</div><div class="l">台仿真工作台</div></div>
+<div class="metric"><div class="v">5</div><div class="l">种作答题型</div></div>
+<div class="metric"><div class="v">5+5</div><div class="l">展厅板块+案例精读</div></div>
+<div class="metric"><div class="v">18</div><div class="l">个演示场景</div></div>
+</div>
+
+<h3 class="sub"><span class="tag">3.1</span>简牍发掘：六道工序，六重考验</h3>
+
+<p>「简牍发掘」篇按走马楼吴简的<strong>实际修复工序</strong>组织，六道工序即六个环节，每个环节一个独立入口、一个专属页面。环节之间<strong>顺序解锁</strong>：环节一常开，环节N在前一环节被读完（最后一道细问的答题框写入内容）后自动解锁。每个环节页内分三节：</p>
+
+<table>
+<tr><th>节名</th><th>内容</th><th>学生做什么</th></tr>
+<tr><td><strong>为什么必须有这个环节</strong></td><td>工序的存在理由、走马楼吴简在该环节上的不可替代之处，配报告原始数据表与AI生成示意图（图题必须以「示意」开头，不冒充文物照片）</td><td>阅读，理解工序的必要性与代价</td></tr>
+<tr><td><strong>上机操作</strong></td><td>虚拟仿真工作台：按真实工序排次序、挑工具、调参数、逐段推进</td><td>动手操作，实时看四项指标随每一步落手跳动</td></tr>
+<tr><td><strong>细问</strong></td><td>2～3道深度细问（绑定五种题型之一），答题框草稿实时存本机</td><td>作答、请求评阅、确认提交、查看参考答案</td></tr>
+</table>
+
+<h3 class="sub"><span class="tag">3.2</span>简牍鉴赏：竹木上的孙吴王朝</h3>
+
+<p>「简牍鉴赏」篇是<strong>陈列阅读</strong>形态的数字展厅——没有顺序解锁、没有细问、没有答题框，小简也不出场。它的内容出自另一份材料：资料汇编《长沙走马楼吴简：种类、主题与释读》，口径与发掘篇不同（所录释文均系转引自长沙简牍博物馆、简帛网及学者论文），页面上的「释文说明/图版说明」对此有明确声明。展厅设五大板块：</p>
+
+<table>
+<tr><th>板块</th><th>内容</th></tr>
+<tr><td><strong>壹 · 发现与归属</strong></td><td>J22古井的发现经过，「这批简牍属于谁」的四说并列：长沙郡机构档案说、郡县（侯国）文书混合说、临湘侯国（县级）文书档案群说、临湘侯国下属某机构说——诸说并存，不私自统一</td></tr>
+<tr><td><strong>贰 · 形制六类展签</strong></td><td>大木简（嘉禾吏民田家莂）、竹简（簿籍类占绝大多数）、木牍（官文书牍、书信牍）、签牌·封检·封泥匣、名刺、其他——按形制分类的展签式介绍</td></tr>
+<tr><td><strong>叁 · 主题八类 + 丘里双轨</strong></td><td>田租赋税、户籍与人口、赋税征收簿书（口算钱、调布与杂税）、仓库出入（三州仓、州中仓与库钱库布）、司法文书、官吏与军政、名刺与书信、特殊身份简（真吏、给吏、复民、士伍）——外加「行政层级与丘里双轨」专题</td></tr>
+<tr><td><strong>肆 · 案例精读 ×5</strong></td><td>五枚代表简的逐句精读：一枚完整的田家莂（南彊丘聂仪莂5500号）、一户人家的户籍（吉阳里孙潘家）、入米简的标准格式、许迪割米案（一场三国基层贪腐案的完整司法档案）、名刺（三国的「拜帖」）</td></tr>
+<tr><td><strong>伍—捌 · 术语·出版·意义·来源</strong></td><td>关键术语表、出版与研究信息、发现的意义、材料来源声明</td></tr>
+</table>
+
+<p>展厅照片全部为<strong>真实文物照</strong>（Wikimedia Commons CC0、博物馆官网等），署名跟图走；与发掘篇的AI示意图是两种性质，绝无混用。</p>
+
+<h3 class="sub"><span class="tag">3.3</span>贯穿两个世界的：小简、进度与成就</h3>
+
+<ul class="dash">
+<li><strong>数字人「小简」</strong>只在环节页出场：右下角常驻气泡按学生实时位置换台词，点击立绘展开AI对话框（检索增强生成 + 流式输出）；每个答题框下方还有「请小简评阅」按钮，接入三档判定的智能评阅链路；</li>
+<li><strong>进度体系</strong>：作答、评阅判定、解析正文、画板图、提交定稿、参考答案缓存全部持久化——本地（localStorage）与云端（Supabase）双通道，刷新不丢、换机不丢；</li>
+<li><strong>成就卡</strong>：六环节全部完成后，学生署名解锁「简册编联」意象的结业证书，可下载PNG；</li>
+<li><strong>演示模式</strong>：内置18个场景的自动演示，TTS语音旁白与界面操作逐帧同步，用于课堂展示与新生引导。</li>
+</ul>
+<h2 class="sec" id="i-4"><span class="no">卷一 · 第四章</span>六大环节详解：从井底到书页的完整修复链</h2>
+
+<p class="lead">六道工序覆盖了从「井里取出来」到「能被人读」的全过程。下面逐一展开每个环节的定位、关键数据、工作台操作与细问设计。</p>
+
+<div class="stage-card">
+<div class="head"><span class="ord">一</span><span class="nm">揭取</span><span class="tg">唯一一道不可重来的工序</span></div>
+<div class="body">
+<p><strong>环节定位。</strong>J22古井内的简牍并非散乱堆放，而是成坨叠压、卷成筒状。揭取的本质是<strong>考古发掘</strong>：每揭一坨都要记录它与周围简坨的叠压关系——这些关系是日后恢复简册原始顺序的唯一依据，揭坏了就永久丢失。所以这一环节的口号是「唯一一道不可重来的工序」。</p>
+<p><strong>关键数据。</strong>揭剥立面图揭示的规律：每枚简端平的一面是有字正面、弧形面是背面；上半部分有字面朝下，下半部分正好相反——工作人员据此按编绳磨痕复制新竹片、编联成册、逐枚标号、模拟卷起，通过观察横断面<strong>反推原始卷圈顺序</strong>。I区记录到的叠压关系如 a→b→c、b→d、d→e，c坨自身细分 c①→c②→c③。</p>
+<p><strong>工作台操作。</strong>排五个小坨的揭取次序 → 清理横断面找缝 → 选竹刀尖（而非金属工具）→ 点蘸润滑 → 定2～3厘米步距逐段剥离 → 托举。<em>做错会看到：</em>次序违反已记录的叠压关系，层位信息当场作废；捏住一端直接提起来，简断在半空。</p>
+<p><strong>细问设计（3道）。</strong></p>
+<span class="pill red">排序题</span><span class="pill red">判断题</span><span class="pill red">机理分析题</span>
+<ul class="dash">
+<li>q1 排序题：给定叠压记录排揭取次序，合法解不唯一，必须指出哪些不可判定；</li>
+<li>q2 判断题拆五小问：五条关于揭取的陈述逐条判正误，判「错」要写正确表述、判「对」要说明它对后续工序意味着什么——逐条作答、逐条评阅、逐条提交；</li>
+<li>q3 机理分析题：从「有字面朝向的上下反转」这一规律出发，解释工作人员如何用模拟编联反推卷圈顺序。</li>
+</ul>
+</div>
+</div>
+
+<div class="stage-card">
+<div class="head"><span class="ord">二</span><span class="nm">清洗</span><span class="tg">让字迹第一次真正可见</span></div>
+<div class="body">
+<p><strong>环节定位。</strong>出土简牍包裹着泥污，字迹完全不可见。清洗是第一次让文字「重见天日」——但也是最危险的工序之一：竹黄面上仅存的墨迹，可能被一次力度失误抹掉。</p>
+<p><strong>关键数据。</strong>竹简共73631枚，每枚清洗耗时40～50分钟，分6道工序（取简→开卡入槽→清理污物→清理字面→脱色前清洗→再清洗），每天工作10小时、每月22个工作日。竹黄面「吸墨渗透好但耐磨强度低」，竹青面「组织致密不易书写但字迹耐磨持久」——两组看似相反的性质源于同一个材料学原因。清洗工具经历三代演变：第一代（粗排笔、毛刷）→ 第二代（软排笔＋去污粉）→ 第三代（镊子夹脱脂棉球蘸清水）。</p>
+<p><strong>工作台操作。</strong>定起手面 → 在三代工具里挑笔 → 调运笔力度 → 走完六道工序。<em>做错会看到：</em>力度出区间，竹黄面上仅存的墨迹被抹掉；双面有字不减速，那一面再也判不出有没有字。</p>
+<p><strong>细问设计（3道）。</strong></p>
+<span class="pill red">选择题+说明理由</span><span class="pill red">工程试错分析</span><span class="pill red">工时反推</span><span class="pill red">画图题</span>
+<ul class="dash">
+<li>q1 选择题+理由：竹黄面与竹青面相反性质背后的同一材料学原因；</li>
+<li>q2 工程试错分析：三代工具演变表的补全——每一代解决了上一代的什么问题、又引入了什么新问题，「两全其美」的第三代为何能成立；</li>
+<li>q3 工时反推＋画图：从73631枚×40～50分钟反推总工期与人力减半方案；画板题要求画出简册卷起的横断面示意图，由多模态模型视觉评阅。</li>
+</ul>
+</div>
+</div>
+
+<div class="stage-card">
+<div class="head"><span class="ord">三</span><span class="nm">绑夹与核对</span><span class="tg">身份不能在工序之间掉线（轻量环节）</span></div>
+<div class="body">
+<p><strong>环节定位。</strong>一枚简从揭取到入库要经历多道工序、多次转手，「这枚简是谁、从哪来」的身份信息一旦掉线，它承载的历史信息就作废了。绑夹（把简固定在槽位里）与核对（编号系统）共同守护这条生命线。本环节是轻量环节，只设两道细问，不与其余环节强求对称。</p>
+<p><strong>关键数据。</strong>走马楼竹简存在两套编号：揭剥号（三段式「区—坨—序」，如30-27-38，记录揭取时的空间位置）与脱色号（顺序编号1～77731，按脱色批次给的）。报告明确「10546以后的竹简是先脱色再给编号」；存在两段空号：28051～30000、67851～70000——空号本身就是历史信息的指纹。</p>
+<p><strong>工作台操作。</strong>备棉线 → 选绑夹方式 → 送槽前按映射可信度排编号卡。<em>做错会看到：</em>选「不绑夹直接入槽」，当场复现2003年7月的漂移串槽事故——薄小的简随水流漂到别的槽里，编号混乱。</p>
+<p><strong>细问设计（2道）。</strong></p>
+<span class="pill red">编号系统分析</span><span class="pill red">后果分析+方案设计</span>
+<ul class="dash">
+<li>q1 编号系统分析：两套编号的语义差异、「先脱色再编号」与两段空号各自意味着什么，如何用编号系统重建一枚简的履历；</li>
+<li>q2 后果分析+方案设计：复盘2003年漂移串槽事故——为什么会漂、为什么串的是薄小简、此后「单面绑夹」的设计解决了什么。</li>
+</ul>
+</div>
+</div>
+
+<div class="stage-card">
+<div class="head"><span class="ord">四</span><span class="nm">饱水保存</span><span class="tg">持续时间最长、失控风险最隐性</span></div>
+<div class="body">
+<p><strong>环节定位。</strong>简牍从地下取出后若任其干燥，会不可逆地收缩变形——必须立刻进入饱水状态，浸泡在药液里等后续处理。这一「等」以<strong>月</strong>为单位，失控风险（微生物侵害）却不会立刻显形，等你看见白斑时往往已经晚了。</p>
+<p><strong>关键数据。</strong>出土简牍含水率471%。防腐药剂筛选实验对比四种候选药剂（新洁尔灭、NaCl、麝香草酚、五氯酚钠等）在不同浓度下的抑菌表现：新洁尔灭在0.1%浓度下无法压制蚀斑病，提高到0.2%～0.3%后抑菌效果稳定有效。蚀斑病有三种侵害形态（黑斑、白斑、黏液状软腐），各自侵蚀速度与后果不同。</p>
+<p><strong>工作台操作。</strong>在六种药剂里选 → 配浓度 → 定换液周期 → 值守24个月（逐段推进，风险逐月兑现）。<em>做错会看到：</em>浓度压不住菌，第10个月长出白斑与黏液；再等一个周期，就是软腐。</p>
+<p><strong>细问设计（3道）。</strong></p>
+<span class="pill red">假设排除题</span><span class="pill red">多维决策题</span><span class="pill red">排序+机理分析</span>
+<ul class="dash">
+<li>q1 假设排除题：0.1%失效的四条可能原因（高含水率稀释药剂／药剂自身分解／代谢物中和／细菌抗药性），结合「提浓后有效」的证据逐一排除或保留——这是真实科研中的假说检验思维；</li>
+<li>q2 多维决策题：依据四种候选药剂的实验数据表，在抑菌效果、药剂成本、操作安全之间做多维权衡选型；</li>
+<li>q3 排序+机理：把蚀斑病三种侵害形态按危险度排序，并解释各自的作用机理。</li>
+</ul>
+</div>
+</div>
+
+<div class="stage-card">
+<div class="head"><span class="ord">五</span><span class="nm">脱色</span><span class="tg">从「能保存」进入「能使用」</span></div>
+<div class="body">
+<p><strong>环节定位。</strong>饱水保存解决「活下去」，脱色解决「能被读」。竹简深色本体与墨迹对比度极低，需要化学处理让底色变浅、字迹重新可辨。这是从保管走向研究的关键一跃。</p>
+<p><strong>关键数据。</strong>标准流程：1% EDTA二钠浸泡24小时 → 1%连二亚硫酸钠、保温45～50℃、作用20～40分钟。三种试剂的罗维朋测色数据（蓝色值越低脱色越好）；AAS法实测铁含量的「反常曲线」——低浓度时竹简中的铁反而高于对照组。有一类又宽又厚的刚竹简，标准流程处理完字迹仍模糊。</p>
+<p><strong>工作台操作。</strong>配EDTA → 选还原试剂 → 调恒温槽 → 按分钟保温作用。<em>做错会看到：</em>温度掉出45～50℃，罗维朋蓝色值停在高位不动；选了硼氢化钠，简几分钟后漂在液面上。</p>
+<p><strong>细问设计（3道）。</strong></p>
+<span class="pill red">数据判读题</span><span class="pill red">反常数据解释</span><span class="pill red">决策题</span>
+<ul class="dash">
+<li>q1 数据判读：三种试剂测色数据的比较与结论；</li>
+<li>q2 反常数据解释：那条「低浓度反而升铁」的曲线是怎么回事——逼学生重构脱色机理；</li>
+<li>q3 决策题：深色刚竹简的三个调整选项（提高EDTA浓度并延长浸泡／连二亚硫酸钠加倍／延长保温时间）——每个选项各有什么代价，选哪个、为什么。</li>
+</ul>
+</div>
+</div>
+
+<div class="stage-card">
+<div class="head"><span class="ord">六</span><span class="nm">脱水</span><span class="tg">不可逆程度最高的一道</span></div>
+<div class="body">
+<p><strong>环节定位。</strong>饱水简含水率高达数倍于自身重量，直接干燥会剧烈收缩变形（自然干燥实验：长度收缩20.4%、宽度收缩50.6%）。脱水定形的成败，直接决定这枚简最终能不能被释读、被研究——而它不可逆。</p>
+<p><strong>关键数据。</strong>自然干燥收缩率实测；抗张强度实测（GB/T453-2002，湖北省造纸质量监督检验站）；十六醇填充量为简牍本体重量的205%——填充物比竹材本体还重。标准脱水流程：乙醇置换50%×3天→75%×3天→100%×3天→100%再浸1天；十六醇置换50%×3天→75%（40℃烘箱）×3天→100%（58℃）×3小时。</p>
+<p><strong>工作台操作。</strong>判材质 → 选填充材料 → 控熔融温度 → 定填充量 → 干燥。<em>做错会看到：</em>填充不到位，宽度收缩率冲过5%的指标线，字跟着被压扁。</p>
+<p><strong>细问设计（3道）。</strong></p>
+<span class="pill red">各向异性题</span><span class="pill red">数据计算+材料分析</span><span class="pill red">流程决策题</span>
+<ul class="dash">
+<li>q1 各向异性题：为什么长度收缩20.4%、宽度却收缩50.6%——从竹材细胞结构与纤维方向解释各向异性；</li>
+<li>q2 数据计算+材料分析：从抗张强度与205%填充量两个数据反推十六醇法「替换法脱水」的材料学逻辑；</li>
+<li>q3 流程决策题：一批混着薄简与厚刚竹简的简，标准流程只适用于3mm以内的薄简——两类简混批，你怎么办？</li>
+</ul>
+</div>
+</div>
+
+<h2 class="sec" id="i-5"><span class="no">卷一 · 第五章</span>虚拟仿真工作台：先动手，再被追问</h2>
+
+<h3 class="sub"><span class="tag">5.1</span>它不是动画，是可操作的因果机器</h3>
+
+<p class="lead">六个环节各有一台工作台，排在「关键数据」之后、「细问」之前。学生面对的不是一段播放的动画，而是一台<strong>每一步落手都立刻兑现后果的因果机器</strong>：排次序、挑工具、调参数、逐段推进，四项指标——简体完整度、字迹可辨度、信息完整度、累计工时——随操作实时跳动。</p>
+
+<h4 class="minor">四种工步类型</h4>
+<table>
+<tr><th>工步类型</th><th>学生做什么</th><th>判定机制</th></tr>
+<tr><td><strong>pick · 选工具/做法</strong></td><td>从若干工具牌里挑一件（竹刀尖还是金属起子？三代笔里选哪代？）</td><td>每个选项带 verdict（好/中/坏）与后果说明，个别选项明确标注「此步不可逆」</td></tr>
+<tr><td><strong>dial · 调参数</strong></td><td>拖滑杆调数值（运笔力度、药剂浓度、恒温槽温度、填充量）</td><td>报告给出的「安全带」区间（如45～50℃、每2～3厘米停看一次）；出带即时报警，偏离越远代价越大（perUnit 计费）</td></tr>
+<tr><td><strong>order · 排次序</strong></td><td>把若干对象排出操作顺序（五个简坨的揭取次序）</td><td>按 before 约束判违反——违反即当场作废层位信息</td></tr>
+<tr><td><strong>advance · 逐段推进</strong></td><td>一步步推进长周期过程（逐段剥离、值守24个月、按分钟保温）</td><td>把累积的隐形风险（risk）兑现为实际损伤，中途触发随机处置事件</td></tr>
+</table>
+
+<h4 class="minor">隐藏的第五指标：risk</h4>
+<p>面板上有四项指标，引擎里还有第五个不显示的量——<strong>累积操作风险</strong>。前面每一步的轻微失手都会往里累积，到「逐段推进」时一次性兑现成实际损伤。这模拟了真实修复中最阴险的规律：<strong>灾难往往不是最后一步造成的，而是前面每一步的小疏忽加总的结果</strong>。学生以为自己在第10个月「突然」看到了白斑，其实是第1个月选药剂时就埋下的祸根。</p>
+
+<h3 class="sub"><span class="tag">5.2</span>画面即反馈：SVG 手工绘制的六种场景</h3>
+
+<p>仿真画面全部由 SVG 手工绘制（最大的一台约770个节点），不依赖贴图。逼真度来自四层功夫：</p>
+
+<ul class="dash">
+<li><strong>材质</strong>——竹片弧面的横向渐变、纵向纤维纹、老化斑、编绳磨痕；</li>
+<li><strong>笔墨</strong>——简面上每一笔是起收锋都收细的填充路径，底下垫一层洇墨；「墨迹可辨度」越低洇得越开，对应报告讲的「墨迹散淡」；</li>
+<li><strong>光</strong>——湿面高光、器物投影、釉面反光；</li>
+<li><strong>液体</strong>——液面起伏、水下折射、盘沿弯月面。</li>
+</ul>
+
+<div class="note"><b>形制是硬约束。</b>走马楼竹简长约23cm、宽1cm出头，长宽比接近1:19。画面上做了透视压缩，但「细长」这个第一印象必须保持——画成宽条就不是简了。每列字数按几何算出，字形才近方；脱水场景的字数按<strong>未收缩</strong>的尺寸计算，字才会随简体一起被压扁，视觉上「字跟着变形」。</div>
+
+<p>六种场景各自可视化同一套指标：揭取台的简坨横截面、清洗台的泥污褪去、绑夹台的编号卡漂移、饱水槽的菌斑生长、脱色槽的温度计与罗维朋蓝色值、脱水台的收缩形变。每个工步都配专属动效——Flash 拍照、Droplets 点水、Steam 升温、Pour 下药、Debris 崩口、Ring 轻震——以一次性动作（cue 驱动、nonce 重挂即重放）与平滑状态过渡（transform/fill 过渡）两层实现，画面不再「跳」到新状态，而是「变」过去。全部动效受 <code>prefers-reduced-motion</code> 总开关管辖，照顾对动效敏感的用户。</p>
+
+<h3 class="sub"><span class="tag">5.3</span>验收报告与操作记录</h3>
+
+<p>走完全部工步后出<strong>验收报告</strong>：四项指标结算、每一步的后果清单、以及报告里记载的实际做法对照。学生可以「重新开工」再走一遍，也可以点「把这次操作记录带给小简」——导师会针对代价最大的那一步开始追问，但仍然不代他复盘。</p>
+
+<div class="note"><b>两条诚实声明（印在起始屏与结算页）：</b>其一，工具、参数区间、失败机制全部出自报告，但<strong>指标的扣分幅度是教学权重，不是报告实测值</strong>；其二，简面上的笔画只是笔墨质感的模拟，<strong>不是可释读的释文</strong>——不拼成任何可读的字。这两条声明保护的是学术诚实。</div>
+
+<h2 class="sec" id="i-6"><span class="no">卷一 · 第六章</span>数字人助教「小简」：位置感知与三档评阅</h2>
+
+<h3 class="sub"><span class="tag">6.1</span>两副面孔：常驻气泡与AI对话</h3>
+
+<p>小简只在环节页出场（大厅、登录页不见）。它有双形态：</p>
+
+<ul class="dash">
+<li><strong>右下角常驻气泡</strong>：纯前端预设脚本（GuideAvatar + guide-lines），按学生实时位置——当前环节、读到的节序号（工序说明/关键数据/上机操作/细问）、完成记录——切换表情（微笑/讲解/思索/欢喜四态）与台词。台词同样只能出自报告，数字口径与正文一致；</li>
+<li><strong>AI对话框</strong>：点击立绘，立绘向右下缩小退场、就地变换成对话框。对话框里双方带头像交互，小简圆头像在左、学习者字母章（邮箱首字符）在右。</li>
+</ul>
+
+<h4 class="minor">上下文实时感知</h4>
+<p>小简知道你在哪：环节维度用 <code>key=环节id</code> 重挂清空重来；节维度订阅「已展开的节」，随每个请求把当前节名透传给服务端，系统提示词据此注入「学习者当前位置」。你在「上机操作」节问的问题，和在「细问」节问的问题，得到的引导侧重不同。</p>
+
+<h4 class="minor">克制的设计：不主动开场</h4>
+<p>小简不主动说话。面板打开即空对话（空态提示「直接开口」），等学习者先开口；未开口前翻节也不推送隐藏通知。唯一的小简先发言场景，是学生在题卡上点「问小简这道题」——那本来就是学习者的明确提问动作。对话框收起即卸载（中止在途流），重开为空对话。<strong>这种克制是有意的：避免 AI 助教变成打扰源。</strong></p>
+
+<h3 class="sub"><span class="tag">6.2</span>知识库检索：让小简「有据可依」</h3>
+
+<p>小简背后挂着 <code>wujian_knowledge</code> 知识库数据集——三册走马楼相关扫描文献。学生在对话里提问时，服务端先检索知识库，命中后把扫描页<strong>以图片形式随用户消息交给多模态模型</strong>——模型是「看着原书页」回答的，这比纯文本检索的准确度与可信度都高一档。系统提示词同时约束：只用注入的报告数据回答，不编造数字与出处。</p>
+
+<h3 class="sub"><span class="tag">6.3</span>「请小简评阅」：三档判定 + 流式解析</h3>
+
+<p>这是全工坊最核心的教学功能。每个答题框下方有「请小简评阅」按钮，学生写完答案点击后：</p>
+
+<ol class="cn">
+<li><strong>组装</strong>：前端把该框答案（含环节/题目/小问定位）交给服务端评阅接口；服务端用题干 + 教师预置的评阅要点（rubrics，按小问级存储、只走服务端不进浏览器包）+ 输出纪律组装评阅指令；</li>
+<li><strong>判定章</strong>：SSE 回流的第一帧是判定章——<strong>成立 / 部分成立 / 不成立</strong>（服务端从模型输出头部解析，正则优先匹配长词「部分成立」），像一枚盖章「啪」地落在答案上方；</li>
+<li><strong>流式解析</strong>：后续帧是逐字流出的解析正文，结构固定：<em>点依据（答案里对的地方）→ 点缺口（差在哪、缺什么）→ 给一个能自己走下去的方向</em>——绝不端出完整标准答案；</li>
+<li><strong>作废与重来</strong>：答案一改，旧判定立即在前端作废；学生可反复改稿、反复点评阅，直到满意。</li>
+</ol>
+
+<p>评阅接口与对话接口同一套鉴权口径，限速桶独立（15次/分），防止滥用。</p>
+
+<h3 class="sub"><span class="tag">6.4</span>确认提交与参考答案：闭环的最后一块</h3>
+
+<p>评阅通过后，学生点「确认提交」（两段式确认，先提示「提交后即定稿」）——输入锁定、评阅按钮隐藏、判定章保留，同时自动向服务端拉取<strong>参考答案</strong>（SSE 纯内容流）。参考答案<strong>每小问只生成一次</strong>：完整走完的成稿写入本地缓存，刷新重进直接读缓存，中途断开出错不缓存半成品。撰写纪律要求纯文本分点、不出现 markdown 语法与「参考答案」字样——它读起来像一位老师在你旁边娓娓道来，而不是一份冰冷的评分标准。</p>
+
+<div class="quote">
+「点依据 → 点缺口 → 给一个能自己走下去的方向，不端完整标准答案。」
+<span class="q-src">—— 评阅输出的结构纪律</span>
+</div>
+<h2 class="sec" id="i-7"><span class="no">卷一 · 第七章</span>简牍鉴赏展厅：竹木上的孙吴王朝</h2>
+
+<h3 class="sub"><span class="tag">7.1</span>陈列阅读：另一种认识文物的方式</h3>
+
+<p class="lead">如果说发掘篇教的是「怎么修」，鉴赏篇给的就是「修好了什么、为什么值得修」。它刻意采用<strong>博物馆陈列</strong>的形态：无解锁、无细问、无答题框、无小简——学生自由漫游，像走进一座安静的数字博物馆。这种形态上的「留白」本身就是设计：学习需要节奏，也需要喘息。</p>
+
+<p>展厅首页（大厅「简牍鉴赏」页签）没有篇头，直接是五张板块入口卡。各板块独立成页，内容出自资料汇编《长沙走马楼吴简：种类、主题与释读》，逐段转录——这份材料的口径与发掘篇不同，所录释文均系转引（长沙简牍博物馆、简帛网及学者论文），页面上的声明一字不删。</p>
+
+<h3 class="sub"><span class="tag">7.2</span>五大板块走读</h3>
+
+<div class="card">
+<h5>壹 · 发现与归属：四说并存</h5>
+<p>1996年秋天的发现经过，与学界最关心的问题：这十余万枚简牍到底是什么性质的档案？页面并列四说——<strong>长沙郡机构档案说、郡县（侯国）文书混合说、临湘侯国（县级）文书档案群说、临湘侯国下属某机构说</strong>。汇编里标了「争论」的词条（丘与里、二年常限、算与事、真吏给吏、调等）一律保持诸说并列，绝不私自统一——学生在这里学到的第一课是：历史学的答案经常是「尚未定论」，而这正是它的魅力。</p>
+</div>
+
+<div class="card">
+<h5>贰 · 形制六类：展签式的分类学</h5>
+<p>按形制分六类：大木简（嘉禾吏民田家莂——形制最大、单枚信息最完整的一类）、竹简（簿籍类，占出土绝大多数）、木牍（官文书牍、书信牍）、签牌·封检·封泥匣（文书制度的「包装物」）、名刺（三国的「名片」）、其他。每类配真实文物照片与展签式说明——分类学训练的是「从形制特征反推文书功能」的眼力。</p>
+</div>
+
+<div class="card">
+<h5>叁 · 主题八类 + 丘里双轨</h5>
+<p>按内容分八大主题：田租赋税（嘉禾吏民田家莂）、户籍与人口、赋税征收簿书（口算钱、调布与杂税）、仓库出入（三州仓、州中仓与库钱库布）、司法文书、官吏与军政、名刺与书信、特殊身份简（真吏、给吏、复民、士伍……）。外加专题「行政层级与『丘』『里』双轨」——孙吴基层行政如何通过「丘」（居住地）与「里」（编户单位）双轨运转，这是理解全部簿籍文书的地基。</p>
+</div>
+
+<div class="card">
+<h5>肆 · 案例精读 ×5：五枚简，五个切口</h5>
+<ul class="dash">
+<li><strong>案例一 · 一枚完整的田家莂</strong>：南彊丘聂仪莂（5500号）——一枚大木简上完整记录一户一年的租税缴纳，田家莂的「标准件」；</li>
+<li><strong>案例二 · 一户人家的户籍</strong>：吉阳里孙潘家——从一枚户籍简还原一户人家的人口结构，人口史的一手材料；</li>
+<li><strong>案例三 · 入米简的标准格式</strong>：仓米入受簿——行政文书有严格格式，格式本身就是制度史的证词；</li>
+<li><strong>案例四 · 许迪割米案</strong>：一场三国基层贪腐案的完整司法档案——从检举、审讯到判决，一枚简串起一部微型司法剧；</li>
+<li><strong>案例五 · 名刺</strong>：三国的「拜帖」——社交礼仪的物质遗存。</li>
+</ul>
+</div>
+
+<div class="card">
+<h5>伍—捌 · 术语 · 出版 · 意义 · 来源</h5>
+<p>关键术语表（读到不懂的词随时回来查）、出版与研究信息（学术脉络）、发现的意义（为什么这批简牍重要）、材料来源声明（学术诚信的最后一环）。</p>
+</div>
+
+<h3 class="sub"><span class="tag">7.3</span>图版纪律：真实文物照与AI示意图的严格分野</h3>
+
+<p>展厅照片全部为真实文物照，来源包括 Wikimedia Commons（CC0协议）、博物馆官网等，<strong>署名跟图走</strong>（每张图版卡固定携带 credit 字段）。而发掘篇「关键数据」节的配图是AI生成的示意图，图题必须以「示意」二字开头。两种图绝不在页面上混用标注——学生从第一眼起就知道自己看的是「文物本体」还是「教学示意」，这是数字文博产品最容易被忽略、也最不该被忽略的诚实。</p>
+
+<h2 class="sec" id="i-8"><span class="no">卷一 · 第八章</span>五种题型：作答形式与认知维度的对位</h2>
+
+<p class="lead">十七道细问不作兴「全是问答框」。每道小问的作答形式由内容决定——内容需要什么认知动作，就用什么题型。共五种，全部为自研实现：</p>
+
+<table>
+<tr><th>题型</th><th>学生做什么</th><th>对应细问</th><th>训练的认知能力</th></tr>
+<tr><td><strong>ordering<br>分层排序</strong></td><td>把若干对象拖入层；层内用「、」并列表示先后不确定，层间用「→」表示先后；层可增删、可上移；附补充说明框</td><td>1-q1（揭取叠压次序）、4-q3（侵害形态危险度）</td><td>空间逻辑推理；「证据允许多解」的学科科学观——系统接受任何满足约束的合法排列，但必须指出哪些不可判定</td></tr>
+<tr><td><strong>choice<br>单选判断</strong></td><td>选项中选择；<code>withNote</code> 时附必答的补充说明框（理由/依据由它承载）</td><td>1-q2(a)~(e)（五条陈述逐条判正误）、2-q1（材料学原因）、5-q3（深色刚竹简决策）</td><td>批判性思维——判断题拆成五小问，逐条作答、逐条评阅、逐条提交参考答案，「做一题提交一题」</td></tr>
+<tr><td><strong>multi<br>多选</strong></td><td>勾选所有可行项 + 必答理由说明</td><td>3-q2(b)（方案设计的多项约束）、4-q1(b)（多维决策）</td><td>综合判断——多选题的难点从来不是「找出对的」，而是「论证为什么其他的不行」</td></tr>
+<tr><td><strong>matching<br>左右匹配</strong></td><td>把左列与右列一一连线</td><td>5-q3(a)（试剂与变色路径）</td><td>关联建构——建立概念之间的对应网络</td></tr>
+<tr><td><strong>drawing<br>画板作答</strong></td><td>canvas 画笔作图（画笔/橡皮/清空/撤销，导出 base64 PNG）</td><td>2-q3(a)（画简册卷起的横断面示意图）</td><td>空间表达——多模态模型「看图」评阅，突破在线教学只能评文字的局限</td></tr>
+</table>
+
+<h4 class="minor">协议化存储：一切作答都是文本</h4>
+<p>排序、选择、多选、匹配的结构化作答被序列化为纯文本协议（如「排序：a → b → c①、c②」「多选：A、C」「匹配：A→②；B→①」），与文本题共用同一套存储、评阅与问小简通道。chat 与判分的系统提示词里都写有「格式约定」教模型读协议——这意味着<strong>学生点「问小简这道题」时，AI 看到的与评阅系统看到的是同一份作答</strong>，认知上无缝衔接。</p>
+
+<h4 class="minor">视觉纪律：作答组件的「纸墨」性格</h4>
+<p>选项与匹配项的 key 与正文同字号同字重，选中态只用朱砂颜色区分，分隔用中点「·」，等宽字体只留给真正的编号与数据——界面克制到近乎朴素，把全部注意力还给内容本身。</p>
+
+<h2 class="sec" id="i-9"><span class="no">卷一 · 第九章</span>学习支持体系：进度、解锁、成就与演示</h2>
+
+<h3 class="sub"><span class="tag">9.1</span>顺序解锁：工序即关卡</h3>
+<p>六个环节依次解锁：环节一常开，环节N在环节N−1被读完后解锁。判定口径全站唯一（<code>isStageUnlocked</code>）：大厅卡片、环节页守卫、环节页顶栏都走它。完成是自动的——环节页检测到「最后一道细问的答题框已写入内容（非空白）」即自动标记完成，无手动按钮；从持久化存储恢复出的旧答案也会自动补登。只有大厅的「重置进度」能清空记录。这套设计对应修复工序的真实逻辑：<strong>没揭取完，谈不上清洗</strong>。</p>
+
+<h3 class="sub"><span class="tag">9.2</span>进度可续：三重保障</h3>
+<ul class="dash">
+<li><strong>本地持久化</strong>：作答草稿、评阅判定、解析正文、画板图、提交定稿、参考答案缓存，全部自动保存到浏览器 localStorage——颗粒度精细至单题，刷新、断网、误关都不丢；</li>
+<li><strong>云端同步</strong>：登录状态下，作答进度实时同步至 Supabase 数据库，2秒防抖推送、退出时强制同步——换设备、换浏览器，进度跟着账号走；</li>
+<li><strong>重做机制</strong>：大厅每张环节卡片支持「重置本环节」，清空该环节全部记录重新开始——尊重学习者的自我修正权。</li>
+</ul>
+<p>大厅环节卡片实时显示「已提交 X/Y、评阅 X/Y」与进度条，学习进程可视、可感、可控。</p>
+
+<h3 class="sub"><span class="tag">9.3</span>成就卡：简册编联意象的结业证书</h3>
+<p>六环节全部完成后，学生填写学号姓名，解锁<strong>成就卡</strong>——一张以「简册编联」为设计母题的结业证书：朱砂印章竖排篆刻于右上角；六枚竹简横排、竹青色编绳线贯穿（象征六道工序环环相扣）；四格评阅统计（成立/部分成立/不成立/待判定的数量分布）；落款「竹简一千枚，皆经手过眼」；可下载为 PNG 图片——既是学习成果的仪式化认证，也是可分享的社交货币。</p>
+
+<h3 class="sub"><span class="tag">9.4</span>演示模式：18场景自动播映</h3>
+<p>大厅顶部内置「演示」入口：18个场景自动播映，TTS 语音旁白（儒雅男声、语速-10）与界面操作逐帧同步——开场（登录页）、两个世界（页签切换）、六道工序逐环展示、鉴赏展厅、小简对话、五种题型逐一呈现、进度可续、成就卡、结尾。控制栏支持上一幕/播放/下一幕/退出，进度条实时可见。教师课堂展示、新生引导、对外汇报皆可直接调用——<strong>一个入口，把整个工坊讲清楚</strong>。</p>
+
+<h2 class="sec" id="i-10"><span class="no">卷一 · 第十章</span>教学价值与现实意义</h2>
+
+<h3 class="sub"><span class="tag">10.1</span>教学法价值：四重突破</h3>
+
+<div class="card">
+<h5>其一 · 从「结论灌输」到「证据推理」</h5>
+<p>全部细问不预设结论，学生必须自己走完「证据→推理→判断」的全链路。排序题的「合法解不唯一」传递「考古证据允许多解」的学科科学观；反常数据解释题逼学生重构机理而非背诵规律——这是把<strong>科学思维的训练</strong>嵌进每一次作答。</p>
+</div>
+
+<div class="card">
+<h5>其二 · 从「旁观」到「具身体验」</h5>
+<p>仿真工作台让学生以「修复师」身份承受决策的代价：力度出区间，墨迹没了；浓度压不住，白斑来了。犯错不再是扣分，而是<strong>看见后果</strong>——后果驱动的记忆远比说教深刻。而「重新开工」按钮保证试错零成本，这正是真实文物上不可能有的奢侈。</p>
+</div>
+
+<div class="card">
+<h5>其三 · 从「抽样评价」到「全员、全程、全时」</h5>
+<p>AI评阅让每个学生、每道小问、每次修改都获得秒级反馈。评价标准由教师主权掌控（rubrics服务端存储，AI严格依此判定），反馈抵达速度却是教师手工批改永远做不到的——形成性评价第一次具备了全覆盖的工程条件。</p>
+</div>
+
+<div class="card">
+<h5>其四 · 从「一锤定音」到「过程学习」</h5>
+<p>反复评阅—修改—再评阅的循环，加上参考答案在定稿后才解锁的时序设计，把「对答案」从作弊工具变成学习终点。进度可续支持长周期深度任务，尊重真实学习节奏。</p>
+</div>
+
+<h3 class="sub"><span class="tag">10.2</span>学科价值：一次「数字化转译」的完整示范</h3>
+<p>本工坊把一份几百页的考古技术报告，转译成了「可读（工序说明）、可算（数据反推）、可摸（仿真操作）、可问（AI助教）、可评（智能评阅）、可留（进度成就）」的六维教学形态。这个转译过程沉淀的方法论——内容纪律、口径备案、仿真与评阅的分工纪律、AI幻觉治理——对任何文博类、乃至任何「重内容」学科的教学数字化转型，都是可复用的参考。</p>
+
+<h3 class="sub"><span class="tag">10.3</span>文化价值：让沉睡的档案变成活跃的现场</h3>
+<p>1996年那口古井里的十万枚简牍，记录的是一千七百年前一个基层政权的柴米油盐：谁家交了多少税、仓里进了多少米、一个贪腐小吏如何落网。本工坊做的事，是让这批「沉睡的档案」重新变成「活跃的教学现场」——每一个走进工坊的学生，都在某种意义上参与了那场跨越千年的接力：<strong>前辈从井里把简取出来，今天的学生在屏幕前学会理解「为什么这样修」，明天他们中的一些人会走进真正的库房。</strong></p>
+
+<div class="quote">
+「这条路的价值，正在于每一步都是你自己走的。」
+<span class="q-src">—— 工坊演示模式的结尾旁白</span>
+</div>
+<h2 class="sec" id="i-11"><span class="no">卷一 · 附录A</span>十七道细问全清单</h2>
+
+<p class="lead">六环节共 17 道细问（含小问共 21 个作答点），每道都从报告原始数据反向设计。以下为全清单——题型分类、题干概要、考察点与作答形式，供教师备课与学生预习总览。</p>
+
+<h3 class="sub"><span class="tag">环节一</span>揭取（3 问）</h3>
+<table>
+<tr><th>编号</th><th>题型</th><th>题干概要</th><th>考察点</th></tr>
+<tr><td><strong>1-1</strong></td><td>分层排序题</td><td>依据 I 区叠压关系（a→b、b→c、b→d、d→e，c 坨自身 c①→c②→c③），给出揭取次序；允许层内并列表示「先后不可判定」</td><td>空间逻辑推理；识别不可判定关系；「考古证据允许多解」的学科观</td></tr>
+<tr><td><strong>1-2</strong></td><td>判断题（五条陈述逐条判正误）</td><td>关于揭取时机、工具选择、层位记录、现场保护等的五条陈述，逐条判断并说明理由</td><td>批判性思维；逐条论证而非整体印象</td></tr>
+<tr><td><strong>1-3</strong></td><td>机理分析题</td><td>简端「平面为正面、弧面为背面」「上半有字面朝下、下半相反」的规律，如何被用于复制竹片、编联成册、模拟卷起、反推卷圈顺序</td><td>从现象到机理的推理链复现；实验设计的想象力</td></tr>
+</table>
+
+<h3 class="sub"><span class="tag">环节二</span>清洗（3 问 + 画图）</h3>
+<table>
+<tr><th>编号</th><th>题型</th><th>题干概要</th><th>考察点</th></tr>
+<tr><td><strong>2-1</strong></td><td>选择题 + 说明理由</td><td>竹黄面「吸墨渗透好、耐磨强度低」与竹青面「组织致密、不易书写、字迹耐磨」源于同一个材料学原因——选出并论证</td><td>材料微观结构与宏观性质的因果链</td></tr>
+<tr><td><strong>2-2</strong></td><td>工程试错分析题</td><td>补全清洗工具三代演变表（粗排笔毛刷 → 软排笔+去污粉 → 镊子夹脱脂棉球蘸清水）：每代解决了上一代什么问题、又引入什么新问题</td><td>工程权衡意识——没有完美方案，只有代价转移</td></tr>
+<tr><td><strong>2-3</strong></td><td>工时反推题</td><td>竹简共 73631 枚、每枚清洗 40～50 分钟、每天 10 小时、每月 22 个工作日——反推全部清洗完成所需时间；讨论人力减半的影响</td><td>量级估算；对「以年计」的文物保护事业的体感建立</td></tr>
+<tr><td><strong>2-3(a)</strong></td><td><strong>画板作答题</strong></td><td>用画笔画出简册卷起时的横断面示意图（编绳位置、简片排列曲率、向心方向）</td><td>空间表达；多模态 AI「看图」评阅</td></tr>
+</table>
+
+<h3 class="sub"><span class="tag">环节三</span>绑夹与核对（2 问）</h3>
+<table>
+<tr><th>编号</th><th>题型</th><th>题干概要</th><th>考察点</th></tr>
+<tr><td><strong>3-1</strong></td><td>编号系统分析题</td><td>揭剥号（区—坨—序三段式，如 30-27-38）与脱色号（1～77731 顺序号）双轨并行；报告明确「10546 以后先脱色再编号」；编号序列存在空号 28051～30000 与 67851～70000——分析空号成因，说明两套编号对不上时如何追回简的履历</td><td>身份系统设计思维；对「来历」的较真——考古侦探学</td></tr>
+<tr><td><strong>3-2</strong></td><td>后果分析 + 方案设计题</td><td>2003 年 7 月第三批次脱色事故复盘：单根竹简不绑夹直接入槽 → 薄小简随水流漂移串槽、编号混乱。分析成因（为何漂移的偏偏是薄小简）、评估后果（编号混乱意味着什么）、设计后续绑夹方案</td><td>事故归因；流程漏洞识别；从错误中学习</td></tr>
+</table>
+
+<h3 class="sub"><span class="tag">环节四</span>饱水保存（3 问）</h3>
+<table>
+<tr><th>编号</th><th>题型</th><th>题干概要</th><th>考察点</th></tr>
+<tr><td><strong>4-1</strong></td><td>假设排除题</td><td>新洁尔灭 0.1% 浓度下蚀斑病未被抑制。四条假说：①含水率 471% 的简体稀释药剂；②药剂自身分解失效；③细菌代谢物中和药效；④细菌产生抗药性。结合「浓度提至 0.2%～0.3% 后稳定有效」的证据，逐一排除或保留</td><td>假说检验范式——生物医学研究方法论的迁移</td></tr>
+<tr><td><strong>4-2</strong></td><td>多维决策题</td><td>四种候选药剂的实验数据表（抑菌效果、药剂成本、操作安全多维度互相牵制），选出饱水保存方案并论证理由</td><td>多目标权衡；论证排除法</td></tr>
+<tr><td><strong>4-3</strong></td><td>排序题 + 机理分析</td><td>蚀斑病三种侵害形态按危险度排序，并解释各自机理</td><td>分类与分级思维；机理对应</td></tr>
+</table>
+
+<h3 class="sub"><span class="tag">环节五</span>脱色（3 问）</h3>
+<table>
+<tr><th>编号</th><th>题型</th><th>题干概要</th><th>考察点</th></tr>
+<tr><td><strong>5-1</strong></td><td>数据判读题</td><td>三种候选试剂的罗维朋测色数据（蓝色值越低脱色越好），判读数据、比较优劣</td><td>实验数据判读；仪器分析常识</td></tr>
+<tr><td><strong>5-2</strong></td><td>反常数据解释题</td><td>AAS 实测铁含量：处理液中铁随浓度升高单调递增（正常），但竹简中的铁在低浓度时反而高于未处理组、0.5% 之后才开始下降（反常）——解释这条曲线</td><td>螯合反应机理；对「反常」的敏感与解释力（全工坊化学机理天花板）</td></tr>
+<tr><td><strong>5-3</strong></td><td>决策题（含匹配小问）</td><td>一枚又宽又厚的深色刚竹简，标准流程（1% EDTA 24h + 1% 连二亚硫酸钠 45～50℃ 20～40min）走完字迹仍模糊。三个选项各有代价：EDTA 提浓延时 / 还原剂加倍 / 保温延长——如何决策？(a) 小问完成试剂与变色路径的匹配连线</td><td>疑难杂症的工程决策；「没有全都要」的现实约束</td></tr>
+</table>
+
+<h3 class="sub"><span class="tag">环节六</span>脱水（3 问）</h3>
+<table>
+<tr><th>编号</th><th>题型</th><th>题干概要</th><th>考察点</th></tr>
+<tr><td><strong>6-1</strong></td><td>各向异性题</td><td>自然干燥实验：长度平均收缩 20.4%、宽度平均收缩 50.6%——为什么长度只缩两成、宽度缩五成？</td><td>竹材细胞结构（纤维纵向排列）与宏观各向异性的对应</td></tr>
+<tr><td><strong>6-2</strong></td><td>数据计算 + 材料分析题</td><td>十六醇填充量达简牍本体重量的 205%；抗张强度按 GB/T 453-2002 由湖北省造纸质量监督检验站实测——从这两个数据反推「替换法脱水」的材料学逻辑</td><td>从数据反推设计意图；填充物「替水撑住简体」的物理图像</td></tr>
+<tr><td><strong>6-3</strong></td><td>流程决策题</td><td>一批混装 3mm 以内薄简与又宽又厚刚竹简：标准流程仅适用薄简——分批方案如何设计？按什么标准分？</td><td>真实修复方案设计；分组与流程编排</td></tr>
+</table>
+
+<h2 class="sec" id="i-12"><span class="no">卷一 · 附录B</span>工序关键参数速查表</h2>
+
+<p class="lead">全部出自报告原文。仿真工作台的安全带、细问的数据、结算的指标，都以这张表为锚。</p>
+
+<table>
+<tr><th>工序</th><th>关键参数</th><th>报告口径</th></tr>
+<tr><td rowspan="4"><strong>揭取</strong></td><td>停看步距</td><td>每 2～3 厘米停看一次（不可逆工序）</td></tr>
+<tr><td>工具选择</td><td>竹木工具优先，金属工具易留划伤</td></tr>
+<tr><td>层位记录</td><td>I 区叠压：a→b、b→c、b→d、d→e；c 坨 c①→c②→c③</td></tr>
+<tr><td>坨数统计</td><td>揭剥统计 200 余坨 / 绘图统计 259 坨（两说并存）</td></tr>
+<tr><td rowspan="4"><strong>清洗</strong></td><td>竹简总数</td><td>73631 枚</td></tr>
+<tr><td>单枚工时</td><td>40～50 分钟</td></tr>
+<tr><td>工作制度</td><td>每天 10 小时、每月 22 个工作日</td></tr>
+<tr><td>第三代工具</td><td>镊子夹脱脂棉球蘸清水</td></tr>
+<tr><td rowspan="4"><strong>绑夹与核对</strong></td><td>脱色号范围</td><td>1～77731</td></tr>
+<tr><td>编号空号</td><td>28051～30000、67851～70000</td></tr>
+<tr><td>先脱色节点</td><td>10546 以后（先脱色再给编号）</td></tr>
+<tr><td>事故时间</td><td>2003 年 7 月，第三批次脱色（漂移串槽）</td></tr>
+<tr><td rowspan="3"><strong>饱水保存</strong></td><td>含水率</td><td>竹简 471%</td></tr>
+<tr><td>新洁尔灭有效浓度</td><td>0.2%～0.3%（0.1% 抑不住蚀斑病）</td></tr>
+<tr><td>值守周期</td><td>以月计（仿真设定 24 个月）</td></tr>
+<tr><td rowspan="3"><strong>脱色</strong></td><td>EDTA 二钠</td><td>1%，浸泡 24 小时</td></tr>
+<tr><td>连二亚硫酸钠</td><td>1%，保温 45～50℃，作用 20～40 分钟</td></tr>
+<tr><td>判读仪器</td><td>罗维朋测色（蓝色值）；AAS 原子吸收（铁含量）</td></tr>
+<tr><td rowspan="4"><strong>脱水</strong></td><td>自然干燥收缩</td><td>长度 20.4%、宽度 50.6%（不可采用）</td></tr>
+<tr><td>十六醇填充量</td><td>简牍本体重量的 205%</td></tr>
+<tr><td>置换路线</td><td>乙醇置换水 → 十六醇置换乙醇</td></tr>
+<tr><td>强度检测</td><td>GB/T 453-2002，湖北省造纸质量监督检验站</td></tr>
+</table>
+
+<h2 class="sec" id="i-13"><span class="no">卷一 · 附录C</span>报告内部数字出入备案</h2>
+
+<p class="lead">《长沙走马楼三国吴简的保护与整理》各章由不同作者撰写，个别数字存在口径出入。工坊引用时选定口径，并在此逐条备案——<strong>较真到这个程度，是为了内容的可信</strong>。</p>
+
+<table>
+<tr><th>项目</th><th>章节 A 的说法</th><th>章节 B 的说法</th><th>本工坊采用</th></tr>
+<tr><td>有字吴简总数</td><td>第一章：76552 枚</td><td>第五章：脱色有字吴简 76463 枚</td><td>76552 枚（与第六章脱水总数一致）</td></tr>
+<tr><td>J22 出土简牍总数</td><td>第一章：十万余枚（含无字）</td><td>第三章：将近 14 万枚</td><td>含无字简约 10 万枚</td></tr>
+<tr><td>大木简数量</td><td>第一章：2480 枚</td><td>第三章：完成保护程序 2100 余枚</td><td>2480 枚</td></tr>
+<tr><td>坨数</td><td>揭剥统计：200 余坨</td><td>绘图统计：总计 259 坨</td><td>两者并存，注明来源</td></tr>
+<tr><td>纤维素结晶度</td><td>第六章：吴简 21.3%</td><td>第九章：走马楼三国吴简 18.0%</td><td>21.3%（第六章为脱水专章）</td></tr>
+<tr><td>防腐药剂名</td><td>第二章筛选实验：新洁尔灭（0.1% 无效，需 0.2%～0.3%）</td><td>第三章实际使用：复方新洁尔灭（0.05% 即有效）</td><td>两者不是同一种药，分别注明</td></tr>
+</table>
+
+<div class="note"><b>尤需注意：</b>最后一项——第二章筛选实验中的「新洁尔灭」与第三章实际使用的「复方新洁尔灭」并非同一种药剂，浓度与效果均不同。细问中涉及的浓度推理（0.1% 无效 → 0.2%～0.3% 有效），依据的是第二章的新洁尔灭数据。这也是数字人文产品内容治理的一个缩影：<strong>把口径的复杂性留给教师参考，把确定性的结论交给学生学习。</strong></div>
+
+<h2 class="sec" id="i-14"><span class="no">卷一 · 附录D</span>走马楼关键词小词典</h2>
+
+<p class="lead">二十个高频术语，供跨学科使用者快速入门。按主题分组，释义从简——完整语境请在鉴赏展厅内查阅。</p>
+
+<div class="grid2">
+<div class="card"><h5>走马楼 J22</h5><p>1996 年出土十万枚孙吴简牍的古井编号，位于长沙市中心五一广场走马楼西侧。「J」为「井」的考古编号惯例。</p></div>
+<div class="card"><h5>简牍</h5><p>竹简与木牍的合称。竹简窄长，多用于簿籍；木牍宽平，多用于官文书与书信。</p></div>
+<div class="card"><h5>嘉禾吏民田家莂</h5><p>大木简形制的租税券书，记录吏民一年田租缴纳，形制最大、单枚信息最完整，是孙吴经济史的核心史料。</p></div>
+<div class="card"><h5>揭剥号 / 脱色号</h5><p>两套并行的简牍编号：揭剥号三段式（区—坨—序）记录出土空间位置；脱色号按脱色批次顺序编排。</p></div>
+<div class="card"><h5>饱水简</h5><p>长期浸水出土、含水率远高于正常的简牍（走马楼竹简达 471%）。干燥即毁，须以饱水状态保存。</p></div>
+<div class="card"><h5>叠压关系</h5><p>简坨在井内的上下压叠次序，是恢复简册编联顺序的关键证据，揭取时必须逐坨记录。</p></div>
+<div class="card"><h5>蚀斑病</h5><p>饱水保存阶段微生物侵蚀形成的病害，有白斑、黏液等多种形态，是饱水保存的头号敌人。</p></div>
+<div class="card"><h5>EDTA 二钠</h5><p>乙二胺四乙酸二钠，螯合剂。脱色工序中用于螯合简面致色的金属离子（尤其是铁），1% 浓度浸泡 24 小时。</p></div>
+<div class="card"><h5>连二亚硫酸钠</h5><p>还原剂，脱色第二步主剂。在 45～50℃ 下将深色发色基团还原为浅色，作用 20～40 分钟。</p></div>
+<div class="card"><h5>十六醇</h5><p>高级醇类，脱水定型阶段的填充物。熔融后置换乙醇，凝固于竹纤维内替水「撑住」简体，填充量达本体重 205%。</p></div>
+<div class="card"><h5>罗维朋测色</h5><p>以红/黄/蓝三色标度衡量颜色的方法。蓝色值越低，脱色效果越好。</p></div>
+<div class="card"><h5>AAS</h5><p>原子吸收光谱法（Atomic Absorption Spectroscopy），用于测定处理液与竹简中的铁含量。</p></div>
+<div class="card"><h5>临湘侯国</h5><p>孙吴长沙郡治所在县级政区，走马楼简牍的主要形成主体之一（档案归属四说之一）。</p></div>
+<div class="card"><h5>丘 / 里</h5><p>孙吴基层的双轨地理单位：「丘」为居住聚落，「里」为编户单位。簿籍中两套系统并行，是释读的难点。</p></div>
+<div class="card"><h5>口算钱</h5><p>按人口征收的人头税。吴简赋税簿中大量出现，是孙吴财政史料的重要组成。</p></div>
+<div class="card"><h5>三州仓 / 州中仓</h5><p>临湘两大官仓：前者就地收纳民户税米，后者承接转运与支出。「承余—新入—领出用—余见」的结算结构被视为四柱结算法前身。</p></div>
+<div class="card"><h5>许迪割米案</h5><p>吴简记录的完整司法档案：军粮吏许迪贪割官米，被检举、审讯、判决。基层法制史的一手材料。</p></div>
+<div class="card"><h5>名刺</h5><p>三国时期的「名片」，木牍形制，上书姓名字号与问候语，社交礼仪的物质遗存。</p></div>
+<div class="card"><h5>真吏 / 给吏 / 复民</h5><p>吴简户籍中的特殊身份标识，学界对其实义仍有讨论——特殊身份简是研究孙吴身份制度的专门材料。</p></div>
+<div class="card"><h5>编联</h5><p>以绳（多为丝线或麻线）将简按序编连成册的工艺。编绳磨痕是恢复简册原始顺序的关键物证——本工坊成就卡的设计母题。</p></div>
+</div>
+<h2 class="sec" id="i-15"><span class="no">卷一 · 附录E</span>面向不同学科的使用矩阵</h2>
+
+<p class="lead">六环节是「素材富矿」，不必整班走完全程——各学科可按需截取。以下是经过内容比对后的推荐用法。</p>
+
+<table>
+<tr><th>学科 / 课程</th><th>推荐环节</th><th>对应细问</th><th>教学切入点</th></tr>
+<tr><td><strong>文物保护技术</strong></td><td>全程（六环节）</td><td>全部 17 问</td><td>直接对口：工序认知 + 操作规范 + 决策训练一体化</td></tr>
+<tr><td><strong>考古学</strong></td><td>环节一（揭取）、环节三（绑夹核对）+ 鉴赏全馆</td><td>1-1、1-3、3-1、3-2</td><td>层位学（叠压关系）、田野记录纪律、编号系统与出土物管理</td></tr>
+<tr><td><strong>历史文献学 / 古文字学</strong></td><td>鉴赏展厅为主 + 环节六</td><td>6-1</td><td>简牍形制学（六类形制）、释读训练、简册复原（编联与卷圈）</td></tr>
+<tr><td><strong>材料化学 / 应用化学</strong></td><td>环节四、五、六（饱水/脱色/脱水）</td><td>4-1、4-2、5-1、5-2、6-1、6-2</td><td>螯合反应（EDTA）、还原反应（连二亚硫酸钠）、置换与填充、各向异性——全部有真实实验数据支撑</td></tr>
+<tr><td><strong>微生物学 / 生物学</strong></td><td>环节四（饱水保存）</td><td>4-1、4-3</td><td>假说检验范式、抑菌浓度实验、侵害形态与机理</td></tr>
+<tr><td><strong>工程管理 / 项目管理</strong></td><td>环节二、三（工时与流程）</td><td>2-3、3-2</td><td>工时估算与人力规划、流程事故复盘（2003 年案例）、隐性风险管理</td></tr>
+<tr><td><strong>通识课 / 博物馆教育</strong></td><td>演示模式 + 鉴赏展厅 + 任选两环节</td><td>不限</td><td>文化遗产认知、科学方法启蒙（「证据—推理—结论」）、数字人文体验</td></tr>
+</table>
+
+<h3 class="sub"><span class="tag">E</span>三类学习者画像</h3>
+
+<div class="grid2">
+<div class="card">
+<h5>本科生 · 初识者</h5>
+<p>第一次接触简牍与修复。完整走六环节（约 4～6 学时），体验「动手 + 追问」的完整循环；鉴赏展厅作课后自读。评阅判定帮助他们建立「学术表达要经得起追问」的意识。</p>
+</div>
+<div class="card">
+<h5>研究生 · 深入者</h5>
+<p>已有文博基础。重点在细问的机理层（1-3 卷圈复原、5-2 反常曲线、6-2 填充率反推）与「报告数字出入备案」——学会在原始文献里辨析口径、追踪证据链。可作课前预研，课堂讨论环节争议点。</p>
+</div>
+<div class="card">
+<h5>在职培训 / 继续教育</h5>
+<p>文博系统在职人员。利用「进度可续」碎片化学习；仿真工作台作操作规范复习；三档判定 + 结构化解析替代面授点评。成就卡可作学时认证凭证。</p>
+</div>
+<div class="card">
+<h5>K12 / 研学团体</h5>
+<p>以演示模式 + 鉴赏展厅为主（故事线足够生动）；高年级可尝试环节一、二的仿真（排序与清洗的体感门槛低）。教师全程陪同，AI 问答环节建议集中在大屏演示。</p>
+</div>
+</div>
+
+</section>
+<!-- ═══════════════════════ 标签二：宣传文案 ═══════════════════════ -->
+<section class="tab-panel" id="panel-promo">
+
+<div class="toc">
+<h4>本卷目录</h4>
+<ol>
+<li><a href="#p-0">主视觉语：一句话与一段话</a></li>
+<li><a href="#p-1">序章 · 一口古井，一场大雨</a></li>
+<li><a href="#p-2">你的第一站：登录，然后是两个世界</a></li>
+<li><a href="#p-3">第一道工序 · 揭取：不可重来，所以更要好好来</a></li>
+<li><a href="#p-4">第二道工序 · 清洗：让文字第一次真正可见</a></li>
+<li><a href="#p-5">第三道工序 · 绑夹与核对：一枚简的身份证明</a></li>
+<li><a href="#p-6">第四道工序 · 饱水保存：与时间对坐二十四个月</a></li>
+<li><a href="#p-7">第五道工序 · 脱色：从能保存，到能使用</a></li>
+<li><a href="#p-8">第六道工序 · 脱水：定形，最后一关</a></li>
+<li><a href="#p-9">你的搭档：小简，一位从简牍里走出来的助教</a></li>
+<li><a href="#p-10">另一个世界：简牍鉴赏，竹木上的孙吴王朝</a></li>
+<li><a href="#p-11">五种题型：你的每一次作答，都是一次专业判断</a></li>
+<li><a href="#p-12">终点与起点：成就卡，与你自己的修复之路</a></li>
+<li><a href="#p-13">给老师们的话</a></li>
+</ol>
+</div>
+
+<h2 class="sec" id="p-0"><span class="no">卷二 · 开篇</span>主视觉语</h2>
+
+<div class="quote" style="border-left-color:var(--cinnabar);">
+<p style="font-size:19px;text-align:center;letter-spacing:.08em;line-height:2.2;">
+<strong>十万枚简牍在井底沉睡了一千七百年。<br>
+现在，轮到你把它们唤醒。</strong>
+</p>
+</div>
+
+<p class="lead"><strong>走马楼三国吴简修复工坊</strong>——一个你可以亲手修复国宝的地方。在这里，你不是观众，你是修复师：排定揭取的次序、执起第三代的笔、配出万分之二的药剂、守住五十八度的熔融温度。每一次落手都有后果，每一次判断都有回响，每一步，都有小简陪着。</p>
+
+<div class="metric-row">
+<div class="metric"><div class="v">100000+</div><div class="l">枚简牍等你唤醒</div></div>
+<div class="metric"><div class="v">6</div><div class="l">道真实工序</div></div>
+<div class="metric"><div class="v">17</div><div class="l">道烧脑细问</div></div>
+<div class="metric"><div class="v">1</div><div class="l">位随叫随到的AI助教</div></div>
+</div>
+
+<h2 class="sec" id="p-1"><span class="no">卷二 · 序章</span>一口古井，一场大雨</h2>
+
+<p class="lead">故事要从1996年秋天讲起。</p>
+
+<p>那一年，长沙市中心，五一广场走马楼西侧，平和堂商厦的工地正在打地基。混凝土搅拌机的轰鸣里，一口古井塌出了缺口——工人们凑近看，井里没有金银，没有青铜，只有一团一团湿黑的、说不上是什么的东西，层层叠压，像被岁月揉皱又攥实的纸团。</p>
+
+<p>考古队来了。清点、揭取、整理，数字最终定格在一个让所有人屏息的量级上：<strong>简牍总数超过十万枚，超过此前全国出土简牍的总和。</strong></p>
+
+<p>这是三国孙吴时期的行政文书。赋税簿、户籍册、仓廪账、司法案卷、官吏名刺……一千七百年前，一个基层政权的柴米油盐、钩心斗角与人间烟火，被一场大火或一次掩埋封进井底，从此避开光线、氧气与时间，原封不动地等到了1996年。</p>
+
+<p>学界后来给它许多称号：「二十世纪中国最重要的考古发现之一」「埋在地下的孙吴档案库」。但对当时的文物修复人员来说，喜悦之外是一个近乎残酷的现实：<strong>这十万枚简牍，每一枚都湿软如煮过的面条，含水率471%——比鱼还「水灵」。</strong>任其干燥，它们会剧烈收缩、扭曲、开裂，字迹随之永远消失；放进库房静置，微生物几个月内就会把竹纤维啃成软腐的黏液。</p>
+
+<p>从井底到书页，这批简牍要走六道工序：<strong>揭取、清洗、绑夹与核对、饱水保存、脱色、脱水</strong>。每一步都是与物理、化学、生物学的贴身搏斗；每一个决策——用竹刀还是金属起子、浓度0.1%还是0.2%、温度45℃还是58℃——都直接决定一枚简牍的生死。</p>
+
+<p>而这些决策的依据、数据、教训与经验，全部沉淀在一份几百页的技术报告里：《长沙走马楼三国吴简的保护与整理》。</p>
+
+<p><strong>现在，这份报告被打开成了一座工坊。</strong></p>
+
+<div class="quote">
+报告里的每一个数字、每一条约束、每一次事故，都被如实搬了进来——包括那场2003年因「不绑夹直接入槽」而酿成的漂移串槽事故。在这座工坊里，你将以修复师的身份，把六道工序亲手走一遍。你可以犯错，可以重来，可以在四项指标全线飘红时咧嘴一笑，再点一次「重新开工」——而真正的国宝，一失误就是永别。<strong>这就是这座工坊存在的意义：让你在零成本的地方，学会价值连城的判断。</strong>
+<span class="q-src">—— 走马楼吴简修复工坊</span>
+</div>
+
+<h2 class="sec" id="p-2"><span class="no">卷二 · 第一章</span>你的第一站：登录，然后是两个世界</h2>
+
+<p>注册一个账号，或用邮箱登录——你的每一次作答、每一份草稿、每一次评阅记录，都会跟着这个账号走。合上电脑，明天打开，一切都在。</p>
+
+<p>登录之后，你会站在<strong>工坊大厅</strong>。头顶两个页签，像两扇门：</p>
+
+<div class="grid2">
+<div class="card">
+<h5>左门 · 简牍发掘</h5>
+<p>六道工序，六重考验。每道工序一个入口：读资料、上工作台、做细问。这是「动手」的世界——你将亲手排次序、挑工具、调参数、扛后果。</p>
+</div>
+<div class="card">
+<h5>右门 · 简牍鉴赏</h5>
+<p>竹木上的孙吴王朝。五大板块、八个主题、五枚代表简的逐句精读。这是「动眼」的世界——像逛一座为你一人开放的博物馆。</p>
+</div>
+</div>
+
+<p>先走哪扇门都行。但如果你是第一次来，我们建议从左边开始——从那道「唯一不可重来」的工序开始。</p>
+
+<h2 class="sec" id="p-3"><span class="no">卷二 · 第二章</span>第一道工序 · 揭取：不可重来，所以更要好好来</h2>
+
+<p class="lead">「揭取——唯一一道不可重来的工序。」这不是吓唬你，这是考古的规矩。</p>
+
+<p>井底的简牍不是散乱的，它们成坨叠压、卷成筒状——哪坨压着哪坨，记录的是它们被放进井里的<strong>原始顺序</strong>。这层「层位关系」是日后恢复简册编联顺序的唯一钥匙：揭取时每揭一坨都要记录叠压关系，一旦揭乱，钥匙就断了，永远接不回来。</p>
+
+<p>走进环节一，你先读到的不是口号，而是报告里的原始记录：I区的叠压关系 <code>a→b→c、b→d、d→e</code>，c坨自身还分 <code>c①→c②→c③</code>……然后，细问来了——<strong>给你这组记录，请你排出揭取的次序。</strong></p>
+
+<p>注意，这题没有「唯一正确答案」。任何满足先后约束的排列都算对——因为考古证据本来就允许多解。真正区分高手与新手的是另一个问题：<strong>哪些单位对的次序，从现有证据里根本判不出来？</strong>指不出这些「不可判定」，才是这道题的失分点。</p>
+
+<p>然后你上<strong>揭取工作台</strong>。五个简坨横在你的屏幕上，横断面的缝清晰可见。你排次序——排错了，层位信息当场作废，指标「信息完整度」哗地掉下去；你选刀——竹刀尖还是金属起子？金属起子效率高，但会在简上留下永久的划伤，「简体完整度」替你记住这一切；你定步距——报告写的是每2～3厘米停看一次，步子迈大了，简会断在半空，这一步标注着四个字：<strong>「此步不可逆」</strong>。</p>
+
+<p>最后是一道机理分析题：报告揭示了一条奇妙的规律——每枚简端平的一面是有字正面、弧形面是背面；上半部分有字面朝下，下半部分正好相反。当年的工作人员就是靠这条规律，按编绳磨痕复制新竹片、编联成册、模拟卷起，用横断面<strong>反推出了原始卷圈顺序</strong>。你要做的，是把这套推理的链条自己走一遍。</p>
+
+<div class="quote">
+「你可以在这里犯所有的错——因为这正是真实世界里最贵的那种学习。」
+</div>
+
+<h2 class="sec" id="p-4"><span class="no">卷二 · 第三章</span>第二道工序 · 清洗：让文字第一次真正可见</h2>
+
+<p class="lead">泥壳剥开的那一刻，有些字第一次见到了光——也可能，是最后一次。</p>
+
+<p>出土的简牍裹着泥污，字迹完全不可见。清洗是它们与文字的第一次重逢，但重逢之路布满陷阱：竹黄面「吸墨渗透好，但耐磨强度低」——你手上力道重一分，那仅存的墨迹就淡一分。这不是比喻，是材料学事实，而且和竹青面的性质「组织致密、不易书写、但字迹耐磨持久」出自<strong>同一个原因</strong>。什么原因？第一道细问你来回答。</p>
+
+<p>报告还记录了工具的三代演变：第一代用粗排笔和毛刷，快，但伤字；第二代换成软排笔加去污粉，温和些，但去污粉残留；第三代定型为「镊子夹脱脂棉球蘸清水」——一锤定音。第二道细问问你：补全这张演变表，并回答，每一代解决了上一代的什么问题、又引入了什么新问题？<strong>工程没有完美，只有权衡</strong>——这道题教的就是这个。</p>
+
+<p>然后是让人头皮发麻的数字：<strong>竹简共73631枚，每枚清洗耗时40～50分钟，每天工作10小时、每月22个工作日。</strong>第三道细问请你反推：全部清洗完需要多久？如果人力减半呢？拿出计算器，算出「年」这个单位——你会突然理解，文物保护为什么是一项以「年」计的事业。</p>
+
+<p>清洗工作台上，你要亲手定起手面（先洗哪一面？）、在三代工具里挑笔、调运笔力度（滑杆上有报告给的安全带，出带报警、偏得越远代价越大）、走完取简→开卡入槽→清理污物→清理字面→脱色前清洗→再清洗的六道工序。屏幕上，泥污随着你的运笔一圈圈褪去，字迹一点点浮现——那种「拂去千年尘埃」的体感，是任何幻灯片都给不了的。</p>
+
+<p>对了，这一环节还藏着一个惊喜：<strong>画图题</strong>。拿起画笔，画出简册卷起时的横断面示意图。你画的不是给老师看的——是给<strong>AI</strong>看的：多模态模型会「看」你的图，按评阅要点判断它是否完整。画错了它会告诉你缺了什么，画对了，那种被机器「看懂」的感觉，值得一试。</p>
+
+<h2 class="sec" id="p-5"><span class="no">卷二 · 第四章</span>第三道工序 · 绑夹与核对：一枚简的身份证明</h2>
+
+<p class="lead">工序是流水线，身份不能掉线。掉线的那枚简，字再清楚也成了「来历不明」。</p>
+
+<p>一枚简从揭取到入库，要转手十几次、历经数月。「它是谁、从哪个坨来的、排在第几」——这套身份信息靠两套编号系统守护：<strong>揭剥号</strong>（三段式「区—坨—序」，如30-27-38，记录它出土时的空间坐标）与<strong>脱色号</strong>（顺序编号1～77731，按脱色批次给的）。</p>
+
+<p>细问一的题干像一道侦探题：报告明确「10546以后的竹简是先脱色再给编号」；编号序列里还存在两段空号：28051～30000、67851～70000。<strong>空号意味着什么？两套编号对不上的简，怎么追回它的履历？</strong>把这道题答下来，你会获得一种文物工作者特有的敏感：对「来历」的较真。</p>
+
+<p>细问二是一次事故复盘——真实发生过的那种。2003年7月，第三批次脱色，工作人员用特制脱色槽，把单根竹简<strong>不绑夹直接放入槽内</strong>。结果：薄小的简随水流漂移到其他简的槽里，编号一片混乱，此后全部改为单面绑夹。你的任务：分析事故成因（为什么漂的偏偏是薄小简？）、评估后果（编号混乱意味着什么）、并设计后续方案。</p>
+
+<p>工作台会把这个事故「复现」给你看：如果你也选「不绑夹直接入槽」——恭喜，2003年7月的场面重演，指标「信息完整度」当场跳水。屏幕不会骂你，但那一串跳红的数字，比任何批评都让人长记性。</p>
+
+<h2 class="sec" id="p-6"><span class="no">卷二 · 第五章</span>第四道工序 · 饱水保存：与时间对坐二十四个月</h2>
+
+<p class="lead">这一环节的敌人看不见、不着急、但从不迟到。它的名字叫：微生物。</p>
+
+<p>清洗完的简不能晾着——干燥就是变形。它们要泡进药液，以「饱水」状态等待后续处理。这一等，以月为单位；而药液里的微生物，一刻也没闲着。等你看见白斑、黏液的时候，往往已经是软腐的前夜。</p>
+
+<p>报告记录了一次真实的科研困局：新洁尔灭在<strong>0.1%浓度下压不住蚀斑病</strong>。研究人员提出四条可能原因：①简体471%的含水率稀释了药剂，实际浓度低于标称；②药剂在水中自己分解失效；③细菌代谢物中和了药效；④细菌产生了抗药性。后续实验把浓度提到0.2%～0.3%，抑菌效果稳定有效。</p>
+
+<p><strong>细问一就是这道「假设排除题」：四条假说，结合「提浓后有效」这条证据，逐一排除或保留。</strong>这是生物医学研究的标准思维范式——假说检验——被原汁原味地搬进了课堂。细问二接着上强度：四种候选药剂的实验数据表摆在你面前，抑菌效果、药剂成本、操作安全多个维度互相牵制，<strong>你来选型，说明理由</strong>。细问三要求把蚀斑病的三种侵害形态按危险度排序，并解释各自机理。</p>
+
+<p>饱水工作台是六台里最「熬人」的一台：选药剂（六选一）、配浓度、定换液周期，然后——<strong>值守24个月</strong>。逐月推进的进度条上，前9个月可能风平浪静；第10个月，如果你的浓度没压住菌，白斑和黏液会在简面上肉眼可见地长出来。要不要马上换药？换药要不要停工期？<strong>每多等一个周期，风险都在复利。</strong>这台工作台教的不是化学，是「隐性问题管理」——工程世界里最贵的一课。</p>
+
+<h2 class="sec" id="p-7"><span class="no">卷二 · 第六章</span>第五道工序 · 脱色：从能保存，到能使用</h2>
+
+<p class="lead">饱水保存让简「活着」，脱色让简「被读」。这一步，是保管与研究的分水岭。</p>
+
+<p>饱水简的底色深，墨迹浅，对比度低到几乎不可辨。脱色用化学手段让底色变浅、字迹重新浮出——标准流程精确到分钟：<strong>1% EDTA二钠浸泡24小时，然后1%连二亚硫酸钠、保温45～50℃、作用20～40分钟。</strong></p>
+
+<p>为什么是这个配方、这个温度、这个时长？细问一给你三种试剂的罗维朋测色数据（蓝色值越低，脱色越好），请你判读；细问二甩给你一条「反常曲线」——AAS法实测，处理液中的铁随浓度升高单调递增（正常，铁被脱出来了），但<strong>竹简里的铁在低浓度时反而比没处理的还高</strong>，到0.5%以后才开始下降。<strong>请你解释这条曲线。</strong>提示：想想EDTA先螯合了什么、后螯合了什么。这道题是全工坊化学机理的天花板，答出来的那一刻，你会觉得自己像做了半天的科研。</p>
+
+<p>细问三是一个「疑难杂症」：一枚又宽又厚、颜色特别深的<strong>刚竹简</strong>，标准流程走完，字迹仍然模糊。三个选项：A. EDTA浓度提到2%、浸泡延到72小时；B. 连二亚硫酸钠加倍；C. 保温时间延长到60分钟。每个选项都有代价——<strong>你选哪个？为什么？</strong>（真实修复界没有「全都要」。）</p>
+
+<p>脱色工作台上，配EDTA、选还原试剂、调恒温槽、按分钟保温——温度计就悬在画面上方，罗维朋蓝色值随温度实时变化。温度掉出45～50℃，蓝色值停在高位不动；手滑选了硼氢化钠——几分钟后，你的简<strong>漂在了液面上</strong>。那一刻你会明白，为什么报告要把温度区间写进标题里。</p>
+
+<h2 class="sec" id="p-8"><span class="no">卷二 · 第七章</span>第六道工序 · 脱水：定形，最后一关</h2>
+
+<p class="lead">饱水简的含水，比自身还重。要把水「换」出去而不让简「缩」回去——人类花了多少年，才找到那管十六醇。</p>
+
+<p>先看一个让人倒吸凉气的数字：自然干燥实验里，走马楼饱水竹简干燥至重量稳定后，<strong>长度平均收缩20.4%，宽度平均收缩50.6%</strong>。宽度缩一半——字就全毁了。直接晾干这条路是死的，必须「置换脱水」：先用乙醇把水换出来，再用十六醇把乙醇换出来，让支撑物留在竹纤维里替水「撑住」简体。</p>
+
+<p>报告里的两个硬核数据撑起了细问二：<strong>十六醇填充量达到简牍本体重量的205%</strong>——填充物比竹材本体还重；抗张强度实测按国家标准GB/T453-2002、由湖北省造纸质量监督检验站出具。从这两个数据反推「替换法脱水」的材料学逻辑，你会真正读懂「205%」这个数字的含义——那不是 extravagance，那是让简「不塌」的物理代价。</p>
+
+<p>细问一问各向异性：为什么长度只缩两成、宽度却缩五成？答案在竹材的细胞结构里——纤维纵向排列，纵向有「骨架」撑着，横向没有。细问三是流程决策：一批混着薄简（3mm以内，标准流程适用）与又宽又厚的刚竹简——<strong>混批怎么办？分批的话按什么分？</strong>这是真实修复方案设计题。</p>
+
+<p>脱水工作台上最揪心的画面：填充不到位时，屏幕上的简眼看着「瘦」下去——宽度收缩率冲过5%的指标红线，简上的字被压得变形。那一刻，「不可逆」三个字有了形状。</p>
+
+<h2 class="sec" id="p-9"><span class="no">卷二 · 第八章</span>你的搭档：小简，一位从简牍里走出来的助教</h2>
+
+<p class="lead">六道工序走下来，你不会是孤军奋战。你的右下角，一直住着一位搭档。</p>
+
+<p>它叫<strong>小简</strong>——数字人向导，只在环节页出场。它不吵不闹，就待在那儿；你翻到哪一节，它的表情和台词就换到哪儿：你刚开始读工序说明，它微微一笑陪你入门；你对着数据表皱眉，它也摆出思索的表情；你完成了一道细问，它眉眼弯弯替你高兴。四副表情——微笑、讲解、思索、欢喜——对应你在工坊里的每一段旅程。</p>
+
+<p><strong>点它，对话框就展开。</strong>你可以问它任何与内容相关的问题：「为什么竹黄面更容易吸墨？」「两段空号到底是怎么回事？」「这道题我卡住了，能给我个提示吗？」——它背后站着三册走马楼文献的扫描知识库，检索命中时，它是<strong>看着原书页</strong>回答你的，不编数字、不造出处；报告里口径有出入的地方，它还会主动告诉你「这里学界有两种说法」。</p>
+
+<p>它知道你在哪。你在「上机操作」节问的问题，和你在「细问」节问的问题，它给的引导侧重不一样——因为每一次对话请求都带着你的位置信息。它甚至知道你的进度：哪道题你还没答，它绝口不提答案；哪道题你答完了，它才愿意跟你复盘。</p>
+
+<p><strong>它评阅你的答案。</strong>每个答题框下方都有「请小简评阅」按钮。点下去，几秒后一枚判定章落在你的答案上——<strong>成立、部分成立、或不成立</strong>——接着解析逐字流出：先说你的答案里<strong>对在哪</strong>，再说<strong>缺了什么</strong>，最后给一个<strong>能自己走下去的方向</strong>。它从不端出标准答案。答案改了，判定自动作废；你可以一遍遍改、一遍遍请它评，直到自己真正想明白。想明白了，点「确认提交」，定稿、锁定，参考答案这才姗姗来迟——像一个耐心的老师，永远等你先交卷。</p>
+
+<div class="quote">
+「小简不说教、不泄题、不代答。它只是恰好知道那口古井里发生的一切，并且永远有空。」
+</div>
+
+<h2 class="sec" id="p-10"><span class="no">卷二 · 第九章</span>另一个世界：简牍鉴赏，竹木上的孙吴王朝</h2>
+
+<p class="lead">修完了简，来读一读简上写的是什么。切到「简牍鉴赏」，你走进一座安静的数字博物馆。</p>
+
+<p>这里没有解锁、没有细问、没有指标——只有五块展区，和一百七十年的时光。</p>
+
+<ul class="dash">
+<li><strong>「发现与归属」</strong>展区里，四说并列：这批简到底是长沙郡的档案、还是郡县混合文书、还是临湘侯国的县级档案群？学界至今没有定论——这里教你的是：历史学的答案，常常是「还没有答案」。</li>
+<li><strong>「形制六类」</strong>展签下，大木简、竹简、木牍、签牌封检、名刺、其他——六种形制，六种用途。练的是文物学家的眼力：看形制，猜功能。</li>
+<li><strong>「主题八类」</strong>长廊里，田租赋税、户籍人口、口算钱、仓廪出入、司法文书、官吏军政、名刺书信、特殊身份简——孙吴基层社会的全景图，一路铺开。</li>
+<li><strong>「案例精读」</strong>是这座博物馆的镇馆之角：五枚简，五个切口——南彊丘聂仪的一枚完整田家莂（那户人家一年交了多少税，白纸黑字）；吉阳里孙潘家的户籍（一户几口、男女几人）；入米简的标准格式（行政文书的「模板学」）；<strong>许迪割米案</strong>（一场三国基层贪腐案，从检举到判决的完整司法档案——堪比一部微型悬疑剧）；还有一枚名刺，三国人的「拜帖」，上头的客套话和今天如出一辙。</li>
+</ul>
+
+<p>展区里所有照片都是<strong>真实文物照</strong>——来自博物馆与公共版权渠道，每张都带着自己的署名。而你在发掘篇看到的示意图，图题都以「示意」开头。两种图，从不冒充彼此。这座博物馆连「诚实」都是展品的一部分。</p>
+
+<h2 class="sec" id="p-11"><span class="no">卷二 · 第十章</span>五种题型：你的每一次作答，都是一次专业判断</h2>
+
+<p class="lead">本工坊没有一道「选 C」就完事的题。十七道细问，五种作答形式，对应五种思维方式：</p>
+
+<div class="card">
+<h5>排序题 · 拖出层序</h5>
+<p>把对象拖进层，层内并列、层间递进。它不考你「背没背住标准顺序」，考你「能不能从约束条件推出合法解」——以及，敢不敢承认「这几对判不出来」。</p>
+</div>
+<div class="card">
+<h5>判断题 · 逐条对决</h5>
+<p>五条陈述，逐条判正误。判「错」要写出正确表述，判「对」要说明它对后续工序意味着什么——判断从来不是终点，论证才是。</p>
+</div>
+<div class="card">
+<h5>多选题 · 论证排除</h5>
+<p>勾出所有可行项，并说明理由。多选题的真正考点是「为什么其他的不行」——排除法，是工程师的基本功。</p>
+</div>
+<div class="card">
+<h5>匹配题 · 连线成网</h5>
+<p>左边的药剂，右边的作用路径，一一连线。连完，一张化学知识的网就在你脑子里织好了。</p>
+</div>
+<div class="card">
+<h5>画图题 · 让AI看懂你</h5>
+<p>画笔、橡皮、撤销，画出一幅横断面示意图。交卷对象是多模态大模型——它会真的「看」你的图。这是全工坊最未来的一道题。</p>
+</div>
+
+<p>而所有这些作答——无论拖拽、勾选还是画图——都可以一键「问小简」或「请小简评阅」。你和小简看到的，永远是同一份作答。</p>
+
+<h2 class="sec" id="p-12"><span class="no">卷二 · 第十一章</span>终点与起点：成就卡，与你自己的修复之路</h2>
+
+<p>六道工序、十七道细问，全部完成的那一刻——工坊为你准备了一场小小的仪式。</p>
+
+<p>署上你的学号与名字，<strong>成就卡</strong>解锁：一枚朱砂印章竖排钤在右上角；六枚竹简横排铺开，一根竹青色的编绳线把它们串成一册——六道工序，环环相扣；四格评阅统计记录着你一路的判定分布；落款一行小字：<strong>「竹简一千枚，皆经手过眼」</strong>。下载成图，留存、分享、晒出去——这是你自己走出来的证明。</p>
+
+<p>但真正的成就不在卡上。在某个瞬间你会突然发现：看纪录片里的修复现场，你能看懂师傅每一步在防什么；读到「简牍含水率471%」，你脑子里自动换算成「比鱼还水灵」；朋友问起那口古井，你能从叠压关系讲到许迪割米案，讲得眉飞色舞——<strong>那些数字不再是数字，是你的手感、你的判断、你的故事。</strong></p>
+
+<div class="quote" style="border-left-color:var(--cinnabar);">
+<p style="font-size:18px;text-align:center;line-height:2.2;">
+这条路的价值，正在于<strong>每一步都是你自己走的</strong>。<br>
+小简陪着你，报告托着你，但落手的每一个决定——<br>
+次序、力度、浓度、温度——都出自你手。<br>
+现在，工坊开门了。<br>
+<strong>十万枚简牍，等你唤醒。</strong>
+</p>
+</div>
+
+<h2 class="sec" id="p-13"><span class="no">卷二 · 附章</span>给老师们的话</h2>
+
+<p>如果您是高校文博、考古、历史或化学、材料方向的教师——这座工坊可能正是您在找的东西。</p>
+
+<ul class="dash">
+<li><strong>内容是现成的</strong>：六环节内容与《长沙走马楼三国吴简的保护与整理》一一对应，17道细问全部从报告原始数据反向设计，评阅要点逐题编制、小问级存储。您不需要自己出题。</li>
+<li><strong>评阅是自动的</strong>：AI严格依据您（可以自定义）的评阅要点判定，三档结论+结构化解析，秒级反馈。您可以从「逐份批改」里解放出来，把精力放在课堂上真正需要人的地方。</li>
+<li><strong>进度是可视的</strong>：顺序解锁、进度卡片、成就认证——课堂内可直接布置为渐进式作业，支持学生分次完成、跨设备续接。</li>
+<li><strong>演示是现成的</strong>：内置18场景自动演示模式，TTS语音旁白同步界面操作，第一节课直接投屏，五分钟讲清整个工坊。</li>
+<li><strong>边界是诚实的</strong>：AI不编数字、不泄答案；示意图不冒充文物照；扣分权重声明为教学设定——每一处可以较真的地方，工坊先较了真。您大可以把「学术诚实」当作这门课的第一课。</li>
+</ul>
+
+<p>把课堂交给学生动手，把反馈交给AI秒回，把您自己，还给讲台上那个讲故事的老师。</p>
+<h2 class="sec" id="p-14"><span class="no">卷二 · 附二</span>多渠道短文案变体</h2>
+
+<p class="lead">同一内核，不同密度。以下变体供海报、公众号、朋友圈、展板等渠道直接取用。</p>
+
+<h3 class="sub"><span class="tag">V1</span>海报主文案（大字版）</h3>
+
+<div class="quote" style="border-left-color:var(--cinnabar);">
+<p style="text-align:center;font-size:17px;line-height:2.4;letter-spacing:.12em;margin:0;">
+<strong>一口古井，十万枚简牍</strong><br>
+一千七百年后，它们等来了你<br>
+<span style="font-size:14px;color:var(--ink-60);">——亲手揭取 · 清洗 · 脱色 · 脱水，把国宝修到能被阅读——</span>
+</p>
+</div>
+
+<h3 class="sub"><span class="tag">V2</span>公众号导语（120 字版）</h3>
+<div class="card">
+<p>1996年，长沙一口古井里出土了十万枚三国孙吴简牍——超过此前全国出土总和。它们湿软如面条，含水率471%，从井底到书页要闯六道工序。我们把这六道工序做成了可以亲手操作的数字工坊：排叠压、调药剂、守温度，AI助教「小简」全程陪跑。来，把沉睡一千七百年的文字唤醒。</p>
+</div>
+
+<h3 class="sub"><span class="tag">V3</span>朋友圈文案（60 字版）</h3>
+<div class="card">
+<p>今天在浏览器里修了一回国宝：亲手给三国简牍脱色，温度计掉出安全带，蓝色值当场停摆——AI助教还夸我「部分成立」。推荐给所有觉得博物馆「只能看不能摸」的人。</p>
+</div>
+
+<h3 class="sub"><span class="tag">V4</span>展板文案（竖排版）</h3>
+<div class="card">
+<p style="letter-spacing:.1em;line-height:2.3;">走马楼三国吴简修复工坊<br>—— 生成式人工智能赋能文博教学 ——<br><br>六道工序 · 十七道细问 · 五种题型<br>数字人助教「小简」全程相伴<br>仿真工作台：每一次落手都有回响<br>智能评阅：三档判定，秒级抵达<br><br>从 J22 古井，到你指尖</p>
+</div>
+
+<h3 class="sub"><span class="tag">V5</span>邮件 / 群发邀请（正式版）</h3>
+<div class="card">
+<p>各位老师好：<br>我们建设了「走马楼三国吴简修复工坊」教学应用场景——以《长沙走马楼三国吴简的保护与整理》技术报告为内容底座，将文物保护的六道工序（揭取、清洗、绑夹核对、饱水保存、脱色、脱水）转化为可动手的仿真工作台与十七道基于真实数据的细问，配备 RAG 增强的数字人助教与三档制智能评阅。适合文博、考古、化学、材料等课程的实践教学环节。诚邀体验，欢迎反馈。<br>（附访问链接与演示模式入口）</p>
+</div>
+
+<h3 class="sub"><span class="tag">V6</span>短视频口播开头（15 秒钩子）</h3>
+<div class="card">
+<p>「你知道吗？1996年长沙一口井里挖出的简牍，含水率是471%——比鱼还水灵，干燥就毁。今天我在这座数字工坊里，亲手给一枚三国简牍脱色——温度高一度都不行。全程AI陪跑，我错一步它记一步。跟我进来走走？」</p>
+</div>
+
+<h3 class="sub"><span class="tag">V7</span>对外汇报一句话（电梯版）</h3>
+<div class="card">
+<p>「我们用生成式 AI 把一份考古技术报告，变成了一座学生可以亲手操作、随时提问、即时获得评阅的简牍修复工坊——内容真实、仿真可错、评阅秒回。」</p>
+</div>
+<h2 class="sec" id="p-15"><span class="no">卷二 · 附三</span>常见疑虑，正面回应</h2>
+
+<p class="lead">把访客最常见的六个疑虑放在台面上，一条一条说清楚。</p>
+
+<div class="card">
+<h5>疑虑一 ·「AI 参与教学，会不会教错东西？」</h5>
+<p>分两层答。内容层：六环节的工序、参数、数据全部出自正式出版的技术报告，不经 AI 生成——报告口径有出入的六处，在大厅「备案」里逐条列明，连「新洁尔灭」与「复方新洁尔灭」不是同一种药都标注得清清楚楚。AI 层：小简回答内容问题时走知识库检索（RAG），「看着原书页说话」，检索不到就明说「知识库未覆盖」，不编造；评阅判定严格依据教师编制的评阅要点，AI 是判定引擎，不是标准制定者。你看到的每一个数字，都能在报告里找到页码。</p>
+</div>
+
+<div class="card">
+<h5>疑虑二 ·「仿真工作台，会不会变成打游戏？」</h5>
+<p>恰恰相反——它是「反游戏」的。游戏的设计目标是让你爽，仿真的设计目标是让你疼：力度出带，墨迹真的会淡；温度出带，脱色真的会停；不绑夹入槽，编号真的会乱。四项指标实时结算，每一步代价入账。它保留了游戏「即时反馈」的优点，剥掉了游戏「零成本爽感」的麻醉——在这里，学生体验到的是<strong>责任的重量</strong>，只是这份重量不压在真文物上。</p>
+</div>
+
+<div class="card">
+<h5>疑虑三 ·「和看纪录片、听讲座有什么区别？」</h5>
+<p>区别在动词。纪录片替你「看」，讲座替你「听」，工坊要你「做」：亲手排叠压次序（错一层，钥匙断一根）、亲手配 0.2% 的浓度（差一档，白斑爬上来）、亲手画横断面（画完 AI 来看图）。认知科学的基本结论：动手生成的记忆远深于被动接收。更重要的区别在评价——纪录片看完就是看完，工坊里每一步作答都有三档判定追着你问「你真的想明白了吗」。一句话：<strong>纪录片是导游，工坊是陪练。</strong></p>
+</div>
+
+<div class="card">
+<h5>疑虑四 ·「我不是文博专业的，跟得上吗？」</h5>
+<p>跟得上。工序说明节从「为什么必须有这道工序」讲起，不预设任何专业背景；小简随叫随到，答错不批评、只指方向；鉴赏展厅就是零门槛的博物馆。反过来，化学、材料、生物、管理背景的学习者反而会在自己熟悉的环节「降维打击」——EDTA 螯合对化学系是基本功，工时反推对管理系是练手题。这座工坊的入口很矮，天花板很高。</p>
+</div>
+
+<div class="card">
+<h5>疑虑五 ·「做到一半断了，进度会丢吗？」</h5>
+<p>不会。本地 + 云端双保险：作答草稿毫秒级存进浏览器，刷新、断电、误关都不丢；登录状态下再实时同步到云端，换台电脑接着走。评阅记录、解析、画板图、定稿——全部跟人走。工坊尊重一个事实：深度学习本来就不是一口气的事。</p>
+</div>
+
+<div class="card">
+<h5>疑虑六 ·「AI 会不会把答案直接告诉学生？」</h5>
+<p>问不出来——这不是口头承诺，是写进系统提示词的硬纪律：「先答后评」：学生没给答案之前，小简不给答案、不给要点，只反问、只提示、只指方向。参考答案更是在学生点「确认提交」定稿之后才生成。防作弊的最优解不是封嘴，是时序。</p>
+</div>
+
+<h2 class="sec" id="p-16"><span class="no">卷二 · 附四</span>三种人的入门路径</h2>
+
+<div class="grid2">
+<div class="card">
+<h5>如果你是学生</h5>
+<p>① 注册登录（邮箱即可）→ ② 从「简牍发掘」进环节一，先读工序说明，再上工作台，最后做细问 → ③ 答完点「请小简评阅」，看判定章与解析 → ④ 卡住就点右下角小简，把问题问出口 → ⑤ 一环一环解锁，六环全通，领成就卡。全程约 4～6 小时，可分多次走完——进度不丢。<strong>一个小建议：别怕错。这里错得起的，将来错不起。</strong></p>
+</div>
+<div class="card">
+<h5>如果你是老师</h5>
+<p>① 先点大厅顶部「演示」，18 个场景 12 分钟看完整个工坊 → ② 挑与你课程对口的环节（对照「学科使用矩阵」）→ ③ 按课堂方案（翻转课堂 / 实验替代 / 考核设计 / 通识快闪，四套方案见讲解逐字稿卷附录）取用 → ④ 有任何内容疑问，先查「报告数字出入备案」——我们连报告自己的出入都备了案。<strong>评阅要点如需定制，那就是你的主权领地。</strong></p>
+</div>
+<div class="card">
+<h5>如果你是研究者 / 同行</h5>
+<p>① 直接看「技术路线」卷（架构、AI 治理、仿真引擎、数据模型）→ ② 内容治理的三道纪律（出处 / 口径 / 图版）值得重点看——这是「重内容产品」的方法论沉淀 → ③ 「工程决策复盘」表收录了六个真实踩坑与修复 → ④ 欢迎交流：这套「内容—仿真—评阅」的骨架，是可以复制到其他文博场景的。<strong>敦煌、青铜、漆器——每一类文物都值得一座自己的工坊。</strong></p>
+</div>
+<div class="card">
+<h5>如果你只是路过</h5>
+<p>点「演示」看完 18 个场景，再去鉴赏展厅读一枚「许迪割米案」——三分钟，你会记住两件事：文物修复是科学；一千七百年前的长沙，有个小吏因为贪了点米，把自己写进了历史。这就够了。工坊的门一直开着，想动手，随时回来。</p>
+</div>
+</div>
+<h2 class="sec" id="p-15"><span class="no">卷二 · 附三</span>常见疑虑，正面回应</h2>
+
+<p class="lead">把访客最常见的六个疑虑放在台面上，一条一条说清楚。</p>
+
+<div class="card">
+<h5>疑虑一 ·「AI 参与教学，会不会教错东西？」</h5>
+<p>分两层答。内容层：六环节的工序、参数、数据全部出自正式出版的技术报告，不经 AI 生成——报告口径有出入的六处，在大厅「备案」里逐条列明，连「新洁尔灭」与「复方新洁尔灭」不是同一种药都标注得清清楚楚。AI 层：小简回答内容问题时走知识库检索（RAG），「看着原书页说话」，检索不到就明说「知识库未覆盖」，不编造；评阅判定严格依据教师编制的评阅要点，AI 是判定引擎，不是标准制定者。你看到的每一个数字，都能在报告里找到页码。</p>
+</div>
+
+<div class="card">
+<h5>疑虑二 ·「仿真工作台，会不会变成打游戏？」</h5>
+<p>恰恰相反——它是「反游戏」的。游戏的设计目标是让你爽，仿真的设计目标是让你疼：力度出带，墨迹真的会淡；温度出带，脱色真的会停；不绑夹入槽，编号真的会乱。四项指标实时结算，每一步代价入账。它保留了游戏「即时反馈」的优点，剥掉了游戏「零成本爽感」的麻醉——在这里，学生体验到的是<strong>责任的重量</strong>，只是这份重量不压在真文物上。</p>
+</div>
+
+<div class="card">
+<h5>疑虑三 ·「和看纪录片、听讲座有什么区别？」</h5>
+<p>区别在动词。纪录片替你「看」，讲座替你「听」，工坊要你「做」：亲手排叠压次序（错一层，钥匙断一根）、亲手配 0.2% 的浓度（差一档，白斑爬上来）、亲手画横断面（画完 AI 来看图）。认知科学的基本结论：动手生成的记忆远深于被动接收。更重要的区别在评价——纪录片看完就是看完，工坊里每一步作答都有三档判定追着你问「你真的想明白了吗」。一句话：<strong>纪录片是导游，工坊是陪练。</strong></p>
+</div>
+
+<div class="card">
+<h5>疑虑四 ·「我不是文博专业的，跟得上吗？」</h5>
+<p>跟得上。工序说明节从「为什么必须有这道工序」讲起，不预设任何专业背景；小简随叫随到，答错不批评、只指方向；鉴赏展厅就是零门槛的博物馆。反过来，化学、材料、生物、管理背景的学习者反而会在自己熟悉的环节「降维打击」——EDTA 螯合对化学系是基本功，工时反推对管理系是练手题。这座工坊的入口很矮，天花板很高。</p>
+</div>
+
+<div class="card">
+<h5>疑虑五 ·「做到一半断了，进度会丢吗？」</h5>
+<p>不会。本地 + 云端双保险：作答草稿毫秒级存进浏览器，刷新、断电、误关都不丢；登录状态下再实时同步到云端，换台电脑接着走。评阅记录、解析、画板图、定稿——全部跟人走。工坊尊重一个事实：深度学习本来就不是一口气的事。</p>
+</div>
+
+<div class="card">
+<h5>疑虑六 ·「AI 会不会把答案直接告诉学生？」</h5>
+<p>问不出来——这不是口头承诺，是写进系统提示词的硬纪律：「先答后评」：学生没给答案之前，小简不给答案、不给要点，只反问、只提示、只指方向。参考答案更是在学生点「确认提交」定稿之后才生成。防作弊的最优解不是封嘴，是时序。</p>
+</div>
+
+<h2 class="sec" id="p-16"><span class="no">卷二 · 附四</span>三种人的入门路径</h2>
+
+<div class="grid2">
+<div class="card">
+<h5>如果你是学生</h5>
+<p>① 注册登录（邮箱即可）→ ② 从「简牍发掘」进环节一，先读工序说明，再上工作台，最后做细问 → ③ 答完点「请小简评阅」，看判定章与解析 → ④ 卡住就点右下角小简，把问题问出口 → ⑤ 一环一环解锁，六环全通，领成就卡。全程约 4～6 小时，可分多次走完——进度不丢。<strong>一个小建议：别怕错。这里错得起的，将来错不起。</strong></p>
+</div>
+<div class="card">
+<h5>如果你是老师</h5>
+<p>① 先点大厅顶部「演示」，18 个场景 12 分钟看完整个工坊 → ② 挑与你课程对口的环节（对照「学科使用矩阵」）→ ③ 按课堂方案（翻转课堂 / 实验替代 / 考核设计 / 通识快闪，四套方案见讲解逐字稿卷附录）取用 → ④ 有任何内容疑问，先查「报告数字出入备案」——我们连报告自己的出入都备了案。<strong>评阅要点如需定制，那就是你的主权领地。</strong></p>
+</div>
+<div class="card">
+<h5>如果你是研究者 / 同行</h5>
+<p>① 直接看「技术路线」卷（架构、AI 治理、仿真引擎、数据模型）→ ② 内容治理的三道纪律（出处 / 口径 / 图版）值得重点看——这是「重内容产品」的方法论沉淀 → ③ 「工程决策复盘」表收录了六个真实踩坑与修复 → ④ 欢迎交流：这套「内容—仿真—评阅」的骨架，是可以复制到其他文博场景的。<strong>敦煌、青铜、漆器——每一类文物都值得一座自己的工坊。</strong></p>
+</div>
+<div class="card">
+<h5>如果你只是路过</h5>
+<p>点「演示」看完 18 个场景，再去鉴赏展厅读一枚「许迪割米案」——三分钟，你会记住两件事：文物修复是科学；一千七百年前的长沙，有个小吏因为贪了点米，把自己写进了历史。这就够了。工坊的门一直开着，想动手，随时回来。</p>
+</div>
+</div>
+
+</section>
+<!-- ═══════════════════════ 标签三：讲解逐字稿 ═══════════════════════ -->
+<section class="tab-panel" id="panel-script">
+
+<div class="toc">
+<h4>本卷目录</h4>
+<ol>
+<li><a href="#s-0">使用说明与开场准备</a></li>
+<li><a href="#s-1">第一幕 · 开场：一口古井的故事（登录页）</a></li>
+<li><a href="#s-2">第二幕 · 两个世界（工坊大厅）</a></li>
+<li><a href="#s-3">第三幕 · 六道工序巡礼（环节页 ×6）</a></li>
+<li><a href="#s-4">第四幕 · 鉴赏展厅（简牍鉴赏页签）</a></li>
+<li><a href="#s-5">第五幕 · 小简登场（数字人助教）</a></li>
+<li><a href="#s-6">第六幕 · 五种题型逐一体验</a></li>
+<li><a href="#s-7">第七幕 · 进度可续（自动保存与云端同步）</a></li>
+<li><a href="#s-8">第八幕 · 成就卡（简册编联的结业证书）</a></li>
+<li><a href="#s-9">尾声 · 结束语</a></li>
+<li><a href="#s-10">附：不同时长的裁剪方案与现场问答预案</a></li>
+</ol>
+</div>
+
+<h2 class="sec" id="s-0"><span class="no">卷三 · 使用说明</span>这份逐字稿怎么用</h2>
+
+<p class="lead">本逐字稿配套工坊内置的「演示模式」使用——18 个场景自动播映、语音旁白同步界面操作。也可以脱离演示模式，作为课堂导学、开放日讲解、录课脚本的底稿。</p>
+
+<p><strong>总时长</strong>：完整版约 22～25 分钟（正常语速，含界面等待）。<strong>建议节奏</strong>：每幕之间停顿 1～2 秒，让观众看清画面；涉及指标跳动的场景，故意放慢，让数字「落地」。<strong>语气基调</strong>：不是推销，是导游——带着观众逛一座值得逛的工坊。</p>
+
+<div class="note"><b>开场准备清单：</b>① 提前登录一个已解锁全部环节的演示账号（或使用演示模式，它自带全解锁）；② 关闭通知、调高屏幕亮度；③ 若用内置演示模式：点开大厅顶部的「演示」按钮即可，语音与操作自动同步，您只需偶尔补充点评；④ 若手动演示：按本稿的「画面」栏操作，念「口播」栏文字。</div>
+
+<h2 class="sec" id="s-1"><span class="no">卷三 · 第一幕</span>开场：一口古井的故事</h2>
+
+<div class="scene">
+<div class="sc-no"><span class="n">01</span><span class="t">开场</span></div>
+<div class="sc-body">
+<h6>画面：登录页（演示模式下为登录页截图定格）</h6>
+<div class="visual">画面上出现登录页：纸墨色的背景，中央是工坊标题「走马楼三国吴简 · 简牍修复工坊」，下方是邮箱与密码输入框、「进入工坊」按钮。</div>
+<div class="say">
+<p>各位好。在正式开始之前，我想先讲一个故事——一口井的故事。</p>
+<p>1996年10月，长沙市中心，五一广场走马楼西侧，平和堂商厦的工地上，机器轰鸣。打地基的时候，一口古井塌出了缺口。工人们凑过去看：井里没有金银，没有青铜，只有一团一团湿黑的、说不清是什么的东西，层层叠压在一起。</p>
+<p>考古队很快赶到了。清点、揭取、整理——最后得出的数字，让所有人屏住了呼吸：<strong>简牍，超过十万枚。超过此前全国出土简牍数量的总和。</strong></p>
+<p>这是三国孙吴时期的行政文书。赋税簿、户籍册、仓廪账、司法案卷、名刺书信——一千七百年前一个基层政权的柴米油盐，原封不动地，沉睡在一口井里。</p>
+<p>但对修复人员来说，喜悦之外是一个残酷的现实：这十万枚简牍，每一枚都湿软如煮过的面条，含水率高达百分之四百七十一。任它干燥，会剧烈收缩、开裂，字迹永远消失；放进库房静置，微生物几个月内就会把竹纤维啃成黏液。</p>
+<p>从井底到书页，这批国宝要走六道工序：揭取、清洗、绑夹与核对、饱水保存、脱色、脱水。每一步的判断，直接决定一枚简牍的生死。</p>
+<p>而今天要给大家介绍的，是一座把六道工序完整搬进浏览器的「修复工坊」。在这里，每个人都能亲手把一枚简，从井底修到能被阅读。我们的身份不是观众——<strong>是修复师</strong>。</p>
+<p>好，进工坊看看。输入邮箱和密码——我们进去。</p>
+</div>
+</div>
+</div>
+
+<h2 class="sec" id="s-2"><span class="no">卷三 · 第二幕</span>两个世界：工坊大厅</h2>
+
+<div class="scene">
+<div class="sc-no"><span class="n">02</span><span class="t">大厅</span></div>
+<div class="sc-body">
+<h6>画面：工坊大厅，顶部双页签「简牍发掘 / 简牍鉴赏」，下方六张环节卡片</h6>
+<div class="visual">页签「简牍发掘」处于激活态；六张卡片纵向排列：一 揭取、二 清洗、三 绑夹与核对、四 饱水保存、五 脱色、六 脱水。第一张卡片可点击，后五张带锁定标记。</div>
+<div class="say">
+<p>登录之后，我们站在工坊大厅。看头顶——两个页签，像两扇门。</p>
+<p>左边这扇，<strong>「简牍发掘」</strong>：六道修复工序，每道一个环节，读资料、上工作台、做细问。这是「动手」的世界。</p>
+<p>右边这扇，<strong>「简牍鉴赏」</strong>：一座数字博物馆，五大板块，从形制分类到主题释读，再到五枚代表简的逐句精读。这是「动眼」的世界。</p>
+<p>先看左边。六张卡片，就是六道工序——注意看，第一张「揭取」是亮着的，后面五张都带着锁。这就是工坊的<strong>顺序解锁</strong>机制：<strong>工序即关卡</strong>。你把环节一读完，环节二才开门——修复就是这样一条链，没揭取完，谈不上清洗；没清洗完，谈不上脱色。这个「不能跳步」，本身就是学科逻辑。</p>
+<p>每张卡片上还能看到进度：「已提交几道、评阅几道」，一条进度条。学生随时知道自己在哪、走了多远。</p>
+<p>我们从第一道工序开始——点「揭取」。</p>
+</div>
+</div>
+</div>
+
+<h2 class="sec" id="s-3"><span class="no">卷三 · 第三幕</span>六道工序巡礼</h2>
+
+<div class="scene">
+<div class="sc-no"><span class="n">03</span><span class="t">环节一</span></div>
+<div class="sc-body">
+<h6>画面：环节一「揭取」页面</h6>
+<div class="visual">环节页顶部是环节名「一 · 揭取」与它的口号「唯一一道不可重来的工序」。页面分节展开：为什么必须有这个环节（含叠压关系数据）→ 上机操作 → 细问。</div>
+<div class="say">
+<p>环节一，揭取。它的口号有点吓人：<strong>「唯一一道不可重来的工序」。</strong></p>
+<p>为什么不可重来？因为井底的简牍不是散乱的，它们成坨叠压——哪坨压着哪坨，记录的是它们被放进井里的原始顺序。这层「层位关系」，是日后恢复简册编联顺序的唯一钥匙。揭取时每揭一坨都要记录叠压关系；揭乱了，钥匙就断了，永远接不回来。</p>
+<p>看屏幕上的数据：I区记录到的叠压关系——a压b、b压c、b压d、d压e，c坨自己还分三小坨。第一道细问就是给你这组记录，让你排出揭取的次序。</p>
+<p>这里有个值得说的设计：<strong>这题没有唯一正确答案。</strong>任何满足先后约束的排列都算对——因为考古证据本来就允许多解。真正的高手，是能指出「哪几对的次序从现有证据里根本判不出来」。工坊教的第一课，就是诚实面对证据的边界。</p>
+<p>往下看，「上机操作」——揭取工作台。五个简坨，横断面，清清楚楚。排次序、选工具（竹刀尖，不是金属起子——金属会在简上留下永久划伤）、定步距——报告写的是每两到三厘米停看一次。步子大了会怎样？简断在半空，这一步标着四个字：「此步不可逆」。四项指标——简体完整度、字迹可辨度、信息完整度、累计工时——随每一步落手实时跳动。</p>
+<p>在这儿犯错不花钱——但每一分代价，屏幕都替你记着账。这就是仿真的意义：<strong>在零成本的地方，学会价值连城的判断。</strong></p>
+</div>
+</div>
+</div>
+
+<div class="scene">
+<div class="sc-no"><span class="n">04</span><span class="t">环节二</span></div>
+<div class="sc-body">
+<h6>画面：环节二「清洗」页面，含工具三代演变表与工时数据</h6>
+<div class="visual">「关键数据」节里出现工时统计：竹简共73631枚、每枚40～50分钟、6道工序、每天10小时。表格里是三代清洗工具的演变。</div>
+<div class="say">
+<p>环节二，清洗——「让字迹第一次真正可见」。</p>
+<p>出土的简裹着泥壳，字迹完全看不见。清洗是文字与光的第一次重逢——但重逢之路有陷阱：竹黄面吸墨好、但耐磨强度低，你手上重一分，仅存的墨迹就淡一分。</p>
+<p>这页有张表特别值得看——清洗工具的三代演变。第一代粗排笔毛刷，快，但伤字；第二代软排笔加去污粉，温和些，但去污粉有残留；第三代定型为镊子夹脱脂棉球蘸清水。工坊的细问不是让你背这三代，而是问你：<strong>每一代解决了上一代的什么问题、又引入了什么新问题？</strong>——工程没有完美，只有权衡。</p>
+<p>再看这几个数字：竹简共73631枚，每枚清洗40到50分钟，每天工作10小时、每月22个工作日。细问请你反推：全洗完要多久？人力减半呢？算出来的单位是「年」。学生亲手算过一遍，才会真正理解文物保护为什么是以「年」计的事业。</p>
+<p>清洗工作台上，你可以亲手调运笔力度——滑杆上有报告给的安全带，出带报警、偏得越远代价越大。泥污随你的运笔一圈圈褪去、字迹一点点浮现，「拂去千年尘埃」的体感，是在幻灯片里得不到的。</p>
+</div>
+</div>
+</div>
+
+<div class="scene">
+<div class="sc-no"><span class="n">05</span><span class="t">环节三</span></div>
+<div class="sc-body">
+<h6>画面：环节三「绑夹与核对」页面，两套编号系统示意与2003年事故复盘题</h6>
+<div class="visual">细问二题干展示：2003年第三批次脱色，「不绑夹直接入槽」导致薄简漂移串槽、编号混乱。</div>
+<div class="say">
+<p>环节三，绑夹与核对——「身份不能在工序之间掉线」。这是个轻量环节，但藏着全工坊最有「侦探味」的两道题。</p>
+<p>一枚简从揭取到入库要转手十几次。它的身份——从哪个坨来、排第几——靠两套编号系统守护：揭剥号，三段式「区—坨—序」，记录出土时的空间坐标；脱色号，按批次顺序编的一到七万七千七百三十一。细问一给你几个线索：报告明确「10546以后先脱色再编号」；编号序列里还有两段空号——28051到30000、67851到70000。空号意味着什么？怎么追回一枚「身份掉线」的简的履历？这就是学生要答的。</p>
+<p>细问二是一次真实事故的复盘：2003年7月，工作人员把单根竹简不绑夹直接放进脱色槽——结果薄小的简随水流漂到别的槽里，编号一片混乱。此后全部改为单面绑夹。学生要分析成因、评估后果、设计方案。在工作台上如果你也选「不绑夹直接入槽」——2003年7月的场面当场重演，信息完整度跳水。屏幕不骂人，但跳红的数字比批评更让人长记性。</p>
+</div>
+</div>
+</div>
+
+<div class="scene">
+<div class="sc-no"><span class="n">06</span><span class="t">环节四</span></div>
+<div class="sc-body">
+<h6>画面：环节四「饱水保存」页面，四种候选药剂实验数据表</h6>
+<div class="visual">数据表列出各药剂在不同浓度下的抑菌表现；旁边是蚀斑病三种侵害形态的介绍。</div>
+<div class="say">
+<p>环节四，饱水保存——「持续时间最长、失控风险最隐性」。</p>
+<p>清洗完的简要泡进药液，以饱水状态等后续处理。这一等以月为单位，而药液里的微生物一刻不停。等你看见白斑和黏液，往往已经是软腐的前夜。</p>
+<p>这页的报告数据记录了一次真实的科研困局：新洁尔灭在0.1%浓度下压不住蚀斑病。研究人员提出四条可能原因——含水率471%的简体稀释了药剂？药剂自己分解了？细菌代谢物中和了药效？还是细菌有了抗药性？后续把浓度提到0.2%到0.3%，效果稳定有效。</p>
+<p>细问一就是这道「假设排除题」：四条假说，结合「提浓有效」这条证据，逐一排除或保留。这是生物医学研究的标准范式——假说检验——被原汁原味搬进了课堂。</p>
+<p>饱水工作台是六台里最「熬人」的一台：选药剂、配浓度、定换液周期，然后值守24个月。前9个月可能风平浪静；第10个月，如果你的浓度没压住菌——白斑和黏液会在简面上肉眼可见地长出来。要不要马上换药？换药要不要停工？每多等一个周期，风险都在复利。这台工作台教的不只是化学，是<strong>隐性问题管理</strong>——工程世界里最贵的一课。</p>
+</div>
+</div>
+</div>
+
+<div class="scene">
+<div class="sc-no"><span class="n">07</span><span class="t">环节五</span></div>
+<div class="sc-body">
+<h6>画面：环节五「脱色」页面，罗维朋测色数据表与AAS铁含量反常曲线</h6>
+<div class="visual">细问二的题干给出：处理液铁含量单调递增，竹简铁含量在低浓度反而高于对照组的「反常曲线」描述。</div>
+<div class="say">
+<p>环节五，脱色——「从『能保存』进入『能使用』」。饱水保存让简活着，脱色让简被读。</p>
+<p>标准流程精确到分钟：1%的EDTA二钠浸泡24小时，然后1%连二亚硫酸钠，保温45到50摄氏度，作用20到40分钟。为什么是这个配方、这个温度？细问一给你三种试剂的测色数据，请你判读。</p>
+<p>细问二是全工坊化学机理的天花板，我特别想给大家念一下——AAS实测铁含量：处理液里的铁随浓度升高单调递增，正常，铁被脱出来了；但竹简里的铁，在低浓度时<strong>反而比没处理的还高</strong>，到0.5%以后才开始下降。请你解释这条反常曲线。学生答出这道题的那一刻，等于把EDTA螯合、脱色机理自己推了一遍——科研的滋味，就在这里。</p>
+<p>脱色工作台上，温度计悬在画面上方，蓝色值随温度实时变化。温度掉出安全带，蓝色值停在高位不动；手滑选了硼氢化钠——几分钟后，你的简漂在了液面上。</p>
+</div>
+</div>
+</div>
+
+<div class="scene">
+<div class="sc-no"><span class="n">08</span><span class="t">环节六</span></div>
+<div class="sc-body">
+<h6>画面：环节六「脱水」页面，自然干燥收缩率数据与标准脱水流程</h6>
+<div class="visual">关键数据展示：长度收缩20.4%、宽度收缩50.6%；十六醇填充量205%；标准流程的乙醇/十六醇置换梯度表。</div>
+<div class="say">
+<p>最后一道，脱水——「不可逆程度最高的一道」。</p>
+<p>先看一个倒吸凉气的数字：自然干燥实验里，饱水竹简干燥后长度平均收缩百分之二十点四——宽度，收缩百分之五十点六。宽度缩一半，字就全毁了。所以直接晾干这条路是死的，必须「置换脱水」：先用乙醇把水换出来，再用十六醇把乙醇换出来，让填充物留在竹纤维里，替水撑住简体。报告里的数据很硬：十六醇填充量达到简牍本体重量的一百零五分之一百零三——也就是205%，填充物比竹材本体还重。这个数字不是浪费，是让简「不塌」的物理代价。</p>
+<p>细问一问各向异性：为什么长度只缩两成、宽度缩五成？答案在竹材细胞结构里——纤维纵向排列，纵向有骨架，横向没有。细问三是真实方案设计：一批混着薄简和厚刚竹简，标准流程只适用薄简——你怎么办？</p>
+<p>脱水工作台上最揪心的画面：填充不到位，屏幕上的简眼看着瘦下去，宽度收缩率冲过5%的指标红线，字跟着被压扁。「不可逆」三个字，在这一刻有了形状。</p>
+<p>六道工序走完——从井底到书页，从泥坨到文字。这，就是走马楼吴简的第二次生命。</p>
+</div>
+</div>
+</div>
+
+<h2 class="sec" id="s-4"><span class="no">卷三 · 第四幕</span>鉴赏展厅</h2>
+
+<div class="scene">
+<div class="sc-no"><span class="n">09</span><span class="t">展厅</span></div>
+<div class="sc-body">
+<h6>画面：切到「简牍鉴赏」页签，展厅首页五张板块入口卡，随后进入案例精读页</h6>
+<div class="visual">五张入口卡：壹 发现与归属、贰 形制六类展签、叁 主题八类+丘里双轨、肆 案例精读、伍—捌 术语·出版·意义·来源。镜头扫过案例四「许迪割米案」。</div>
+<div class="say">
+<p>修完了简，来读一读简上写的是什么。切到「简牍鉴赏」——一座安静的数字博物馆。这里没有解锁、没有细问、没有指标，只有五块展区和一千七百年的时光。</p>
+<p>「发现与归属」展区里，四说并列：这批简到底是谁的档案？长沙郡的？郡县混合的？还是临湘侯国的？——学界至今没有定论。这里教学生的是：历史学的答案，常常是「还没有答案」，而这正是它的魅力。</p>
+<p>「形制六类」练的是眼力：大木简、竹简、木牍、签牌封检、名刺——看形制，猜功能。「主题八类」把孙吴基层社会的全景铺开：田租、户籍、口算钱、仓廪、司法、军政。</p>
+<p>我特别想给大家看「案例精读」——五枚简，五个切口。其中案例四，许迪割米案：一场三国基层贪腐案的完整司法档案，从检举、审讯到判决——一枚简串起一部微型司法剧。还有案例一，南彊丘聂仪莂：一枚大木简上，一户人家一整年的税，白纸黑字。还有名刺——三国人的拜帖，上头的客套话，和今天如出一辙。</p>
+<p>值得一提的是图版的纪律：这里所有照片都是真实文物照，每张带署名；而发掘篇的配图是AI示意图，图题都以「示意」开头——两种图，从不冒充彼此。这座博物馆，连「诚实」都是展品。</p>
+</div>
+</div>
+</div>
+
+<h2 class="sec" id="s-5"><span class="no">卷三 · 第五幕</span>小简登场</h2>
+
+<div class="scene">
+<div class="sc-no"><span class="n">10</span><span class="t">小简</span></div>
+<div class="sc-body">
+<h6>画面：回到任一环节页，右下角小简立绘与气泡；点击立绘展开对话框，输入一个问题，答案流式输出</h6>
+<div class="visual">小简立在右下角，气泡随页面位置切换台词。点击后对话框展开，演示者输入「为什么竹黄面更容易吸墨？」，小简的回答逐字流出。</div>
+<div class="say">
+<p>现在介绍这位——它一直站在角落里，大家可能已经注意到右下角这位小家伙了。它叫<strong>小简</strong>，工坊的数字人助教。</p>
+<p>小简不吵不闹，就待在那儿。你翻到哪一节，它的表情和台词就换到哪儿：你读工序说明，它微笑；你对着数据皱眉，它也跟着思索；你完成一道细问，它眉眼弯弯替你高兴。它知道你在哪——每一次对话请求都带着你的位置信息。</p>
+<p>点它，对话框展开。可以问它任何内容相关的问题——我问一句：「为什么竹黄面更容易吸墨？」看，回答是逐字流出来的。</p>
+<p>更重要的是它背后站着的东西：<strong>三册走马楼文献的扫描知识库。</strong>检索命中时，它是看着原书页回答你的——不编数字、不造出处；报告里口径有出入的地方，它还会主动告诉你「这里学界有两种说法」。</p>
+<p>它还有个「绝活」——评阅。我们看下一幕。</p>
+</div>
+</div>
+</div>
+
+<h2 class="sec" id="s-6"><span class="no">卷三 · 第六幕</span>五种题型与智能评阅</h2>
+
+<div class="scene">
+<div class="sc-no"><span class="n">11</span><span class="t">题型</span></div>
+<div class="sc-body">
+<h6>画面：依次展示五种题型页面——排序题（拖拽入层）、判断题（逐条）、多选题、匹配题、画图题</h6>
+<div class="visual">演示模式自动点击题号按钮切换五种题型。画图题页面上，canvas 画板展示简册横断面示意。</div>
+<div class="say">
+<p>工坊一共17道细问，但作答形式不止问答一种——一共五种，每种对应一种思维方式。</p>
+<p><strong>排序题</strong>：把对象拖进层，层内并列、层间递进——考的是从约束推合法解，以及敢不敢承认「这几对判不出来」。</p>
+<p><strong>判断题</strong>：五条陈述逐条判正误，判错要写正确表述、判对要说明它意味着什么——判断从来不是终点，论证才是。</p>
+<p><strong>多选题</strong>：勾出所有可行项还要说明理由——真正的考点是「为什么其他的不行」。</p>
+<p><strong>匹配题</strong>：左边药剂、右边作用路径，连线成网。</p>
+<p>最特别是<strong>画图题</strong>：拿起画笔画横断面示意图——而「看」你这张图的，是AI。多模态模型按评阅要点判断图的完整性。画错了它会告诉你缺什么。让AI看懂你画的图——这是全工坊最未来的一道题。</p>
+</div>
+</div>
+</div>
+
+<div class="scene">
+<div class="sc-no"><span class="n">12</span><span class="t">评阅</span></div>
+<div class="sc-body">
+<h6>画面：某答题框写入答案，点击「请小简评阅」——判定章落下，解析流式输出；随后点「确认提交」，参考答案生成</h6>
+<div class="visual">答案框上方出现朱砂色判定章「部分成立」；解析逐字流出，结构为「点依据→点缺口→指方向」。</div>
+<div class="say">
+<p>现在看全工坊最核心的功能——智能评阅。</p>
+<p>我在这个答题框里写了一份答案，点下方的「请小简评阅」——看，几秒钟，一枚判定章落在答案上：「部分成立」。接着解析逐字流出，结构是固定的三段：先说我答对了什么，再说缺了什么，最后给一个能自己走下去的方向。</p>
+<p>注意——<strong>它从不端出标准答案。</strong>这是写进系统提示词的硬纪律：学生没给答案之前，不给答案、不给要点；计算题只给数字的退回重做。评阅标准本身由教师逐题编制、存在服务端，AI严格照此判定——评价的主权在老师，抵达的速度在秒级。</p>
+<p>答案可以反复改，改了旧判定自动作废，可以一遍遍请它评——直到自己真正想明白。想明白了，点「确认提交」：定稿、锁定，参考答案这才生成出来。像一个耐心的老师，永远等你先交卷。</p>
+<p>对老师这意味着什么？大班教学里最痛的「开放题没法逐份批」——这里第一次具备了全覆盖的工程条件。每个学生、每道小问、每次修改，都有秒级反馈。</p>
+</div>
+</div>
+</div>
+
+<h2 class="sec" id="s-7"><span class="no">卷三 · 第七幕</span>进度可续</h2>
+
+<div class="scene">
+<div class="sc-no"><span class="n">13</span><span class="t">进度</span></div>
+<div class="sc-body">
+<h6>画面：演示刷新页面，回到工坊——所有草稿、判定、进度原样恢复</h6>
+<div class="visual">页面刷新后，之前填写的答案、评阅判定章全部还在；大厅卡片进度条与离开时一致。</div>
+<div class="say">
+<p>刚才我刷新了页面——大家看到了什么？<strong>什么都没丢。</strong></p>
+<p>答案草稿、评阅判定、解析正文、画板上的图、提交定稿、参考答案——全部自动保存。本地一份、云端一份：本地保存在浏览器里，颗粒度精细到单题；登录状态下实时同步到云端数据库。换台电脑、换个浏览器，进度跟着账号走。</p>
+<p>为什么这么设计？因为六环节17道细问是一个长周期任务，没人能一口气做完。学生可能今晚排完叠压次序，明天再回来调药剂浓度。学习需要节奏，产品就得尊重节奏——<strong>什么时候回来，都接着上次的进度继续。</strong></p>
+<p>每张环节卡片还能一键「重置本环节」——尊重学生推翻重来的权利。</p>
+</div>
+</div>
+</div>
+
+<h2 class="sec" id="s-8"><span class="no">卷三 · 第八幕</span>成就卡</h2>
+
+<div class="scene">
+<div class="sc-no"><span class="n">14</span><span class="t">成就</span></div>
+<div class="sc-body">
+<h6>画面：成就页——简册编联意象的结业证书特写</h6>
+<div class="visual">朱砂印章竖排钤于右上角；六枚竹简横排、竹青编绳贯穿；四格评阅统计；落款「竹简一千枚，皆经手过眼」。</div>
+<div class="say">
+<p>当六道工序、十七道细问全部完成——工坊为学生准备了一场小小的仪式。</p>
+<p>署上名字，成就卡解锁。看这张卡的设计：右上角，一枚朱砂印章竖排钤着；中间，六枚竹简横排铺开，一根竹青色的编绳线把它们串成一册——六道工序，环环相扣；四格统计记录着一路的评阅判定分布；落款一行小字：「竹简一千枚，皆经手过眼」。可以下载成图，留存、分享。</p>
+<p>这张卡的意象来自简册编联——古人用编绳把一枚枚简串成册。学生在这座工坊里，也是把自己一步一步的努力，串成了册。</p>
+</div>
+</div>
+</div>
+
+<h2 class="sec" id="s-9"><span class="no">卷三 · 尾声</span>结束语</h2>
+
+<div class="scene">
+<div class="sc-no"><span class="n">15</span><span class="t">结尾</span></div>
+<div class="sc-body">
+<h6>画面：演示模式结尾定格，或手动回到登录页封面</h6>
+<div class="visual">画面定格，演示模式退出。</div>
+<div class="say">
+<p>最后，回到我们开场的那口井。</p>
+<p>1996年，前辈们把十万枚简牍从井底取了出来；之后的许多年，修复师们用竹刀、棉球、药剂和恒温槽，让它们重新可读、可存、可研究。今天，这座工坊把这条完整的路，搬到了每个人的浏览器里。</p>
+<p>在这里，学生可以犯错——在零成本的地方，学会价值连城的判断；学生必须思考——因为没有人会把结论递到嘴边；学生永远有回响——小简在，报告在，每一次落手的后果都在。</p>
+<p>而这一切指向的，不只是修复技术的传承。当一枚简上的字迹因为学生的正确判断而清晰了一分，那枚简承载的一千七百年前的世界，就向今天多打开了一扇窗。</p>
+<p><strong>这条路的价值，正在于每一步都是你自己走的。</strong></p>
+<p>我的介绍就到这里。工坊的大门随时敞开——欢迎大家亲自进来，唤醒属于你的那枚简。谢谢大家。</p>
+</div>
+</div>
+</div>
+
+<h2 class="sec" id="s-10"><span class="no">卷三 · 附录</span>裁剪方案与现场问答预案</h2>
+
+<h3 class="sub"><span class="tag">A</span>三种时长的裁剪方案</h3>
+<table>
+<tr><th>时长</th><th>保留幕次</th><th>说明</th></tr>
+<tr><td><strong>5 分钟（电梯版）</strong></td><td>开场（压缩到1分钟）→ 大厅 → 环节一（只演示叠压排序与断简）→ 评阅演示 → 结尾</td><td>核心冲击点是「亲手弄断一枚简」与「AI秒评」，其余环节口头带过</td></tr>
+<tr><td><strong>12 分钟（课堂导学版）</strong></td><td>完整开场 → 大厅 → 环节一 + 环节四（两台代表性工作台）→ 小简 → 评阅 → 进度 → 结尾</td><td>跳过展厅与题型逐一展示，用一句话带过「另有鉴赏展厅与五种题型」</td></tr>
+<tr><td><strong>25 分钟（完整版）</strong></td><td>全部幕次</td><td>即本稿完整结构，适合公开课、成果汇报、录课</td></tr>
+</table>
+
+<h3 class="sub"><span class="tag">B</span>现场高频问答预案</h3>
+
+<div class="card">
+<h5>Q1 · 「这些题目和答案，是AI编的吗？」</h5>
+<p>A：不是。全部17道细问从《长沙走马楼三国吴简的保护与整理》的原始数据反向设计；评阅要点由教师逐题编制、存储在服务端，AI只负责依据要点判定与表述解析。报告不同章节口径有出入的六处，工坊在大厅「报告内部数字出入备案」里逐条列明——较真到这个程度，就是为了内容的可信。</p>
+</div>
+<div class="card">
+<h5>Q2 · 「AI评阅会不会评错？」</h5>
+<p>A：会「不完美」，但设计上控制了它的危害边界。判定是三档制而非打分制，天然降低误判的表面冲击；解析结构固定为「点依据—点缺口—指方向」，即使判定有偏差，学生仍能从解析里获得可自查的信息；而且评阅可以反复触发、答案可修改——它更接近一位「随时在场的助教」，而非「终审法官」。教师主权在评阅要点，随时可以修订。</p>
+</div>
+<div class="card">
+<h5>Q3 · 「仿真里的失败后果是真实的吗？」</h5>
+<p>A：工具、参数区间、失败机制全部出自报告——比如45～50℃的脱色温度、2～3厘米的揭取步距、2003年漂移串槽事故，都是真实记载。唯一的「教学设定」是指标扣分幅度，起始屏和结算页都写明了这一点。我们不把教学权重伪装成报告数据。</p>
+</div>
+<div class="card">
+<h5>Q4 · 「学生直接问AI要答案怎么办？」</h5>
+<p>A：问不出来。这是写进系统提示词的硬纪律——「先答后评」：学习者没给答案之前，不给答案、不给要点。AI会被引导反问、给提示、给方向，但不会代答。参考答案只有在学生点「确认提交」定稿之后才生成。防作弊的最好办法不是封锁，是时序设计。</p>
+</div>
+<div class="card">
+<h5>Q5 · 「适合什么课程用？」</h5>
+<p>A：文博与文物保护类课程是直接对口；考古学、历史文献学可用鉴赏篇与编号系统、卷圈复原等内容；材料化学可用脱色、脱水两环节（螯合反应、置换、各向异性）；甚至工程管理课程也能用工时反推、隐性风险管理的内容。六环节是一个「素材富矿」，各学科各取所需。</p>
+</div>
+<div class="card">
+<h5>Q6 · 「需要什么设备与环境？」</h5>
+<p>A：一台能跑现代浏览器的设备即可，桌面端体验最佳（画板题、排序题在触屏上也可用，移动端深度适配在迭代计划中）。注册一个邮箱账号，进度就跟着账号走。无需安装任何插件。</p>
+</div>
+<h2 class="sec" id="s-11"><span class="no">卷三 · 附二</span>演示模式 18 场景清单</h2>
+
+<p class="lead">内置演示模式的完整场景表——旁白与界面动作逐帧同步，供手动演示时对照操作。</p>
+
+<table>
+<tr><th>#</th><th>场景</th><th>画面</th><th>旁白要点</th></tr>
+<tr><td>01</td><td>开场</td><td>登录页（截图定格）</td><td>1996 年 J22 古井的发现；十万枚简牍；含水率 471%</td></tr>
+<tr><td>02</td><td>两个世界</td><td>工坊大厅 · 双页签</td><td>发掘（动手）/ 鉴赏（动眼）双世界结构</td></tr>
+<tr><td>03</td><td>环节一 · 揭取</td><td>stage/1 首页</td><td>不可重来的工序；叠压关系是编联的钥匙</td></tr>
+<tr><td>04</td><td>环节二 · 清洗</td><td>stage/2 首页</td><td>三代工具演变；73631 枚 × 40～50 分钟的工时</td></tr>
+<tr><td>05</td><td>环节三 · 绑夹核对</td><td>stage/3 首页</td><td>两套编号系统；2003 年漂移串槽事故</td></tr>
+<tr><td>06</td><td>环节四 · 饱水保存</td><td>stage/4 首页</td><td>与微生物对坐 24 个月；新洁尔灭浓度困局</td></tr>
+<tr><td>07</td><td>环节五 · 脱色</td><td>stage/5 首页</td><td>从「能保存」到「能使用」；45～50℃ 温度带</td></tr>
+<tr><td>08</td><td>环节六 · 脱水</td><td>stage/6 首页</td><td>宽度收缩 50.6% 的死刑；十六醇 205% 填充</td></tr>
+<tr><td>09</td><td>鉴赏展厅</td><td>鉴赏页签 · 五板块</td><td>四说并存；五枚代表简；许迪割米案</td></tr>
+<tr><td>10</td><td>小简登场</td><td>环节页 · 右下角</td><td>数字人助教；位置感知；知识库 RAG</td></tr>
+<tr><td>11</td><td>题型 · 排序</td><td>排序题页面</td><td>拖拽入层；合法解不唯一</td></tr>
+<tr><td>12</td><td>题型 · 判断</td><td>判断题页面</td><td>五条陈述逐条对决</td></tr>
+<tr><td>13</td><td>题型 · 多选</td><td>多选题页面</td><td>论证排除法</td></tr>
+<tr><td>14</td><td>题型 · 匹配</td><td>匹配题页面</td><td>连线成网</td></tr>
+<tr><td>15</td><td>题型 · 画图</td><td>画板题页面</td><td>AI 看图评阅——最未来的一道题</td></tr>
+<tr><td>16</td><td>智能评阅</td><td>答题框 + 判定章</td><td>三档判定；先答后评；反复评阅</td></tr>
+<tr><td>17</td><td>进度可续 + 成就卡</td><td>刷新恢复 / 成就页</td><td>本地 + 云端双保存；简册编联证书</td></tr>
+<tr><td>18</td><td>结尾</td><td>定格</td><td>「每一步都是你自己走的」</td></tr>
+</table>
+
+<h2 class="sec" id="s-12"><span class="no">卷三 · 附三</span>课堂使用方案建议</h2>
+
+<h3 class="sub"><span class="tag">方案A</span>翻转课堂（4 学时单元）</h3>
+<div class="card">
+<p><strong>课前（约 90 分钟自主）</strong>：学生完成环节一、二（揭取 + 清洗）的工序说明与细问，小简评阅自动反馈；教师后台查看判定分布（当前由评阅统计支撑）。<br>
+<strong>课中（2 学时）</strong>：①演示模式开场 5 分钟回顾；②聚焦两道高频卡点细问（叠压排序、工时反推）小组讨论 + 代表汇报；③环节三事故复盘做课堂辩论（「如果你是当班修复师」）。<br>
+<strong>课后（2 学时）</strong>：完成环节四～六 + 鉴赏展厅自读；生成成就卡提交。</p>
+</div>
+
+<h3 class="sub"><span class="tag">方案B</span>实验课替代 / 补充（6 学时）</h3>
+<div class="card">
+<p>真实简牍无法进本科实验课——仿真工作台即实验。六台工作台按工序顺序上机，每台配对应细问作「实验报告」；教师在环节间穿插原理讲解（螯合、置换、各向异性）。画图题（2-3a）作为「作图实验」单独评分。</p>
+</div>
+
+<h3 class="sub"><span class="tag">方案C</span>考核设计（与评阅系统对接）</h3>
+<div class="card">
+<p><strong>过程性评价（建议 60%）</strong>：17 道细问的评阅判定（成立/部分成立/不成立/待判定）+ 修改历程（反复评阅的迭代轨迹本 身就是学习投入的证据）。<br>
+<strong>终结性评价（建议 40%）</strong>：成就卡四格判定分布 + 一道开放论述（如「从许迪割米案看孙吴基层治理」或「如果只允许保留一道工序的档案，你保留哪道？为什么？」——后者考察对修复链整体的理解）。<br>
+<strong>学术诚信提示</strong>：先答后评机制天然留痕（评阅时间早于定稿时间的记录可查），比事后查重更前置。</p>
+</div>
+
+<h3 class="sub"><span class="tag">方案D</span>大班通识课（1 学时快闪）</h3>
+<div class="card">
+<p>演示模式 12 分钟版（见附录 A 裁剪方案）+ 学生扫码自试环节一仿真（10 分钟）+ 问答（10 分钟）。目标只有一个：让学生记住「文物修复是科学，不是手艺玄学」。</p>
+</div>
+
+</section>
+<!-- ═══════════════════════ 标签四：技术路线 ═══════════════════════ -->
+<section class="tab-panel" id="panel-tech">
+
+<div class="toc">
+<h4>本卷目录</h4>
+<ol>
+<li><a href="#t-1">总体架构：三层六块</a></li>
+<li><a href="#t-2">技术选型与选型理由</a></li>
+<li><a href="#t-3">目录结构全景</a></li>
+<li><a href="#t-4">内容层设计：单一事实源</a></li>
+<li><a href="#t-5">AI 能力矩阵：评阅、问答与幻觉治理</a></li>
+<li><a href="#t-6">仿真引擎：确定性过程模拟</a></li>
+<li><a href="#t-7">前端体验工程：字体、动效与演示模式</a></li>
+<li><a href="#t-8">数据与状态：三层数据架构</a></li>
+<li><a href="#t-9">质量保障与安全边界</a></li>
+<li><a href="#t-10">部署架构与交付形态</a></li>
+<li><a href="#t-11">演进路线图</a></li>
+</ol>
+</div>
+
+<h2 class="sec" id="t-1"><span class="no">卷四 · 第一章</span>总体架构：三层六块</h2>
+
+<p class="lead">一句话概括架构：<strong>「内容—引擎—体验」三层，与贯穿其中的六大功能块</strong>。全部服务收口于一个自托管 Node 进程，对外只暴露一个端口。</p>
+
+<pre class="arch">
+┌────────────────────────────────────────────────────────────────────┐
+│                          用户浏览器                                │
+│  Next.js App Router UI（React 19 · Server Components + Client）    │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ │
+│  │ 环节页    │ │ 仿真工作台│ │ 细问作答  │ │ 鉴赏展厅  │ │ 成就/演示 │ │
+│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └──────────┘ └──────────┘ │
+│       └────────────┴─────┬──────┴──────────────┬─────────────────┘ │
+│                    zustand（本地状态 + persist）│ fetch /api/*      │
+└─────────────────────────┼──────────────────────┼───────────────────┘
+                          │                      │
+┌─────────────────────────▼──────────────────────▼───────────────────┐
+│              自托管服务进程（Express + Next Handler）               │
+│  ┌───────────────┐  ┌───────────────┐  ┌────────────────────────┐  │
+│  │ /api/guide    │  │ /api/tts      │  │ /api/supabase-config   │  │
+│  │ 小简问答+评阅  │  │ 语音合成代理   │  │ 云端配置下发            │  │
+│  └──────┬────────┘  └──────┬────────┘  └───────────┬────────────┘  │
+│         │                  │                       │               │
+│  ┌──────▼──────────────────▼───────────────────────▼────────────┐  │
+│  │                 外部能力（服务端调用，密钥不落前端）           │  │
+│  │   豆包大模型（chat / 多模态 / TTS）    Supabase（数据库）     │  │
+│  │   RAG 知识库（三册走马楼文献扫描件）                            │  │
+│  └───────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────┘
+</pre>
+
+<h4 class="minor">六大功能块</h4>
+<ul class="dash">
+<li><strong>内容块</strong>：六环节内容 + 展厅内容 + 评阅要点，TS 常量单一事实源；</li>
+<li><strong>仿真块</strong>：六台工作台共享一个确定性仿真引擎（sim.ts）；</li>
+<li><strong>AI 块</strong>：小简问答（RAG）、智能评阅（rubric 驱动）、多模态画图题评阅、TTS；</li>
+<li><strong>状态块</strong>：zustand + persist（localStorage）+ Supabase 云端同步；</li>
+<li><strong>体验块</strong>：纸墨设计系统、字体子集化、动效系统、演示模式；</li>
+<li><strong>支撑块</strong>：Express 自托管、脚本化构建部署、环境变量管理。</li>
+</ul>
+
+<h4 class="minor">关键架构决策及其理由</h4>
+<table>
+<tr><th>决策</th><th>备选方案</th><th>取舍理由</th></tr>
+<tr><td>自定义 server.ts（Express 包 Next handler）而非 Vercel 托管</td><td>纯 Vercel / 纯静态导出</td><td>AI 密钥必须在服务端发起调用；流式接口与自定义路由需要进程级控制权；部署环境为单容器单端口</td></tr>
+<tr><td>API 路由仅三个，其余全部静态/客户端</td><td>更多服务端渲染</td><td>内容型应用读多写少，静态化让页面加载近乎瞬时；AI 与数据库走唯一入口，攻击面最小</td></tr>
+<tr><td>仿真引擎为纯前端确定性计算</td><td>服务端仿真</td><td>零延迟交互、可无限重试、离线可用；确定性保证同操作同结果，评阅可信</td></tr>
+<tr><td>zustand 而非 Redux/Context</td><td>全家桶状态库</td><td>体量小、persist 中间件原生覆盖 localStorage 需求，与「进度可续」需求精确对齐</td></tr>
+</table>
+
+<h2 class="sec" id="t-2"><span class="no">卷四 · 第二章</span>技术选型与选型理由</h2>
+
+<table>
+<tr><th>层</th><th>选型</th><th>版本</th><th>为什么是它</th></tr>
+<tr><td>框架</td><td>Next.js（App Router）</td><td>16</td><td>SSR 首屏 + 静态导出 + API Routes 三合一；App Router 的布局嵌套天然匹配「大厅→环节→节」三级页面结构</td></tr>
+<tr><td>UI 库</td><td>React</td><td>19</td><td>并发特性成熟；Client Components 承担全部交互逻辑</td></tr>
+<tr><td>语言</td><td>TypeScript</td><td>5.x</td><td>内容层是 17 题结构的强约束领域模型，类型即文档</td></tr>
+<tr><td>样式</td><td>Tailwind CSS</td><td>4</td><td>设计令牌（色板/字号/间距）集中在 CSS 变量层，纸墨主题一处定义全局生效；无运行时开销</td></tr>
+<tr><td>服务</td><td>Express + tsx</td><td>4.x</td><td>自定义 server.ts 包装 Next handler；tsx 支持开发态直接跑 TS，生产用 tsup 打包单文件</td></tr>
+<tr><td>状态</td><td>zustand + persist</td><td>5.x</td><td>单 store 分片；persist 到 localStorage，颗粒度精细到单题作答</td></tr>
+<tr><td>数据库</td><td>Supabase（PostgreSQL）</td><td>托管</td><td>免自建；RLS 行级安全贴合「学生只读写自己数据」的场景；SDK 成熟</td></tr>
+<tr><td>大模型</td><td>豆包（Doubao）系列</td><td>—</td><td>中文语料与指令跟随质量高；chat / 多模态 / TTS 一个家族全覆盖，密钥体系统一</td></tr>
+<tr><td>构建</td><td>tsup</td><td>8.x</td><td>零配置打包 server.ts 为单文件 dist/server.js，部署产物简单</td></tr>
+<tr><td>包管理</td><td>pnpm</td><td>9.x</td><td>快、省磁盘、workspace 支持好</td></tr>
+</table>
+
+<h2 class="sec" id="t-3"><span class="no">卷四 · 第三章</span>目录结构全景</h2>
+
+<pre class="tree">
+projects/
+├── server.ts                    # Express 自托管入口（包 Next handler）
+├── .coze / .preview             # 平台部署与预览声明
+├── public/
+│   ├── fonts/                   # 子集化 woff2（思源宋体，?v 破缓存）
+│   ├── exhibition/              # 展厅真实文物照（带署名）
+│   └── demo-login.png           # 演示模式登录页截图
+├── scripts/
+│   ├── build.sh / start.sh      # 部署构建与启动脚本
+│   └── subset-font.sh           # 字体子集化（pyftsubset）
+└── src/
+    ├── app/                     # App Router 路由树
+    │   ├── page.tsx             # 工坊大厅（双页签 + 六卡 + 进度）
+    │   ├── login/               # 登录（AuthShell 邮箱+验证码）
+    │   ├── stage/[id]/          # 环节页（动态路由 ×6）
+    │   │   └── StageContent.tsx # 环节渲染核心（解锁/分节/细问/评阅）
+    │   ├── achievement/         # 成就卡（canvas 导出 PNG）
+    │   └── api/
+    │       ├── guide/route.ts   # 小简问答 + 评阅（SSE 流式）
+    │       ├── tts/route.ts     # 语音合成代理
+    │       └── supabase-config/ # 云端配置下发
+    ├── components/workshop/
+    │   ├── DemoMode.tsx         # 演示模式（18场景 + 定时动作引擎）
+    │   ├── SimStageView.tsx     # 仿真工作台渲染层（六台共用）
+    │   ├── StageSim.tsx         # 工作台交互编排
+    │   ├── GuideChat.tsx        # 小简对话框
+    │   ├── GuideAvatar.tsx      # 数字人立绘（四表情）
+    │   ├── QuestionWizard.tsx   # 细问作答向导
+    │   ├── AuthShell.tsx        # 登录壳
+    │   └── AuthProvider.tsx     # 会话上下文
+    ├── lib/workshop/
+    │   ├── content.ts           # ★ 六环节内容 + 17 题结构化定义
+    │   ├── rubrics.ts           # ★ 评阅要点（教师主权数据）
+    │   ├── sim.ts               # ★ 仿真引擎（六工序确定性模拟）
+    │   ├── exhibition.ts        # 展厅内容（五板块 + 图版）
+    │   ├── scenes.ts            # 演示模式场景脚本
+    │   ├── stages.ts            # 工序静态定义
+    │   └── storage/             # 持久化适配（本地/云端双写）
+    ├── storage/database/        # Supabase 客户端与数据表访问层
+    └── styles/globals.css       # 纸墨设计令牌 + 动效 keyframes
+</pre>
+
+<h4 class="minor">三个带 ★ 的文件是本工坊的「心脏」</h4>
+<p><code>content.ts</code>（内容）、<code>rubrics.ts</code>（评阅）、<code>sim.ts</code>（仿真）合计约四千行——它们是纯 TS 模块，无 UI 耦合、可独立测试。UI 层只是它们的「渲染器」。这种<strong>内容与呈现彻底分离</strong>的结构，是内容型产品可长期维护的前提。</p>
+
+<h2 class="sec" id="t-4"><span class="no">卷四 · 第四章</span>内容层设计：单一事实源</h2>
+
+<h3 class="sub"><span class="tag">4.1</span>结构化内容模型</h3>
+<p>六环节内容全部收敛在 <code>content.ts</code> 的类型化常量里。每个环节 = 元信息 + 三~五个「节」（section）；每个细问 = 题干 + 作答形式（5 种题型）+ 协议文本生成器 + 评阅要点引用。举一道排序题的结构为例：</p>
+
+<pre class="code">{
+  id: "1-q1",
+  kind: "ordering",              // 排序题
+  section: "细问",                // 归属节
+  stem: "依据 I 区叠压关系，给出揭取次序……",
+  items: ["a","b","c","d","e"],   // 可拖对象
+  constraints: ["a→b","b→c","b→d","d→e","c①→c②","c②→c③"],
+  serialize: (result) => `排序：${result.layers.map(l => l.join("、")).join(" → ")}`,
+  rubricId: "1-q1"               // 指向 rubrics.ts
+}</pre>
+
+<p>关键设计：<strong>所有作答最终序列化为纯文本协议</strong>（「排序：a → b、c → d」/「多选：A、C」/「匹配：A→②」/「作图：[base64 PNG]」）。文本、排序、选择、多选、匹配五类作答在存储、评阅、问小简三条通道里<strong>形态完全一致</strong>——下游系统无需为题型写特判。画板题的 base64 图片单独走多模态通道，但判定回填同一 schema。</p>
+
+<h3 class="sub"><span class="tag">4.2</span>内容纪律：三道防线</h3>
+<ul class="dash">
+<li><strong>出处纪律</strong>：关键数据节标注报告章节号；展厅释文逐段转录并声明「转引」来源；六处报告内部数字出入在大厅设「备案」页逐条列明，不私改原文；</li>
+<li><strong>口径纪律</strong>：内容「是什么就是什么」——不简化、不夸张、不为了「教学友好」牺牲准确性；仿真里唯一的教学设定（指标扣分权重）在起始屏与结算页双声明；</li>
+<li><strong>图版纪律</strong>：真实文物照（带 credit 字段）与 AI 示意图（图题以「示意」开头）严格分野，绝不同页混用。</li>
+</ul>
+
+<h2 class="sec" id="t-5"><span class="no">卷四 · 第五章</span>AI 能力矩阵：评阅、问答与幻觉治理</h2>
+
+<h3 class="sub"><span class="tag">5.1</span>小简问答链路（RAG）</h3>
+
+<pre class="arch">
+用户提问（含位置信息：环节/节/题号）
+   │
+   ▼
+/api/guide ──► 构造系统提示词（角色 + 先答后评纪律 + 作答协议说明）
+   │              + 学生当前作答（若有）+ 位置上下文
+   ├──► RAG 检索：三册走马楼文献扫描件 → 命中段落
+   ▼
+豆包 chat（流式）──SSE──► 前端逐字渲染
+   │
+   └─ 检索未命中时：明确声明「知识库未覆盖」，不编造
+</pre>
+
+<p><strong>检索增强（RAG）</strong>是小简可信度的地基：它回答内容问题时「看着原书页说话」。知识库收录三册文献（《长沙走马楼吴简的保护与整理》《吴简·卷》《资料汇编》）的扫描件，检索命中段落作为上下文注入提示词。系统提示词中写死了几条硬纪律：不得编造数字与出处；报告口径有出入时主动声明两说；学习者未提交作答前，不得给出答案或答案要点——只允许反问、提示、指方向。</p>
+
+<h3 class="sub"><span class="tag">5.2</span>智能评阅链路（rubric 驱动）</h3>
+
+<pre class="arch">
+学生点击「请小简评阅」
+   │
+   ▼
+/api/guide（mode: grade）
+   │  输入：题号 + 学生作答（文本协议 / base64 图）
+   │        + 该题 rubric（评阅要点，服务端取出，前端不可见）
+   ▼
+模型按 rubric 逐要点比对学生作答
+   │
+   ▼
+结构化输出（JSON）：
+   { verdict: 成立 | 部分成立 | 不成立,
+     analysis: { 对在哪 / 缺了什么 / 方向建议 } }
+   │
+   ▼
+前端落判定章 + 解析流式渲染
+   ▼
+判定与解析写入本地 + 云端；答案修改后判定自动作废
+</pre>
+
+<p>三条设计原则：<strong>教师主权</strong>——rubrics 由教师逐题编制、存服务端，AI 只是判定引擎，教师改 rubric 即改评阅标准；<strong>三档判定而非打分</strong>——降低模型误判的表面冲击，「部分成立」反而是最有教学价值的一档（它明确告诉学生：你已经对了多少）；<strong>可反复</strong>——评阅不限次数、旧判定自动作废，把「评阅」从终审变成对话。</p>
+
+<p>多模态画图题（2-q3a）复用同一链路：图片 base64 与题干一起送多模态模型，rubric 描述「合格的横断面示意图应包含什么」（编绳位置、简片排列曲率、向心方向），模型看图逐要点判定。作图类开放题的自动评阅由此第一次成为可能。</p>
+
+<h3 class="sub"><span class="tag">5.3</span>幻觉治理矩阵</h3>
+<table>
+<tr><th>风险</th><th>治理手段</th><th>兜底</th></tr>
+<tr><td>编造数字/出处</td><td>RAG 检索命中才答；系统提示词明令禁止编造</td><td>未命中时明示「知识库未覆盖」</td></tr>
+<tr><td>泄答案</td><td>「先答后评」纪律写死在提示词；答案未提交前只给方向</td><td>参考答案只在定稿后生成（时序级防泄）</td></tr>
+<tr><td>评阅误判</td><td>rubric 约束 + 三档判定 + 解析固定结构（可自查）</td><td>可反复评阅；教师可修订 rubric</td></tr>
+<tr><td>计算题蒙混</td><td>提示词要求先列算式再给结果</td><td>纯数字无算式的作答退回重做</td></tr>
+<tr><td>偏离工坊话题</td><td>角色提示词限定范围</td><td>礼貌拒答并引导回内容</td></tr>
+</table>
+
+<h3 class="sub"><span class="tag">5.4</span>TTS 语音链路</h3>
+<p><code>/api/tts</code> 接收演示模式的旁白文本，服务端调用豆包 TTS（儒雅男声 <code>zh_male_ruyayichen_saturn_bigtts</code>，语速 -10），返回音频 URL。演示模式按「旁白播完 → 界面动作执行 → 下一幕」的顺序编排；TTS 不可用时自动降级为按文本长度估算的静默定时——<strong>语音是增强，不是依赖</strong>。</p>
+
+<h2 class="sec" id="t-6"><span class="no">卷四 · 第六章</span>仿真引擎：确定性过程模拟</h2>
+
+<h3 class="sub"><span class="tag">6.1</span>引擎与渲染分离</h3>
+<p><code>sim.ts</code> 是六台工作台共享的纯计算引擎：定义每台工作台的「工步序列—参数空间—状态方程—结算函数」。它不 import 任何 React 模块；<code>SimStageView</code> 只是它的渲染器。这个分离带来三个直接收益：同操作永远同结果（评阅有据）；引擎可单测（十七组断言覆盖核心工步）；新工序接入只需写配置与状态方程，不碰渲染。</p>
+
+<h3 class="sub"><span class="tag">6.2</span>确定性模拟的构造</h3>
+<p>每台工作台的建模套路一致：<strong>「报告数据 → 参数安全带 → 越带惩罚函数 → 事故触发器」</strong>。以脱色台为例：</p>
+
+<pre class="code">// 温度对罗维朋蓝色值的影响（示意）
+blueValue(temp) = temp in [45,50] ? targetBlue
+                : targetBlue + deviation(temp) * penalty   // 越带变浅变慢
+
+// 药剂错误的事故触发器
+if (reagent === "borohydride") state.floating = true      // 简体上浮
+
+// 结算函数：四指标加权（权重声明为教学设定）
+settle(state) => { integrity, legibility, info, hours }</pre>
+
+<p>六台工作台的关键机制全部锚定报告事实：揭取的 2～3 厘米步距与「此步不可逆」、竹刀/金属刀的划伤差异、清洗力度安全带、饱水的逐月值守与微生物滞后显现（第 10 个月才发作的白斑，教「隐性风险」）、脱色的 45～50℃ 温度带与 20～40 分钟保温、脱水的填充率与宽度收缩率联动。工步动效（一次性播放、状态量平滑过渡）在渲染层用 CSS transition 实现，不参与状态计算。</p>
+
+<h3 class="sub"><span class="tag">6.3</span>仿真与细问的分工纪律</h3>
+<p>明确一条边界：<strong>仿真管「手」，细问管「脑」。</strong>工作台训练操作判断（参数、时机、代价感知），细问训练原理推理（为什么、依据、机理）——两者内容不重复，仿真不泄露细问答案（比如细问要你论证「为什么 0.1% 压不住菌」，仿真只让你体验「0.1% 真的压不住」，机理层留给细问）。这条分工纪律在第二轮迭代中专门做过一次重构清理，删掉了两处重复与一处泄答。</p>
+
+<h2 class="sec" id="t-7"><span class="no">卷四 · 第七章</span>前端体验工程：字体、动效与演示模式</h2>
+
+<h3 class="sub"><span class="tag">7.1</span>字体子集化管线</h3>
+<p>纸墨主题对中文字体的要求是「宋体骨架 + 仿古笔意」，选型思源宋体（Noto Serif SC）。但全量字体 8MB+，对网页不可接受。管线：<code>pyftsubset</code> 按项目全文字符集（含备选字符表）生成 woff2 子集（Regular/SemiBold 两字重），构建脚本内置、可重复执行。两次踩坑记录：<strong>缺字</strong>——新增「赏」字后未重跑子集，渲染回退导致字形错位，修复为脚本内置全字符扫描；<strong>缓存</strong>——子集更新后浏览器仍用旧缓存，加 <code>?v=N</code> 版本参数破除。教训沉淀：字体子集必须进构建管线，而非手工维护。</p>
+
+<h3 class="sub"><span class="tag">7.2</span>动效系统</h3>
+<p>动效遵守「一次性播放 + 状态量平滑过渡」两分法：工步动作（如简入槽、药剂注入）是离散的一次性 keyframes（约 200 行 CSS）；连续状态量（泥污覆盖率、蓝色值、收缩率）用 CSS transition 平滑插值，让数值变化「有物理感」。全部动效尊重 <code>prefers-reduced-motion</code>。</p>
+
+<h3 class="sub"><span class="tag">7.3</span>演示模式：一套小型编排引擎</h3>
+<p><code>DemoMode.tsx</code> 实现了场景（scene）驱动的自动演示：</p>
+
+<ul class="dash">
+<li><strong>场景脚本</strong>（scenes.ts）：18 个场景 = 标题 + 旁白文本 + 目标路由（或图片）+ 动作序列；动作类型：scroll / scrollTo / click / highlight（data-demo 属性或 rect 坐标定位）；</li>
+<li><strong>编排引擎</strong>：场景切换 → 路由导航（useEffect 监听，绝不在 setState updater 内做导航——React 渲染安全的教训）→ TTS oncanplay 后执行动作序列（waitForElement 等待元素渲染）→ onended 进下一幕；TTS 失败降级为按文本长度估算时长；</li>
+<li><strong>环境标志</strong>：<code>window.__DEMO_MODE__</code> 全局标志让已登录的演示账号可停在登录页（阻止自动重定向）、让环节页全展开、让细问全部可进入——演示环境与学习环境互不污染；</li>
+<li><strong>控制面板</strong>：底部统一控制栏（进度条 + 字幕 + 上/播/下/退出），body 加 320px 底部 padding 防遮挡。</li>
+</ul>
+
+<h2 class="sec" id="t-8"><span class="no">卷四 · 第八章</span>数据与状态：三层数据架构</h2>
+
+<pre class="arch">
+第1层 内容静态数据   content.ts / exhibition.ts / sim.ts        （随代码发布，版本化）
+第2层 本地作答数据   zustand persist → localStorage            （毫秒级，离线可用）
+第3层 云端作答数据   Supabase PostgreSQL                       （跨设备，登录态）
+</pre>
+
+<ul class="dash">
+<li><strong>双写与防抖</strong>：作答写入第 2 层即时生效；登录状态下 2 秒防抖推送第 3 层，退出登录强制同步一次；</li>
+<li><strong>读序</strong>：进入页面先读第 2 层（即时渲染），云端数据到达后按「较新者胜」合并——保证换设备续接时本地未同步的最后几秒也不丢；</li>
+<li><strong>安全</strong>：Supabase RLS 行级安全，学生只能读写自己 user_id 的行；anon key 只配前端安全权限；服务端数据（rubrics、guide 提示词）不下发；</li>
+<li><strong>进度判定</strong>：顺序解锁（isStageUnlocked 单一实现）、环节完成（最后一题作答非空即自动标记）、评阅统计（verdict 分布）——三个判定口径全站唯一，避免多处实现漂移。</li>
+</ul>
+
+<h2 class="sec" id="t-9"><span class="no">卷四 · 第九章</span>质量保障与安全边界</h2>
+
+<table>
+<tr><th>维度</th><th>手段</th></tr>
+<tr><td>类型安全</td><td>TS strict；内容层结构化类型使「题型—序列化—rubric」三链路编译期对齐；仿真引擎纯函数可单测</td></tr>
+<tr><td>AI 行为</td><td>幻觉治理矩阵（5.3 节）；评阅三档制 + 结构化解析；先答后评纪律；TTS 失败降级</td></tr>
+<tr><td>密钥安全</td><td>豆包/Supabase 服务端密钥仅存在于 server 进程环境变量，不进前端 bundle、不进 git</td></tr>
+<tr><td>数据安全</td><td>RLS 行级安全；学生数据只读写本人；匿名模式数据仅存本地</td></tr>
+<tr><td>渲染安全</td><td>导航与副作用只在 useEffect 中执行（不在 updater 内 setState/push）；演示模式全局标志隔离学习态</td></tr>
+<tr><td>可用性</td><td>静态内容 CDN 级加载；AI 不可用时内容学习路径完全不受影响（问答与评阅可跳过）</td></tr>
+<tr><td>部署校验</td><td>test_run 静态检查 + 服务探活 + 主路径 smoke test；每次合流前本地跑通再推送</td></tr>
+</table>
+
+<h2 class="sec" id="t-10"><span class="no">卷四 · 第十章</span>部署架构与交付形态</h2>
+
+<pre class="arch">
+开发态    pnpm dev ─ tsx watch server.ts ─ 热更新
+构建态    build.sh = pnpm install → next build（静态生成） → tsup（server.ts → dist/server.js）
+运行态    start.sh = node dist/server.js（Express 服静态 + API 路由）
+端口      唯一对外端口 5000（.preview 声明，代码不 hardcode）
+环境      NODE_ENV / 豆包密钥 / Supabase 配置（平台环境变量注入）
+仓库      GitHub · YuheWang-Qween/wujian-restoration-workshop（main 分支即部署源）
+</pre>
+
+<p>交付形态为<strong>单容器单进程</strong>：一个 Node 进程同时服务静态页面与三个 API 路由，无外部数据库依赖（Supabase 为托管服务），构建产物即 dist/server.js + .next 静态目录，回滚只需切上一个镜像。</p>
+
+<h2 class="sec" id="t-11"><span class="no">卷四 · 第十一章</span>演进路线图</h2>
+
+<table>
+<tr><th>阶段</th><th>方向</th><th>要点</th></tr>
+<tr><td><strong>近期</strong></td><td>移动端深度适配</td><td>画板题、排序题的触屏手势优化；小屏布局重排</td></tr>
+<tr><td rowspan="3"><strong>中期</strong></td><td>学情分析看板</td><td>verdict 分布、细问正确率、卡点热力图——为教学研究提供过程数据</td></tr>
+<tr><td>知识库扩充</td><td>更多走马楼研究文献入库，提升小简覆盖面与引用精度</td></tr>
+<tr><td>题库扩展</td><td>第七道工序视角（简册复原）、跨环节综合题</td></tr>
+<tr><td rowspan="2"><strong>远期</strong></td><td>多场景复制</td><td>内容层/仿真引擎的参数化抽象，快速生成「敦煌修复工坊」「青铜器修复工坊」等姊妹场景</td></tr>
+<tr><td>协作学习</td><td>同班学生的修复档案对比、协作排次序等多玩家仿真</td></tr>
+</table>
+
+<div class="quote">
+「技术上，这是一次「重内容产品」的完整工程实践：内容与呈现分离、AI 行为可约束、仿真确定性可测、进度可续可迁。方法论沉淀比代码本身更可复用。」
+<span class="q-src">—— 技术团队自评</span>
+</div>
+<h3 class="sub"><span class="tag">11+</span>补充：对外接口一览</h3>
+
+<p class="lead">全部动态能力收敛于三个 HTTP 接口，均为服务端实现、密钥不出进程。前端其余请求皆为静态资源。</p>
+
+<table>
+<tr><th>接口</th><th>方法</th><th>入参</th><th>出参</th><th>说明</th></tr>
+<tr><td><code>/api/guide</code></td><td>POST</td><td>mode（chat / grade）、stage、act、qid、学生作答、对话历史</td><td>SSE 流（chat：逐字回答；grade：判定 + 解析）</td><td>小简问答与评阅的统一入口。服务端按 qid 取出 rubric 组装提示词，前端不可见评阅要点</td></tr>
+<tr><td><code>/api/tts</code></td><td>POST</td><td>text（旁白文本）</td><td>JSON：audioUri</td><td>调用豆包 TTS；演示模式专用。失败时前端按文本长度估算时长降级</td></tr>
+<tr><td><code>/api/supabase-config</code></td><td>GET</td><td>—</td><td>JSON：URL / anonKey</td><td>下发 Supabase 前端安全配置（anon key 仅具备 RLS 允许的权限）</td></tr>
+</table>
+
+<h4 class="minor">流式设计细节</h4>
+<p>评阅链路的 SSE 帧分三类：<code>delta</code>（解析正文增量）、<code>verdict</code>（判定结果，独立帧便于前端先落章再渲解析）、<code>done</code>（结束与元信息）。判定先到、解析后流——学生第一时间看到三档结论，等待感最小。问答链路复用同一分帧协议，只是不发送 verdict 帧。</p>
+
+<h3 class="sub"><span class="tag">11+</span>补充：数据模型与存储字段</h3>
+
+<pre class="code">// 云端进度记录（Supabase · 每学生每题一行）
+progress {
+  user_id     uuid    -- RLS 主键：学生只能读写本人行
+  stage_id    int     -- 环节 1..6
+  question_id text    -- 如 "1-q1"、"2-q3(a)"
+  answer      text    -- 作答文本协议 / base64 图片
+  draft       text    -- 草稿（未提交）
+  verdict     text    -- 成立 | 部分成立 | 不成立 | 待判定
+  analysis    text    -- 评阅解析正文
+  submitted   bool    -- 是否已定稿（定稿后锁定）
+  updated_at  timestamptz
+}
+
+// 成就与统计（聚合视图，成就页读取）
+achievement {
+  user_id      uuid
+  stages_done  int    -- 完成环节数
+  verdicts     json   -- 各档判定计数
+  card_image   text   -- 成就卡 PNG（客户端生成后可选上传）
+}</pre>
+
+<p>设计要点：<strong>草稿与定稿分离</strong>——评阅判定挂靠在草稿态，答案修改即作废重评；「待判定」是合法终态（AI 不确定时宁可存疑，不硬判），成就页统计将其单列。<strong>评阅要点不进这张表</strong>——rubric 是教师资产，存代码库随版本发布，前端与数据库均不可见。</p>
+
+<h3 class="sub"><span class="tag">11+</span>补充：性能与体积治理</h3>
+
+<ul class="dash">
+<li><strong>字体</strong>：思源宋体全量 8MB+ → pyftsubset 子集化后两字重合计约 300KB；<code>?v=N</code> 参数管理缓存版本。子集化脚本进构建管线，全字符自动扫描，杜绝「新字缺形」事故复发；</li>
+<li><strong>图片</strong>：展厅文物照统一压缩至展示尺寸的 2× 像素密度；AI 示意图与文物照分目录管理，credit 元数据随文件；</li>
+<li><strong>静态化</strong>：全部内容页静态生成（SSG），CDN 级加载；动态能力只在三个 API 上；</li>
+<li><strong>首屏</strong>：环节页按节懒渲染，长文环节不阻塞交互；演示模式组件 <code>next/dynamic</code> 按需加载；</li>
+<li><strong>状态</strong>：zustand 选择器订阅，避免大 store 全量重渲；persist 分片（作答/设置/会话）独立序列化。</li>
+</ul>
+
+<h3 class="sub"><span class="tag">11+</span>补充：关键工程决策复盘（踩坑实录）</h3>
+
+<table>
+<tr><th>问题</th><th>现象</th><th>根因</th><th>修复</th></tr>
+<tr><td>React 渲染期导航崩溃</td><td>演示模式切场景时控制台报「Cannot update a component while rendering」</td><td>在 setState 的 updater 函数内调用 router.push——渲染期更新了另一组件</td><td>导航副作用全部移入独立 useEffect，以 sceneIdx 为依赖；updater 内只算纯状态</td></tr>
+<tr><td>字体「赏」字错位</td><td>新界面文案出现基线错乱的字形</td><td>新增字符未包含在手工维护的子集字符表里，浏览器回退到系统字体混排</td><td>子集化改为构建期全字符扫描；配合 <code>?v</code> 破缓存</td></tr>
+<tr><td>音画不同步</td><td>演示模式旁白未响、动作已演完</td><td>动作在页面加载即执行，而 TTS 仍在合成</td><td>动作队列挂到 audio.oncanplay 之后执行；waitForElement 保证元素就绪</td></tr>
+<tr><td>成就统计全零</td><td>成就卡四格判定数全为 0</td><td>verdict 入库条件过严（analysis 含 error 即丢弃）+ 统计侧精确匹配失败</td><td>放宽入库（无判定存「待判定」）+ 模糊匹配统计</td></tr>
+<tr><td>LaTeX 伪码直出</td><td>参考答案里显示 <code>$\times$</code> 等原始记法</td><td>模型偶发以 LaTeX 表述算式，前端无公式渲染器</td><td>cleanLatex 清洗层：常见记法转 Unicode（×、÷、≈、分数、根号），残留命令剔除</td></tr>
+<tr><td>多题泄答风险</td><td>仿真工作台的提示文案与细问题干重复</td><td>仿真与细问内容来源相近，边界未显式约定</td><td>确立「仿真管手、细问管脑」分工纪律并重构清理，删除重复与泄答</td></tr>
+</table>
+
+<div class="note"><b>沉淀的工程原则：</b>① 渲染期只做纯计算，副作用一律进 effect；② 任何「手工维护的派生物」（字符表、清单、副本）迟早失同步，能自动生成就不手工维护；③ 音画这类跨系统时序，以「慢者」的就绪信号为准；④ AI 的不确定输出（判定、公式记法）在系统边界做清洗与兜底，而不是假定它永远规范。</div>
+<h3 class="sub"><span class="tag">Q+</span>补充：测试策略</h3>
+
+<ul class="dash">
+<li><strong>引擎单测</strong>：sim.ts 纯函数覆盖——六台工作台的关键工步、安全带边界（恰好出带/恰好入带）、事故触发器、结算指标口径，共十七组断言。引擎与渲染分离的架构价值在此兑现：不启浏览器即可回归；</li>
+<li><strong>内容结构校验</strong>：content.ts 的结构不变量——17 题的 rubricId 必须在 rubrics.ts 中存在、排序题 constraints 引用的 items 必须在题内、序列化函数输出的文本协议可被评阅提示词的格式约定描述。类型系统 + 构建期断言双保险；</li>
+<li><strong>主路径冒烟</strong>：test_run 流程——服务探活 + 首页 / 大厅 / 环节页 / 成就页 HTTP 200 + 关键 API 一次真实调用（小简问答、评阅各一条）；</li>
+<li><strong>评阅链路抽样</strong>：对每道细问预置一份「标准作答」与一份「典型错答」，构建期跑一遍评阅接口——标准作答应至少「部分成立」、错答不得「成立」，防 rubric 提示词的意外回归；</li>
+<li><strong>演示模式回归</strong>：18 场景脚本与路由/元素选择器（data-demo 属性）的对应关系是隐式契约——场景脚本里的每个选择器都在构建期校验存在性，防止重构改类名后演示静默失败。</li>
+</ul>
+
+<h3 class="sub"><span class="tag">A+</span>补充：无障碍与兼容性</h3>
+
+<ul class="dash">
+<li><strong>动效</strong>：全部过渡尊重 <code>prefers-reduced-motion</code>；演示模式提供暂停/单步控制；</li>
+<li><strong>键盘</strong>：细问作答、页签切换、对话框均支持键盘操作；画板题提供「文字描述替代作答」的降级入口（评阅 rubric 同时接受图文两种形态）；</li>
+<li><strong>色彩</strong>：纸墨主题正文对比度 ≥ 7:1（墨黑/宣纸底）；判定章的三档颜色同时以文字标注（不只靠颜色区分）；</li>
+<li><strong>浏览器</strong>：目标为 evergreen 浏览器近两个大版本（Chrome/Edge/Safari/Firefox）；不支持的浏览器给出一次性提示条；</li>
+<li><strong>弱网</strong>：静态内容优先加载，AI 请求带超时与重试；断网时内容学习路径完全可用（作答本地保存），AI 功能置灰并说明原因。</li>
+</ul>
+
+<h3 class="sub"><span class="tag">H+</span>补充：版本演进大事记</h3>
+
+<table>
+<tr><th>阶段</th><th>里程碑</th><th>交付物</th></tr>
+<tr><td>v0 内容奠基</td><td>六环节内容结构化；17 道细问与评阅要点定稿；鉴赏展厅五板块</td><td>content.ts / rubrics.ts / exhibition.ts</td></tr>
+<tr><td>v1 工坊成形</td><td>顺序解锁、细问作答、本地进度持久化；纸墨设计系统与字体子集化</td><td>工坊主流程可用</td></tr>
+<tr><td>v2 AI 注入</td><td>小简问答（RAG + 位置感知）、三档智能评阅、先答后评纪律、画图题多模态评阅</td><td>/api/guide 全链路</td></tr>
+<tr><td>v3 仿真落地</td><td>六台虚拟仿真工作台（确定性引擎 + 四指标结算 + 事故复现）</td><td>sim.ts + SimStageView</td></tr>
+<tr><td>v4 体验打磨</td><td>云端进度同步（Supabase）、成就卡（canvas 导出）、TTS 演示模式（18 场景）、评阅统计修复、LaTeX 清洗</td><td>演示与传播体系</td></tr>
+<tr><td>v5 分工精修</td><td>仿真与细问分工纪律重构（仿真管手、细问管脑）；工步动效系统（一次性播放 + 状态量平滑过渡）</td><td>feat/sim-workbench 合入</td></tr>
+<tr><td>v6（当前）</td><td>内容治理完备化：数字出入备案、图版署名纪律、本文档（四合一全录）</td><td>public/wujian-intro.html</td></tr>
+</table>
+<h3 class="sub"><span class="tag">R+</span>补充：前端页面与路由清单</h3>
+
+<table>
+<tr><th>路由</th><th>页面</th><th>职责与关键组件</th></tr>
+<tr><td><code>/</code></td><td>工坊大厅</td><td>双页签（发掘/鉴赏）切换；六环节卡片（解锁态、进度、重置）；「报告数字出入备案」入口；演示模式入口；顶部导航（成就卡、退出）</td></tr>
+<tr><td><code>/login</code></td><td>登录页</td><td>AuthShell 邮箱 + 验证码流程；已登录自动跳转（演示模式下例外——全局标志 <code>__DEMO_MODE__</code> 拦截）</td></tr>
+<tr><td><code>/stage/[1-6]</code></td><td>环节页 ×6</td><td>StageContent：解锁守卫、分节渲染（工序说明/关键数据/上机操作/细问）、顺序解锁判定、环节完成自动标记；GuideChat 挂载（位置感知）；SimStageView 按需挂载</td></tr>
+<tr><td><code>/achievement</code></td><td>成就卡</td><td>完成校验（六环全通）；学号姓名署名；canvas 生成证书 PNG（朱砂印 + 六简编联 + 四格统计）下载</td></tr>
+<tr><td colspan="3">全局：AuthProvider（会话上下文）· DemoMode（18 场景自动演示，挂载于根布局）· 字体子集（woff2 + ?v 缓存）</td></tr>
+</table>
+
+<h3 class="sub"><span class="tag">G+</span>补充：技术名词速查表（写给非技术读者）</h3>
+
+<p class="lead">二十五个高频技术词，一列看懂。按「你会在哪里遇到它」分组。</p>
+
+<div class="grid2">
+<div class="card"><h5>App Router</h5><p>Next.js 的页面组织方式——「文件夹即路由」。环节页 <code>/stage/1</code>～<code>/stage/6</code> 共用一个动态路由 <code>/stage/[id]</code>。</p></div>
+<div class="card"><h5>SSG / 静态生成</h5><p>页面在构建时预先生成为 HTML，访问时直接取成品——比现算快一个量级。工坊全部内容页走这条路线。</p></div>
+<div class="card"><h5>API 路由</h5><p>服务端的接口函数。工坊只有三个（guide / tts / supabase-config），动态能力全部收口于此。</p></div>
+<div class="card"><h5>SSE / 流式</h5><p>Server-Sent Events——服务器把回答一个字一个字「推」给浏览器。小简的回答「逐字流出」就是它。</p></div>
+<div class="card"><h5>zustand</h5><p>轻量前端状态管理库。工坊用它保存你正在做的题、判定结果——配合 persist 中间件写进浏览器 localStorage。</p></div>
+<div class="card"><h5>localStorage</h5><p>浏览器自带的本地存储。刷新页面不丢数据的第一重保障就靠它。</p></div>
+<div class="card"><h5>Supabase / PostgreSQL</h5><p>托管数据库服务（底层是开源的 PostgreSQL）。云端进度同步的第二重保障；RLS 保证学生只能读写自己的数据。</p></div>
+<div class="card"><h5>RLS / 行级安全</h5><p>数据库层的权限规则：每行数据带主人标记，规则规定「只有主人能读写这一行」——前端拿到钥匙也翻不了别人的墙。</p></div>
+<div class="card"><h5>RAG / 检索增强生成</h5><p>Retrieval-Augmented Generation——先从知识库里检索相关原文段落，再让模型「看着材料」回答。小简不编书的底气所在。</p></div>
+<div class="card"><h5>多模态模型</h5><p>能同时理解文字与图片的模型。画图题的「AI 看图评阅」靠它实现。</p></div>
+<div class="card"><h5>TTS</h5><p>Text-To-Speech，文字转语音。演示模式的旁白配音（儒雅男声、语速 -10）。</p></div>
+<div class="card"><h5>rubric / 评阅要点</h5><p>教师逐题编制的评分依据清单，存在服务端。AI 评阅的「宪法」——它只判定，不立法。</p></div>
+<div class="card"><h5>verdict / 判定</h5><p>评阅结论的三档：成立 / 部分成立 / 不成立（外加存疑态「待判定」）。不打分数——降低误判冲击，保留修改空间。</p></div>
+<div class="card"><h5>系统提示词</h5><p>写给 AI 的「岗位说明书」。小简的「先答后评」「不编数字」纪律都写在这里——行为约束的第一现场。</p></div>
+<div class="card"><h5>幻觉 / AI 幻觉</h5><p>模型一本正经编造事实的倾向。工坊的治理组合拳：RAG 兜底 + 提示词纪律 + 三档判定 + 可反复评阅。</p></div>
+<div class="card"><h5>pyftsubset</h5><p>字体子集化工具——只保留项目实际用到的字符，把 8MB 的中文字体裁到几百 KB。</p></div>
+<div class="card"><h5>woff2</h5><p>网页字体压缩格式。配合 URL 上的 <code>?v=N</code> 版本参数管理浏览器缓存。</p></div>
+<div class="card"><h5>Tailwind CSS</h5><p>原子化样式方案。纸墨主题的色板、字号、间距以设计令牌集中在 CSS 变量层，一处定义全局生效。</p></div>
+<div class="card"><h5>TypeScript / TS</h5><p>带类型检查的 JavaScript。十七道题的结构、题型、评阅要点的对应关系在编译期就被查一遍。</p></div>
+<div class="card"><h5>Express</h5><p>Node.js 的老牌 Web 服务框架。工坊的自定义 server 用它包住 Next，同时服务页面与三个 API。</p></div>
+<div class="card"><h5>tsup</h5><p>TypeScript 打包器。把 server.ts 打成单个 dist/server.js——部署产物简单到只有一个文件。</p></div>
+<div class="card"><h5>pnpm</h5><p>高效包管理器。项目依赖安装、构建、启动全走它。</p></div>
+<div class="card"><h5>base64</h5><p>把图片编码成文本的方式。画板题的作答图以 base64 存储、传输，与文本作答共用一条链路。</p></div>
+<div class="card"><h5>canvas</h5><p>浏览器画布。画板题的画笔、成就卡的证书导出，都是它。</p></div>
+<div class="card"><h5>useEffect</h5><p>React 的副作用钩子——页面渲染完后才执行的逻辑。工坊铁律：一切「跳转、计时、播音频」都进它，渲染期只做纯计算（踩过坑的教训）。</p></div>
+</div>
+
+</section>
+</main>
+
+<footer>
+  <div class="foot-inner">
+    <div class="foot-title">走马楼三国吴简 · 简牍修复工坊</div>
+    <div class="foot-sub">生成式人工智能赋能文博考古教学的应用场景</div>
+    <div class="foot-meta">
+      <span>应用全景 · 宣传文案 · 讲解逐字稿 · 技术路线</span>
+      <span>内容锚定《长沙走马楼三国吴简的保护与整理》等技术报告与文献汇编</span>
+      <span>Next.js 16 · React 19 · TypeScript 5 · Tailwind CSS 4 · 豆包大模型 · Supabase</span>
+    </div>
+    <div class="foot-quote">「这条路的价值，正在于每一步都是你自己走的。」</div>
+  </div>
+</footer>
+
+<button id="backTop" title="回到顶部" aria-label="回到顶部">↑</button>
+
+<script>
+(function () {
+  var tabs = document.querySelectorAll('#tabs button[data-tab]');
+  var panels = document.querySelectorAll('.tab-panel');
+  var backTop = document.getElementById('backTop');
+
+  function activate(name, scroll) {
+    tabs.forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-tab') === name); });
+    panels.forEach(function (p) { p.classList.toggle('active', p.id === 'panel-' + name); });
+    if (scroll !== false) window.scrollTo({ top: 0, behavior: 'smooth' });
+    try { localStorage.setItem('wj-intro-tab', name); } catch (e) {}
+  }
+
+  tabs.forEach(function (b) {
+    b.addEventListener('click', function () { activate(b.getAttribute('data-tab')); });
+  });
+
+  var saved = null;
+  try { saved = localStorage.getItem('wj-intro-tab'); } catch (e) {}
+  if (saved && document.getElementById('panel-' + saved)) activate(saved, false);
+
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (ev) {
+      var id = a.getAttribute('href').slice(1);
+      var target = document.getElementById(id);
+      if (target) {
+        ev.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', '#' + id);
+      }
+    });
+  });
+
+  window.addEventListener('scroll', function () {
+    backTop.classList.toggle('show', window.scrollY > 800);
+  }, { passive: true });
+
+  backTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+
+</body>
+</html>
