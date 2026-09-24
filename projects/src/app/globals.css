@@ -587,47 +587,29 @@
     animation: none;
   }
 }
-
-
 /* ── 编绳串简：环节页四节进度条 ─────────────────────────────
-   四个小简片被一根编绳串起：已读墨色可回跳、当前朱砂呼吸、未到虚线。
-   细问节带题目子进度；四片全墨后末节盖朱印「阅」。 */
+   四个小简片被编绳串起：绳是相邻简片间的伸缩绳段，始终对齐简片中心。
+   已读墨色可回跳、当前朱砂呼吸、未到虚线；细问到达后显题目子进度；
+   四片全墨后末节盖朱印「阅」。 */
 .wj-strip {
   position: relative;
   z-index: 10;
   flex-shrink: 0;
   display: flex;
   align-items: flex-start;
-  justify-content: center;
-  gap: clamp(0.75rem, 4vw, 3.5rem);
-  padding: 0.4rem 1rem 0.35rem;
+  padding: 0.6rem 1.25rem 0.5rem;
   border-bottom: 1px solid var(--wj-border);
-  background: color-mix(in oklab, var(--wj-surface) 78%, transparent);
+  background: color-mix(in oklab, var(--wj-surface) 80%, transparent);
   backdrop-filter: blur(8px);
-}
-
-/* 编绳：横贯整条的中线，只与简片相连的段落着色 */
-.wj-strip-cord {
-  position: absolute;
-  left: 12%;
-  right: 12%;
-  top: calc(0.4rem + 13px);
-  height: 2px;
-  background: linear-gradient(
-    to right,
-    var(--wj-ink) 0%,
-    var(--wj-ink) var(--wj-cord-done, 0%),
-    color-mix(in oklab, var(--wj-ink) 22%, transparent) var(--wj-cord-done, 0%)
-  );
-  pointer-events: none;
 }
 
 .wj-strip-step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 0 0.25rem;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 0;
   background: none;
   border: none;
   cursor: default;
@@ -638,13 +620,28 @@
   cursor: pointer;
 }
 
+/* 绳段：吃掉相邻简片之间的全部空隙，垂直位置 = 简片中心线 */
+.wj-strip-cord {
+  flex: 1 1 0;
+  min-width: 12px;
+  height: 2px;
+  margin: 7px 10px 0;
+  border-radius: 1px;
+  background: color-mix(in oklab, var(--wj-ink) 18%, transparent);
+  transition: background-color 0.3s ease;
+}
+
+.wj-strip-cord.is-ink {
+  background: color-mix(in oklab, var(--wj-ink) 72%, transparent);
+}
+
 .wj-strip-slip {
   position: relative;
   width: 26px;
   height: 16px;
   border-radius: 3px;
-  background: color-mix(in oklab, var(--wj-paper) 60%, transparent);
-  border: 1.5px dashed color-mix(in oklab, var(--wj-ink) 38%, transparent);
+  background: color-mix(in oklab, var(--wj-paper) 65%, transparent);
+  border: 1.5px dashed color-mix(in oklab, var(--wj-ink) 35%, transparent);
   transition:
     background-color 0.3s ease,
     border-color 0.3s ease,
@@ -655,21 +652,20 @@
 .wj-strip-step.is-done .wj-strip-slip {
   background: var(--wj-ink);
   border: 1.5px solid var(--wj-ink);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
 }
 
 /* 当前：朱砂简片 + 呼吸光 */
 .wj-strip-step.is-current .wj-strip-slip {
   background: var(--wj-cinnabar);
   border: 1.5px solid var(--wj-cinnabar);
-  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
   animation: wj-slip-breathe 2.4s ease-in-out infinite;
 }
 
 @keyframes wj-slip-breathe {
   0%,
   100% {
-    box-shadow: 0 0 0 0 color-mix(in oklab, var(--wj-cinnabar) 45%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--wj-cinnabar) 40%, transparent);
   }
   50% {
     box-shadow: 0 0 0 5px color-mix(in oklab, var(--wj-cinnabar) 0%, transparent);
@@ -686,18 +682,13 @@
   font-family: var(--font-serif);
   font-size: 10px;
   line-height: 1;
-  color: var(--wj-cinnabar-ink);
-  letter-spacing: 0;
-}
-
-.wj-strip-step.is-done .wj-strip-seal {
   color: var(--wj-paper);
 }
 
 .wj-strip-label {
   font-size: 11px;
   line-height: 1.2;
-  color: color-mix(in oklab, var(--wj-ink) 42%, transparent);
+  color: color-mix(in oklab, var(--wj-ink) 40%, transparent);
   white-space: nowrap;
   transition: color 0.3s ease;
 }
@@ -712,10 +703,9 @@
 }
 
 .wj-strip-sub {
-  margin-left: 3px;
   font-size: 10px;
   font-variant-numeric: tabular-nums;
-  color: color-mix(in oklab, var(--wj-ink) 55%, transparent);
+  color: color-mix(in oklab, var(--wj-ink) 52%, transparent);
 }
 
 .wj-strip-step:not(:disabled):hover .wj-strip-label {
@@ -724,19 +714,17 @@
 
 @media (max-width: 640px) {
   .wj-strip {
-    gap: clamp(0.5rem, 6vw, 1.5rem);
-    padding: 0.3rem 0.75rem 0.25rem;
-  }
-
-  .wj-strip-cord {
-    left: 8%;
-    right: 8%;
-    top: calc(0.3rem + 12px);
+    padding: 0.5rem 0.75rem 0.45rem;
   }
 
   .wj-strip-slip {
     width: 22px;
     height: 13px;
+  }
+
+  .wj-strip-cord {
+    margin: 5px 6px 0;
+    min-width: 8px;
   }
 
   /* 窄屏只显当前节名，其余节收成纯简片 */
@@ -747,11 +735,6 @@
   .wj-strip-step.is-current .wj-strip-label {
     font-size: 11px;
   }
-
-  .wj-strip-sub {
-    font-size: 10px;
-    margin-left: 2px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -759,7 +742,8 @@
     animation: none;
   }
 
-  .wj-strip-slip {
+  .wj-strip-slip,
+  .wj-strip-cord {
     transition: none;
   }
 }
