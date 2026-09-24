@@ -127,6 +127,12 @@ token）→ 302 到 `/auth/finish?token_hash=` 由**浏览器端** verifyOtp 建
 - 未配置 CHAOXING_* 时登录页降级：超星按钮禁用 + 显示邮箱密码表单与注册链接（本地开发不被锁死）
 - 失败分类四档（config_missing / institution_mismatch / oauth_failed / session_failed），302 到 `/auth/error`，具体原因只进服务端日志
 - 部署需在超星后台登记回调 `https://<域名>/api/auth/callback/chaoxing`，并在平台配置四个 CHAOXING_* 变量（README 模板同款流程）
+- **登录页必须 `export const dynamic = 'force-dynamic'`**（2024-09 踩坑）：`getChaoxingLoginOptions()` 只读
+  process.env，不加该声明 Next 会把「未配置」静态烤进构建产物——部署构建环境（git worktree）没有
+  `.env`，线上登录页会永远禁用，即使运行时配了变量也无效。任何读环境变量决定渲染内容的服务端组件都同理。
+- 沙箱 `.env` 只作用于 dev 预览（dev.coze.site 域名，登录一直可用）；**线上实例的环境变量来自平台
+  环境变量配置**，不随 `.env` 文件部署。线上要启用超星登录需在平台配 CHAOXING_* 四个变量，且
+  CHAOXING_REDIRECT_URI 要用线上域名并在超星后台登记对应回调。
 
 ### 凭据安全纪律（2024-09 事故教训）
 
