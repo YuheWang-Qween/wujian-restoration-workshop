@@ -169,7 +169,7 @@ src/
 │   ├── api/reference-answer/route.ts # 参考答案：确认提交后 SSE 流式生成（纯 content 流）
 │   ├── api/auth/chaoxing/route.ts    # 发起超星 OAuth（state=机构FID，登录上下文 Cookie）
 │   ├── api/auth/callback/chaoxing/route.ts  # 超星回调：解析身份→建 Supabase 用户→302 到 /auth/finish 带 token_hash
-│   ├── login/page.tsx、register/page.tsx  # 登录（超星按钮为主入口，未配置时降级邮箱表单）/ 注册（仅降级模式使用）；登录表单下方有「观看演示」入口（调 window.__startDemo）
+│   ├── login/page.tsx（force-dynamic）  # 登录：超星按钮为唯一登录入口（未配置时禁用+提示），下方「观看演示」入口（调 window.__startDemo）与「游客浏览」；演示按钮只在登录页，顶栏不放
 │   ├── auth/finish/page.tsx          # 超星登录客户端收尾：verifyOtp 建立 localStorage 会话
 │   ├── auth/error/page.tsx           # 登录失败页：四档错误分类文案
 │   ├── page.tsx                      # 工坊大厅：两篇页签（?tab=exhibition 落展示篇）+ 六个环节入口

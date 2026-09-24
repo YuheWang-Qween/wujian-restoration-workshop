@@ -7,7 +7,7 @@ import { SECTIONS, STAGES } from '@/lib/workshop/content';
 import { useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { ExhibitionHall } from '@/components/workshop/ExhibitionHall';
-import { ArrowRight, Award, Check, Compass, LogOut, Play, RotateCcw } from 'lucide-react';
+import { ArrowRight, Award, Check, Compass, LogOut, RotateCcw } from 'lucide-react';
 import { isGuestMode } from '@/lib/guest-mode';
 
 export default function WorkshopHall() {
@@ -180,17 +180,6 @@ function WorkshopHallInner() {
                   游客
                 </span>
               )}
-
-              <button
-                type="button"
-                onClick={() => window.__startDemo?.()}
-                data-demo="demo-btn"
-                className="flex items-center gap-1 rounded border border-wj-border px-2.5 py-1.5 text-xs text-wj-muted transition-colors hover:border-wj-cinnabar hover:text-wj-cinnabar"
-                title="演示模式"
-              >
-                <Play className="h-3.5 w-3.5" />
-                演示
-              </button>
 
               <button
                 type="button"
