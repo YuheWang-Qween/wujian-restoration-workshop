@@ -545,3 +545,46 @@
     opacity: 0.6;
   }
 }
+
+/* 登录页「观看演示」按钮：扫光 + 播放图标呼吸 */
+@keyframes wj-demo-sheen {
+  0% {
+    transform: translateX(-150%) skewX(-18deg);
+  }
+  55%, 100% {
+    transform: translateX(280%) skewX(-18deg);
+  }
+}
+
+@keyframes wj-demo-breath {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.28);
+    opacity: 0.82;
+  }
+}
+
+.demo-cta-glow {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 38%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.22), transparent);
+  animation: wj-demo-sheen 3.2s ease-in-out infinite;
+}
+
+.demo-cta-icon {
+  animation: wj-demo-breath 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-cta-glow,
+  .demo-cta-icon {
+    animation: none;
+  }
+}
+

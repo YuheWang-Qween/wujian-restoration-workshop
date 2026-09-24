@@ -113,9 +113,10 @@ export function LoginForm() {
           type="button"
           onClick={() => window.__startDemo?.()}
           data-demo="login-demo"
-          className="flex w-full items-center justify-center gap-2 rounded-md border border-wj-border py-2.5 text-sm tracking-wide text-wj-muted transition-colors hover:border-wj-cinnabar hover:text-wj-cinnabar"
+          className="demo-cta group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-md bg-wj-water py-3 text-sm font-medium tracking-wide text-wj-cinnabar-ink shadow-sm transition-all hover:-translate-y-px hover:brightness-110 hover:shadow-md active:translate-y-0"
         >
-          <Play className="h-4 w-4" />
+          <span className="demo-cta-glow" aria-hidden />
+          <Play className="demo-cta-icon h-4 w-4" />
           观看演示 · 约 3 分钟
         </button>
       </form>
