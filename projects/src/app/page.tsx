@@ -167,16 +167,7 @@ function WorkshopHallInner() {
             </div>
 
             <div className="flex shrink-0 items-center gap-2 pb-1">
-              {user && (
-                <span className="hidden text-xs text-wj-muted sm:inline">
-                  {user.email}
-                  {isTeacher && (
-                    <span className="ml-1.5 rounded-sm border border-wj-water/40 bg-wj-water/10 px-1.5 py-0.5 text-[10px] font-medium tracking-widest text-wj-water">
-                      教师
-                    </span>
-                  )}
-                </span>
-              )}
+              {user && <UserChip user={user} isTeacher={isTeacher} />}
 
               <button
                 type="button"
@@ -356,5 +347,45 @@ function WorkshopHallInner() {
       </main>
 
     </>
+  );
+}
+
+type ChipUser = {
+  email?: string | null;
+  user_metadata?: Record<string, unknown>;
+};
+
+function UserChip({ user, isTeacher }: { user: ChipUser; isTeacher: boolean }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const meta = user.user_metadata ?? {};
+  const fullName = typeof meta.full_name === 'string' ? meta.full_name.trim() : '';
+  const avatarUrl = typeof meta.avatar_url === 'string' ? meta.avatar_url.trim() : '';
+  const label = fullName || user.email?.split('@')[0] || '同学';
+  const initial = (fullName || user.email?.[0] || '简').trim().charAt(0).toUpperCase();
+
+  return (
+    <span className="hidden items-center gap-2 sm:inline-flex">
+      {avatarUrl && !imgFailed ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={avatarUrl}
+          alt=""
+          className="size-6 rounded-full object-cover ring-1 ring-wj-border"
+          onError={() => setImgFailed(true)}
+        />
+      ) : (
+        <span className="flex size-6 items-center justify-center rounded-full bg-wj-water/12 font-serif text-[11px] font-semibold text-wj-water ring-1 ring-wj-water/30">
+          {initial}
+        </span>
+      )}
+      <span className="text-xs text-wj-muted">
+        {label}
+        {isTeacher && (
+          <span className="ml-1.5 rounded-sm border border-wj-water/40 bg-wj-water/10 px-1.5 py-0.5 text-[10px] font-medium tracking-widest text-wj-water">
+            教师
+          </span>
+        )}
+      </span>
+    </span>
   );
 }
