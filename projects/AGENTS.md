@@ -123,6 +123,7 @@ token）→ 302 到 `/auth/finish?token_hash=` 由**浏览器端** verifyOtp 建
 
 - `CHAOXING_FIDS` 裸 FID=单按钮静默轮询；`fid:名称`=机构下拉框严格校验（见 .env.example）
 - 身份字段存 `app_metadata.chaoxing`（服务端可写才能用于鉴权）；学工号在 `chaoxing.name`（displayName 才是姓名）
+- 首页顶栏用 `page.tsx` 里的 UserChip 显示 `user_metadata.full_name/avatar_url`（超星头像 `photo.chaoxing.com/p/{uid}_80`，加载失败回退首字黛青圆标）；不要直接渲染 `user.email`——那是 `chaoxing_<hash>@oauth.invalid` 虚拟邮箱，用户看不懂
 - 未配置 CHAOXING_* 时登录页降级：超星按钮禁用 + 显示邮箱密码表单与注册链接（本地开发不被锁死）
 - 失败分类四档（config_missing / institution_mismatch / oauth_failed / session_failed），302 到 `/auth/error`，具体原因只进服务端日志
 - 部署需在超星后台登记回调 `https://<域名>/api/auth/callback/chaoxing`，并在平台配置四个 CHAOXING_* 变量（README 模板同款流程）
