@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { SECTIONS, STAGES } from '@/lib/workshop/content';
@@ -28,6 +28,11 @@ function WorkshopHallInner() {
   const allCompleted = done.length >= STAGES.length;
   const { user, signOut } = useAuth();
   const [excavation, exhibition] = SECTIONS;
+  const [isTeacher, setIsTeacher] = useState(false);
+
+  useEffect(() => {
+    setIsTeacher(localStorage.getItem('wj-role') === 'teacher');
+  }, []);
 
   function stageProgress(stageId: number) {
     let total = 0;
@@ -163,7 +168,14 @@ function WorkshopHallInner() {
 
             <div className="flex shrink-0 items-center gap-2 pb-1">
               {user && (
-                <span className="hidden text-xs text-wj-muted sm:inline">{user.email}</span>
+                <span className="hidden text-xs text-wj-muted sm:inline">
+                  {user.email}
+                  {isTeacher && (
+                    <span className="ml-1.5 rounded-sm border border-wj-water/40 bg-wj-water/10 px-1.5 py-0.5 text-[10px] font-medium tracking-widest text-wj-water">
+                      教师
+                    </span>
+                  )}
+                </span>
               )}
 
               <button
