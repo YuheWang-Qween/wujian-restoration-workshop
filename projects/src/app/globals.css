@@ -731,3 +731,457 @@
     transition: none;
   }
 }
+/* ── 教师端 · 学情分析 ─────────────────────────────────────
+   三层视图：班级卡片 → 班级学生表 → 学生学情详情。
+   纸墨同源：米色纸面、墨色主字、朱砂点缀。 */
+.wj-teacher-wrap {
+  min-height: 100vh;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 4rem;
+}
+
+.wj-teacher-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--wj-border);
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.wj-teacher-top h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--wj-ink);
+  margin: 0;
+}
+
+.wj-teacher-meta {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 12px;
+  color: color-mix(in oklab, var(--wj-ink) 60%, transparent);
+}
+
+.wj-teacher-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 12.5px;
+  color: var(--wj-ink);
+  background: color-mix(in oklab, var(--wj-paper) 70%, transparent);
+  border: 1px solid var(--wj-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.wj-teacher-ghost:hover:not(:disabled) {
+  border-color: color-mix(in oklab, var(--wj-cinnabar) 55%, transparent);
+  color: var(--wj-cinnabar);
+}
+
+.wj-teacher-ghost:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.wj-teacher-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--wj-ink);
+  margin-bottom: 1rem;
+}
+
+.wj-teacher-toolbar strong {
+  font-family: var(--font-serif);
+  font-size: 15px;
+}
+
+.wj-teacher-dim {
+  color: color-mix(in oklab, var(--wj-ink) 55%, transparent);
+  font-size: 12px;
+}
+
+.wj-teacher-chip {
+  padding: 0.18rem 0.65rem;
+  font-size: 12px;
+  border: 1px solid var(--wj-border);
+  border-radius: 999px;
+  background: none;
+  color: color-mix(in oklab, var(--wj-ink) 60%, transparent);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wj-teacher-chip.is-on {
+  background: var(--wj-ink);
+  border-color: var(--wj-ink);
+  color: var(--wj-paper);
+}
+
+.wj-teacher-hint {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  font-size: 13.5px;
+  color: color-mix(in oklab, var(--wj-ink) 55%, transparent);
+}
+
+/* 班级卡片 */
+.wj-teacher-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+  gap: 0.9rem;
+}
+
+.wj-tcard {
+  text-align: left;
+  padding: 0.9rem 1rem;
+  background: var(--wj-paper);
+  border: 1px solid var(--wj-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.wj-tcard:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--wj-cinnabar) 40%, transparent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.wj-tcard-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+  color: var(--wj-cinnabar);
+}
+
+.wj-tcard-head strong {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: var(--wj-ink);
+}
+
+.wj-tcard dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem 0.75rem;
+  margin: 0;
+}
+
+.wj-tcard dl > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.wj-tcard dt {
+  font-size: 11px;
+  color: color-mix(in oklab, var(--wj-ink) 50%, transparent);
+}
+
+.wj-tcard dd {
+  margin: 0;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  color: var(--wj-ink);
+}
+
+.wj-tcard dd i {
+  font-style: normal;
+  font-size: 11px;
+  color: color-mix(in oklab, var(--wj-ink) 45%, transparent);
+}
+
+/* 学生表 */
+.wj-trow {
+  display: grid;
+  grid-template-columns: 1.6fr 1.2fr 0.6fr 0.6fr 0.9fr;
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  font-size: 13px;
+  color: var(--wj-ink);
+  background: none;
+  border: none;
+  border-bottom: 1px solid color-mix(in oklab, var(--wj-border) 60%, transparent);
+  cursor: pointer;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+  transition: background-color 0.15s ease;
+}
+
+.wj-trow:not(.wj-trow-head):hover {
+  background: color-mix(in oklab, var(--wj-cinnabar) 6%, transparent);
+}
+
+.wj-trow-head {
+  font-size: 11.5px;
+  color: color-mix(in oklab, var(--wj-ink) 50%, transparent);
+  cursor: default;
+  border-bottom: 1px solid var(--wj-border);
+}
+
+.wj-trow-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.wj-teacher-avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.wj-teacher-avatar-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--wj-water, #35636f) 88%, transparent);
+  color: #fff;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* 学生详情 */
+.wj-tprofile {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 1.1rem;
+  background: var(--wj-paper);
+  border: 1px solid var(--wj-border);
+  border-radius: 10px;
+  margin-bottom: 1.1rem;
+}
+
+.wj-tprofile strong {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  color: var(--wj-ink);
+  margin-bottom: 3px;
+}
+
+.wj-tstage {
+  background: var(--wj-paper);
+  border: 1px solid var(--wj-border);
+  border-radius: 10px;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 0.8rem;
+}
+
+.wj-tstage header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.4rem;
+}
+
+.wj-tstage header h2 {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  color: var(--wj-ink);
+  margin: 0;
+}
+
+.wj-tstage-no {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in oklab, var(--wj-ink) 55%, transparent);
+  border: 1px dashed color-mix(in oklab, var(--wj-ink) 40%, transparent);
+}
+
+.wj-tstage-no.is-done {
+  background: var(--wj-ink);
+  color: var(--wj-paper);
+  border: 1px solid var(--wj-ink);
+}
+
+.wj-tbadge {
+  padding: 0.1rem 0.5rem;
+  font-size: 11px;
+  border-radius: 999px;
+  white-space: nowrap;
+  border: 1px solid color-mix(in oklab, var(--wj-ink) 30%, transparent);
+  color: color-mix(in oklab, var(--wj-ink) 60%, transparent);
+}
+
+.wj-tbadge.is-done {
+  background: color-mix(in oklab, var(--wj-cinnabar) 12%, transparent);
+  border-color: color-mix(in oklab, var(--wj-cinnabar) 45%, transparent);
+  color: var(--wj-cinnabar);
+}
+
+.wj-tbadge.is-doing {
+  border-color: color-mix(in oklab, var(--wj-water, #35636f) 55%, transparent);
+  color: var(--wj-water, #35636f);
+}
+
+.wj-tbadge.is-draft {
+  border-style: dashed;
+}
+
+.wj-tstage ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.wj-tstage li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+  border-top: 1px dashed color-mix(in oklab, var(--wj-border) 70%, transparent);
+  font-size: 12.5px;
+}
+
+.wj-tq-no {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--wj-cinnabar);
+  font-size: 11.5px;
+}
+
+.wj-tq-stem {
+  flex: 1;
+  color: var(--wj-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 口令门 */
+.wj-teacher-lock {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.wj-teacher-lockcard {
+  width: min(360px, 100%);
+  padding: 2rem 1.75rem 1.5rem;
+  background: var(--wj-paper);
+  border: 1px solid var(--wj-border);
+  border-radius: 12px;
+  text-align: center;
+  color: var(--wj-cinnabar);
+}
+
+.wj-teacher-lockcard h1 {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  color: var(--wj-ink);
+  margin: 0.6rem 0 0.35rem;
+}
+
+.wj-teacher-lockcard p {
+  font-size: 12.5px;
+  color: color-mix(in oklab, var(--wj-ink) 60%, transparent);
+  margin: 0 0 1.1rem;
+}
+
+.wj-teacher-lockcard form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.wj-teacher-lockcard input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.55rem 0.8rem;
+  font-size: 14px;
+  border: 1px solid var(--wj-border);
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--wj-paper) 55%, transparent);
+  color: var(--wj-ink);
+  letter-spacing: 0.2em;
+}
+
+.wj-teacher-lockcard input:focus {
+  outline: none;
+  border-color: var(--wj-cinnabar);
+}
+
+.wj-teacher-lockcard form button {
+  padding: 0.55rem 1rem;
+  font-size: 13.5px;
+  background: var(--wj-cinnabar);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.wj-teacher-lockcard form button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.wj-teacher-lockcard em {
+  display: block;
+  margin-top: 0.7rem;
+  font-style: normal;
+  font-size: 12px;
+  color: var(--wj-cinnabar);
+}
+
+.wj-teacher-backlink {
+  margin-top: 1rem;
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: color-mix(in oklab, var(--wj-ink) 55%, transparent);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .wj-teacher-wrap {
+    padding: 1rem 0.9rem 3rem;
+  }
+
+  .wj-trow {
+    grid-template-columns: 1.5fr 1fr 0.55fr 0.55fr;
+  }
+
+  .wj-trow > :nth-child(2),
+  .wj-trow-head > :nth-child(2) {
+    display: none;
+  }
+
+  .wj-trow > :last-child {
+    display: none;
+  }
+
+  .wj-trow-head > :last-child {
+    display: none;
+  }
+}

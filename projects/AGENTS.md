@@ -152,7 +152,19 @@ token）→ 302 到 `/auth/finish?token_hash=` 由**浏览器端** verifyOtp 建
 
 登录页两档身份：学生直接超星登录；教师需输口令（当前 123，写死在
 LoginForm）解锁超星按钮。角色存 localStorage `wj-role`（每次登录覆盖），
-首页顶栏教师显示黛青徽章。纯前端校验，教师端有真实管理功能时需迁服务端。
+首页顶栏教师显示黛青徽章 + 「学情分析」入口。
+
+### 教师端学情分析 /teacher（2026-09）
+
+三层视图：班级卡片 → 班级学生表 → 学生学情详情（六环节 + 17 题逐题
+判定/提交/草稿状态）。班级按**学工号前缀推导**（位数 4/6/8/不分组可调，
+默认 6 位，localStorage `wj-teacher-digits`；无学工号归「未编班」；手机号
+形态的学工号如 `phone18088...` 需手动切不分组）。数据走
+`GET /api/teacher/overview`：登录 Bearer + `x-teacher-passcode`
+（比对 `TEACHER_PASSCODE`，缺省 123，与登录页口令同源）双校验；service-role
+读 auth.users 元数据 + workshop_progress 全表（画图题只回 imageKeys
+不回 dataURL）。口令存 sessionStorage `wj-teacher-passcode`（403 即清除
+重锁）。细问答完口径与进度条/完成判定共用 store 的 `isQuestionAnswered`。
 
 ### 游客模式（2024-09）
 

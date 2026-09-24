@@ -2,12 +2,12 @@
 
 import { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { SECTIONS, STAGES } from '@/lib/workshop/content';
 import { useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { ExhibitionHall } from '@/components/workshop/ExhibitionHall';
-import { ArrowRight, Award, Check, Compass, LogOut, RotateCcw } from 'lucide-react';
+import { ArrowRight, Award, BarChart3, Check, Compass, LogOut, RotateCcw } from 'lucide-react';
 import { isGuestMode } from '@/lib/guest-mode';
 
 export default function WorkshopHall() {
@@ -61,6 +61,7 @@ function WorkshopHallInner() {
 
   // 案例精读页回展厅时带 ?tab=exhibition，初始落回「简牍鉴赏」页签
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [active, setActive] = useState(() =>
     searchParams.get('tab') === exhibition.id ? exhibition.id : excavation.id,
   );
@@ -170,6 +171,17 @@ function WorkshopHallInner() {
             </div>
 
             <div className="flex shrink-0 items-center gap-2 pb-1">
+              {isTeacher && (
+                <button
+                  type="button"
+                  onClick={() => router.push('/teacher')}
+                  title="查看班级与学生的学习数据"
+                  className="flex items-center gap-1.5 rounded border border-wj-border bg-wj-raised px-2.5 py-1.5 text-xs text-wj-ink transition-colors hover:border-wj-cinnabar hover:text-wj-cinnabar"
+                >
+                  <BarChart3 className="h-3.5 w-3.5" />
+                  学情分析
+                </button>
+              )}
               {user && <UserChip user={user} isTeacher={isTeacher} />}
               {!user && isGuest && (
                 <span
