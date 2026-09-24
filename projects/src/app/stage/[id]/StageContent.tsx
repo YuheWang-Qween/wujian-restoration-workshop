@@ -9,8 +9,9 @@ import { getSim } from '@/lib/workshop/sim';
 import { StageSim } from '@/components/workshop/StageSim';
 import { DataTable } from '@/components/workshop/DataTable';
 import { askGuide } from '@/lib/workshop/guide-bridge';
-import { answerKey, useWorkshopStore } from '@/store/useWorkshopStore';
+import { answerKey, isQuestionAnswered, useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
+import { StageProgressStrip } from '@/components/workshop/StageProgressStrip';
 
 function cleanLatex(text: string): string {
   return text
@@ -62,6 +63,7 @@ export function StageContent() {
   const actsRevealedRaw = useWorkshopStore((s) => s.actsRevealed[stageId] ?? 1);
   const revealNextAct = useWorkshopStore((s) => s.revealNextAct);
   const revealPrevAct = useWorkshopStore((s) => s.revealPrevAct);
+  const revealToAct = useWorkshopStore((s) => s.revealToAct);
   const isDone = hydrated && completed.includes(stageId);
 
   // 完成的判定：最后一道细问「答完」——有小问的题要求每个小问都写了内容，
@@ -216,6 +218,17 @@ export function StageContent() {
           </div>
         </div>
       </header>
+
+      <StageProgressStrip
+        stageId={stage.id}
+        actTitles={acts.map((a) => a.title)}
+        revealed={revealed}
+        onGo={(n) => {
+          revealToAct(stage.id, n);
+          scrollToAct(acts[n - 1].key);
+        }}
+        questions={stage.questions}
+      />
 
       <div className="relative z-10 mx-auto flex min-h-0 w-full max-w-[1400px] flex-1 flex-col">
         {/* 环节资料（单栏，页面唯一的滚动区） */}
@@ -392,25 +405,6 @@ function SectionHeading({ title, note }: { title: string; note?: string }) {
       {note && <span className="text-xs text-wj-muted">{note}</span>}
     </div>
   );
-}
-
-/**
- * 一道题是否「答完」：有小问的题要求每个小问都写了内容（非空白），
- * 无小问的题看整题答题框。完成判定与步进器共用这一口径。
- */
-function isQuestionAnswered(
-  answers: Record<string, string>,
-  images: Record<string, string>,
-  stageId: number,
-  q: WjQuestion,
-): boolean {
-  if (q.parts.length === 0) return (answers[answerKey(stageId, q.id)] ?? '').trim().length > 0;
-  return q.parts.every((p) => {
-    const k = answerKey(stageId, q.id, p.label);
-    const hasText = (answers[k] ?? '').trim().length > 0;
-    const hasImage = p.input?.type === 'drawing' && (images[k] ?? '').trim().length > 0;
-    return hasText || hasImage;
-  });
 }
 
 /**

@@ -588,3 +588,178 @@
   }
 }
 
+
+/* ── 编绳串简：环节页四节进度条 ─────────────────────────────
+   四个小简片被一根编绳串起：已读墨色可回跳、当前朱砂呼吸、未到虚线。
+   细问节带题目子进度；四片全墨后末节盖朱印「阅」。 */
+.wj-strip {
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(0.75rem, 4vw, 3.5rem);
+  padding: 0.4rem 1rem 0.35rem;
+  border-bottom: 1px solid var(--wj-border);
+  background: color-mix(in oklab, var(--wj-surface) 78%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+/* 编绳：横贯整条的中线，只与简片相连的段落着色 */
+.wj-strip-cord {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: calc(0.4rem + 13px);
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    var(--wj-ink) 0%,
+    var(--wj-ink) var(--wj-cord-done, 0%),
+    color-mix(in oklab, var(--wj-ink) 22%, transparent) var(--wj-cord-done, 0%)
+  );
+  pointer-events: none;
+}
+
+.wj-strip-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 0 0.25rem;
+  background: none;
+  border: none;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wj-strip-step:not(:disabled) {
+  cursor: pointer;
+}
+
+.wj-strip-slip {
+  position: relative;
+  width: 26px;
+  height: 16px;
+  border-radius: 3px;
+  background: color-mix(in oklab, var(--wj-paper) 60%, transparent);
+  border: 1.5px dashed color-mix(in oklab, var(--wj-ink) 38%, transparent);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+/* 已读：落墨成实心简片 */
+.wj-strip-step.is-done .wj-strip-slip {
+  background: var(--wj-ink);
+  border: 1.5px solid var(--wj-ink);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+/* 当前：朱砂简片 + 呼吸光 */
+.wj-strip-step.is-current .wj-strip-slip {
+  background: var(--wj-cinnabar);
+  border: 1.5px solid var(--wj-cinnabar);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  animation: wj-slip-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes wj-slip-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--wj-cinnabar) 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in oklab, var(--wj-cinnabar) 0%, transparent);
+  }
+}
+
+/* 朱印「阅」：盖在末节简片上 */
+.wj-strip-seal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-size: 10px;
+  line-height: 1;
+  color: var(--wj-cinnabar-ink);
+  letter-spacing: 0;
+}
+
+.wj-strip-step.is-done .wj-strip-seal {
+  color: var(--wj-paper);
+}
+
+.wj-strip-label {
+  font-size: 11px;
+  line-height: 1.2;
+  color: color-mix(in oklab, var(--wj-ink) 42%, transparent);
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+.wj-strip-step.is-done .wj-strip-label {
+  color: var(--wj-ink);
+}
+
+.wj-strip-step.is-current .wj-strip-label {
+  color: var(--wj-cinnabar);
+  font-weight: 600;
+}
+
+.wj-strip-sub {
+  margin-left: 3px;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in oklab, var(--wj-ink) 55%, transparent);
+}
+
+.wj-strip-step:not(:disabled):hover .wj-strip-label {
+  color: var(--wj-cinnabar);
+}
+
+@media (max-width: 640px) {
+  .wj-strip {
+    gap: clamp(0.5rem, 6vw, 1.5rem);
+    padding: 0.3rem 0.75rem 0.25rem;
+  }
+
+  .wj-strip-cord {
+    left: 8%;
+    right: 8%;
+    top: calc(0.3rem + 12px);
+  }
+
+  .wj-strip-slip {
+    width: 22px;
+    height: 13px;
+  }
+
+  /* 窄屏只显当前节名，其余节收成纯简片 */
+  .wj-strip-step:not(.is-current) .wj-strip-label {
+    font-size: 0;
+  }
+
+  .wj-strip-step.is-current .wj-strip-label {
+    font-size: 11px;
+  }
+
+  .wj-strip-sub {
+    font-size: 10px;
+    margin-left: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wj-strip-step.is-current .wj-strip-slip {
+    animation: none;
+  }
+
+  .wj-strip-slip {
+    transition: none;
+  }
+}

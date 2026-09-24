@@ -45,6 +45,8 @@ interface WorkshopState {
   setStudentInfo: (studentId: string, name: string) => void;
   revealNextAct: (stageId: number, totalActs: number) => void;
   revealPrevAct: (stageId: number) => void;
+  /** 跳到第 n 节（1 基）：进度条回看已解锁的节用，只允许往回或原地 */
+  revealToAct: (stageId: number, n: number) => void;
   resetAll: () => void;
   resetStage: (stageId: number) => void;
 }
@@ -55,6 +57,25 @@ interface WorkshopState {
  */
 export function answerKey(stageId: number, questionId: string, part?: string) {
   return part ? `${stageId}-${questionId}-${part}` : `${stageId}-${questionId}`;
+}
+
+/**
+ * 一道细问是否答完：有小问的题要求每个小问都有内容（画图题认图不认字），
+ * 无小问的题整题答题框非空。进度条子进度与完成判定共用这一个口径。
+ */
+export function isQuestionAnswered(
+  answers: Record<string, string>,
+  images: Record<string, string>,
+  stageId: number,
+  q: { id: string; parts: { label: string; input?: { type?: string } }[] },
+): boolean {
+  if (q.parts.length === 0) return (answers[answerKey(stageId, q.id)] ?? '').trim().length > 0;
+  return q.parts.every((p) => {
+    const k = answerKey(stageId, q.id, p.label);
+    const hasText = (answers[k] ?? '').trim().length > 0;
+    const hasImage = p.input?.type === 'drawing' && (images[k] ?? '').trim().length > 0;
+    return hasText || hasImage;
+  });
 }
 
 /**
@@ -148,6 +169,9 @@ export const useWorkshopStore = create<WorkshopState>()(
           if (cur <= 1) return s;
           return { actsRevealed: { ...s.actsRevealed, [stageId]: cur - 1 } };
         }),
+
+      revealToAct: (stageId, n) =>
+        set((s) => ({ actsRevealed: { ...s.actsRevealed, [stageId]: Math.max(1, n) } })),
 
       resetAll: () =>
         set({
