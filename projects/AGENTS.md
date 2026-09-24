@@ -127,6 +127,21 @@ token）→ 302 到 `/auth/finish?token_hash=` 由**浏览器端** verifyOtp 建
 - 失败分类四档（config_missing / institution_mismatch / oauth_failed / session_failed），302 到 `/auth/error`，具体原因只进服务端日志
 - 部署需在超星后台登记回调 `https://<域名>/api/auth/callback/chaoxing`，并在平台配置四个 CHAOXING_* 变量（README 模板同款流程）
 
+### 凭据安全纪律（2024-09 事故教训）
+
+真实凭据只放 `projects/.env`（已被根 .gitignore 忽略）；`projects/.env.example`
+永远只写占位符。平台会把改动自动暂存进 index，`git commit` 时会连同暂存区
+一起提交——提交前必须 `git status` 检查暂存区，确认没有 .env 或含真实密钥的
+文件被扫入。`.env.example` 若被填了真实值，先用占位符版本覆盖再提交。
+真实密钥一旦进了远程历史，必须 reset 重建历史 + force push，并到超星后台
+轮换 Secret（GitHub 会缓存不可达提交对象）。
+
+### 教师口令身份（2024-09）
+
+登录页两档身份：学生直接超星登录；教师需输口令（当前 123，写死在
+LoginForm）解锁超星按钮。角色存 localStorage `wj-role`（每次登录覆盖），
+首页顶栏教师显示黛青徽章。纯前端校验，教师端有真实管理功能时需迁服务端。
+
 ## 目录结构
 
 ```
