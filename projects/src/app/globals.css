@@ -587,58 +587,52 @@
     animation: none;
   }
 }
-/* ── 编绳串简：环节页四节进度条 ─────────────────────────────
-   四个小简片被编绳串起：绳是相邻简片间的伸缩绳段，始终对齐简片中心。
-   已读墨色可回跳、当前朱砂呼吸、未到虚线；细问到达后显题目子进度；
-   四片全墨后末节盖朱印「阅」。 */
-.wj-strip {
-  position: relative;
-  z-index: 10;
-  flex-shrink: 0;
-  display: flex;
-  align-items: flex-start;
-  padding: 0.6rem 1.25rem 0.5rem;
-  border-bottom: 1px solid var(--wj-border);
-  background: color-mix(in oklab, var(--wj-surface) 80%, transparent);
-  backdrop-filter: blur(8px);
-}
-
-.wj-strip-step {
+/* ── 编绳串简：环节页四节进度轨道（右缘竖排简册） ─────────────
+   fixed 常驻右缘、垂直居中，不占文档流：已读墨色可回跳、当前朱砂
+   呼吸且节名常显、未到虚线；细问节到达后带题目子进度；全部读完
+   末节简片盖朱印「阅」。悬停轨道显示全部节名，窄屏隐藏。 */
+.wj-rail {
+  position: fixed;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  padding: 0;
+}
+
+.wj-rail-step {
+  position: relative;
+  display: block;
+  padding: 2px;
   background: none;
   border: none;
   cursor: default;
   -webkit-tap-highlight-color: transparent;
 }
 
-.wj-strip-step:not(:disabled) {
+.wj-rail-step:not(:disabled) {
   cursor: pointer;
 }
 
-/* 绳段：吃掉相邻简片之间的全部空隙，垂直位置 = 简片中心线 */
-.wj-strip-cord {
-  flex: 1 1 0;
-  min-width: 12px;
-  height: 2px;
-  margin: 7px 10px 0;
+/* 绳段：相邻简片之间的垂直短绳，吃到简片中心 */
+.wj-rail-cord {
+  width: 2px;
+  height: 14px;
   border-radius: 1px;
   background: color-mix(in oklab, var(--wj-ink) 18%, transparent);
   transition: background-color 0.3s ease;
 }
 
-.wj-strip-cord.is-ink {
+.wj-rail-cord.is-ink {
   background: color-mix(in oklab, var(--wj-ink) 72%, transparent);
 }
 
-.wj-strip-slip {
-  position: relative;
-  width: 26px;
-  height: 16px;
+.wj-rail-slip {
+  display: block;
+  width: 12px;
+  height: 42px;
   border-radius: 3px;
   background: color-mix(in oklab, var(--wj-paper) 65%, transparent);
   border: 1.5px dashed color-mix(in oklab, var(--wj-ink) 35%, transparent);
@@ -649,14 +643,14 @@
 }
 
 /* 已读：落墨成实心简片 */
-.wj-strip-step.is-done .wj-strip-slip {
+.wj-rail-step.is-done .wj-rail-slip {
   background: var(--wj-ink);
   border: 1.5px solid var(--wj-ink);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
 }
 
 /* 当前：朱砂简片 + 呼吸光 */
-.wj-strip-step.is-current .wj-strip-slip {
+.wj-rail-step.is-current .wj-rail-slip {
   background: var(--wj-cinnabar);
   border: 1.5px solid var(--wj-cinnabar);
   animation: wj-slip-breathe 2.4s ease-in-out infinite;
@@ -673,77 +667,67 @@
 }
 
 /* 朱印「阅」：盖在末节简片上 */
-.wj-strip-seal {
+.wj-rail-seal {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-serif);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1;
   color: var(--wj-paper);
 }
 
-.wj-strip-label {
-  font-size: 11px;
-  line-height: 1.2;
-  color: color-mix(in oklab, var(--wj-ink) 40%, transparent);
+/* 节名：简片左侧的小签，当前节常显，悬停轨道时全部浮现 */
+.wj-rail-label {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
   white-space: nowrap;
-  transition: color 0.3s ease;
+  font-size: 11px;
+  line-height: 1.4;
+  color: color-mix(in oklab, var(--wj-ink) 62%, transparent);
+  background: color-mix(in oklab, var(--wj-paper) 92%, transparent);
+  border: 1px solid var(--wj-border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  font-variant-numeric: tabular-nums;
 }
 
-.wj-strip-step.is-done .wj-strip-label {
-  color: var(--wj-ink);
-}
-
-.wj-strip-step.is-current .wj-strip-label {
+.wj-rail-step.is-current .wj-rail-label {
+  opacity: 1;
   color: var(--wj-cinnabar);
+  border-color: color-mix(in oklab, var(--wj-cinnabar) 40%, transparent);
   font-weight: 600;
 }
 
-.wj-strip-sub {
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
-  color: color-mix(in oklab, var(--wj-ink) 52%, transparent);
+.wj-rail:hover .wj-rail-label,
+.wj-rail:focus-within .wj-rail-label {
+  opacity: 1;
 }
 
-.wj-strip-step:not(:disabled):hover .wj-strip-label {
+.wj-rail-step:not(:disabled):hover .wj-rail-label {
   color: var(--wj-cinnabar);
 }
 
-@media (max-width: 640px) {
-  .wj-strip {
-    padding: 0.5rem 0.75rem 0.45rem;
-  }
-
-  .wj-strip-slip {
-    width: 22px;
-    height: 13px;
-  }
-
-  .wj-strip-cord {
-    margin: 5px 6px 0;
-    min-width: 8px;
-  }
-
-  /* 窄屏只显当前节名，其余节收成纯简片 */
-  .wj-strip-step:not(.is-current) .wj-strip-label {
-    font-size: 0;
-  }
-
-  .wj-strip-step.is-current .wj-strip-label {
-    font-size: 11px;
+@media (max-width: 767px) {
+  .wj-rail {
+    display: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wj-strip-step.is-current .wj-strip-slip {
+  .wj-rail-step.is-current .wj-rail-slip {
     animation: none;
   }
 
-  .wj-strip-slip,
-  .wj-strip-cord {
+  .wj-rail-slip,
+  .wj-rail-cord {
     transition: none;
   }
 }
