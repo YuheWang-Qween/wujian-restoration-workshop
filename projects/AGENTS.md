@@ -110,7 +110,22 @@
 ## 技术栈
 
 Next.js 16 App Router · React 19 · TypeScript 5 · Tailwind CSS 4 · shadcn/ui ·
-Supabase Auth（邮箱密码登录/注册）· zustand（localStorage 持久化，无业务数据库）
+Supabase Auth（超星 OAuth 集成登录为主，未配置 CHAOXING_* 时降级邮箱密码）·
+zustand（localStorage 持久化，无业务数据库）
+
+## 超星集成登录（2024-09 接入）
+
+登录主入口已换成超星 OAuth：`/api/auth/chaoxing` 发起 → 超星授权 →
+`/api/auth/callback/chaoxing` 服务端解析身份并落成 Supabase 用户（magic link
+token）→ 302 到 `/auth/finish?token_hash=` 由**浏览器端** verifyOtp 建立会话。
+会话仍落 localStorage（进度同步/成就全走 Bearer token），与超星官方模板的
+服务端 Cookie 会话不同——这是有意为之的最小侵入改造。
+
+- `CHAOXING_FIDS` 裸 FID=单按钮静默轮询；`fid:名称`=机构下拉框严格校验（见 .env.example）
+- 身份字段存 `app_metadata.chaoxing`（服务端可写才能用于鉴权）；学工号在 `chaoxing.name`（displayName 才是姓名）
+- 未配置 CHAOXING_* 时登录页降级：超星按钮禁用 + 显示邮箱密码表单与注册链接（本地开发不被锁死）
+- 失败分类四档（config_missing / institution_mismatch / oauth_failed / session_failed），302 到 `/auth/error`，具体原因只进服务端日志
+- 部署需在超星后台登记回调 `https://<域名>/api/auth/callback/chaoxing`，并在平台配置四个 CHAOXING_* 变量（README 模板同款流程）
 
 ## 目录结构
 
@@ -121,7 +136,11 @@ src/
 │   ├── api/chat/route.ts             # 助教对话：SSE 流式 + 环节材料注入 + 知识库 RAG
 │   ├── api/grade/route.ts            # 请小简评阅：SSE 流式判定（verdict 章 + 流式解析）
 │   ├── api/reference-answer/route.ts # 参考答案：确认提交后 SSE 流式生成（纯 content 流）
-│   ├── login/page.tsx、register/page.tsx  # 登录 / 注册（已登录访问自动跳回首页）；登录表单下方有「观看演示」入口（调 window.__startDemo）
+│   ├── api/auth/chaoxing/route.ts    # 发起超星 OAuth（state=机构FID，登录上下文 Cookie）
+│   ├── api/auth/callback/chaoxing/route.ts  # 超星回调：解析身份→建 Supabase 用户→302 到 /auth/finish 带 token_hash
+│   ├── login/page.tsx、register/page.tsx  # 登录（超星按钮为主入口，未配置时降级邮箱表单）/ 注册（仅降级模式使用）；登录表单下方有「观看演示」入口（调 window.__startDemo）
+│   ├── auth/finish/page.tsx          # 超星登录客户端收尾：verifyOtp 建立 localStorage 会话
+│   ├── auth/error/page.tsx           # 登录失败页：四档错误分类文案
 │   ├── page.tsx                      # 工坊大厅：两篇页签（?tab=exhibition 落展示篇）+ 六个环节入口
 │   ├── stage/[id]/page.tsx           # 环节页：单栏资料 + 细问 + 答题草稿框
 │   ├── exhibition/{discovery,forms,themes,cases,reference}/page.tsx  # 展示篇五个板块独立页

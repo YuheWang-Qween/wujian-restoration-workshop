@@ -34,7 +34,7 @@ export function useAuth() {
 }
 
 /** 不需要登录态就能访问的路径 */
-const PUBLIC_PATHS = new Set(['/login', '/register']);
+const PUBLIC_PATHS = new Set(['/login', '/register', '/auth/finish', '/auth/error']);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { config, isLoading: configLoading } = useSupabaseConfig();

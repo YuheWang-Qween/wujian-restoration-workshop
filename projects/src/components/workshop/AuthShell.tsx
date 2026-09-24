@@ -55,8 +55,9 @@ export function useAuthPageReady(): { ready: boolean; screen: ReactNode } {
 interface AuthShellProps {
   /** 卡片内的小标题：「账号登录」/「创建账号」 */
   cardTitle: string;
-  /** 卡片底部的互跳链接：{ hint: '还没有账号？', href: '/register', label: '去注册' } */
-  altLink: { hint: string; href: string; label: string };
+  /** 卡片底部的互跳链接：{ hint: '还没有账号？', href: '/register', label: '去注册' }。
+   *  超星集成登录模式下无注册入口，可省略。 */
+  altLink?: { hint: string; href: string; label: string };
   children: ReactNode;
 }
 
@@ -88,22 +89,26 @@ export function AuthShell({ cardTitle, altLink, children }: AuthShellProps) {
 
             {children}
 
-            <div className="my-6 flex items-center gap-3">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent to-wj-line" />
-              <span className="text-xs text-wj-dim">或</span>
-              <div className="h-px flex-1 bg-gradient-to-l from-transparent to-wj-line" />
-            </div>
+            {altLink && (
+              <>
+                <div className="my-6 flex items-center gap-3">
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent to-wj-line" />
+                  <span className="text-xs text-wj-dim">或</span>
+                  <div className="h-px flex-1 bg-gradient-to-l from-transparent to-wj-line" />
+                </div>
 
-            <p className="text-center text-sm text-wj-muted">
-              {altLink.hint}{' '}
-              <Link
-                href={altLink.href}
-                data-demo="login-altlink"
-                className="font-medium text-wj-cinnabar underline-offset-4 transition-colors hover:text-wj-cinnabar/80 hover:underline"
-              >
-                {altLink.label}
-              </Link>
-            </p>
+                <p className="text-center text-sm text-wj-muted">
+                  {altLink.hint}{' '}
+                  <Link
+                    href={altLink.href}
+                    data-demo="login-altlink"
+                    className="font-medium text-wj-cinnabar underline-offset-4 transition-colors hover:text-wj-cinnabar/80 hover:underline"
+                  >
+                    {altLink.label}
+                  </Link>
+                </p>
+              </>
+            )}
           </div>
         </div>
 
