@@ -103,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * 用 replace 而非 push：跳转页不进历史，防止「后退又被弹回」的循环。 */
   useEffect(() => {
     if (isLoading || configLoading) return;
+    if (window.__DEMO_MODE__) return;
     if (config && !user && !PUBLIC_PATHS.has(pathname)) {
       router.replace('/login');
     }
@@ -124,7 +125,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* ---- 渲染层闸门：配置可用但未登录时不输出受保护内容 ----
    * isLoading / configLoading 期间直接放行渲染，避免全屏 spinner。
    * 只在鉴权明确落定（config 有值且 user 为 null）时才拦截。 */
-  const gated = !PUBLIC_PATHS.has(pathname) && !!config && !user;
+  const demoMode = typeof window !== 'undefined' && window.__DEMO_MODE__ === true;
+  const gated = !PUBLIC_PATHS.has(pathname) && !!config && !user && !demoMode;
 
   return (
     <AuthContext.Provider

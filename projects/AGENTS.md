@@ -121,15 +121,15 @@ src/
 │   ├── api/chat/route.ts             # 助教对话：SSE 流式 + 环节材料注入 + 知识库 RAG
 │   ├── api/grade/route.ts            # 请小简评阅：SSE 流式判定（verdict 章 + 流式解析）
 │   ├── api/reference-answer/route.ts # 参考答案：确认提交后 SSE 流式生成（纯 content 流）
-│   ├── login/page.tsx、register/page.tsx  # 登录 / 注册（已登录访问自动跳回首页）
+│   ├── login/page.tsx、register/page.tsx  # 登录 / 注册（已登录访问自动跳回首页）；登录表单下方有「观看演示」入口（调 window.__startDemo）
 │   ├── page.tsx                      # 工坊大厅：两篇页签（?tab=exhibition 落展示篇）+ 六个环节入口
 │   ├── stage/[id]/page.tsx           # 环节页：单栏资料 + 细问 + 答题草稿框
 │   ├── exhibition/{discovery,forms,themes,cases,reference}/page.tsx  # 展示篇五个板块独立页
 │   ├── exhibition/case/[id]/page.tsx # 展示篇案例精读页 ×5（服务端组件，字段驱动）
-│   ├── layout.tsx                    # 挂 AuthProvider（未登录访问业务页跳 /login）
+│   ├── layout.tsx                    # 挂 AuthProvider（未登录访问业务页跳 /login）+ DemoMode（全局演示组件，挂 window.__startDemo）
 │   └── globals.css                   # 纸墨主题令牌（wj-*）
 ├── components/workshop/
-│   ├── AuthProvider.tsx              # 会话监听 + 路由守卫 + signOut
+│   ├── AuthProvider.tsx              # 会话监听 + 路由守卫 + signOut（守卫与渲染闸门都有 __DEMO_MODE__ 旁路，未登录也能看演示）
 │   ├── GuideAvatarGate.tsx           # 小简的出场闸门：仅 /stage 路由动态加载（layout 挂它）
 │   ├── GuideAvatar.tsx               # 数字人向导「小简」：右下常驻，实时感知页面换台词
 │   ├── GuideChat.tsx                 # 小简的 AI 助教对话框：就地展开，接 /api/chat

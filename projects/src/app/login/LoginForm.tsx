@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Play } from 'lucide-react';
 import {
   AuthError,
   AuthField,
@@ -108,6 +108,16 @@ export function LoginForm() {
         <AuthError message={error} />
 
         <AuthSubmitButton submitting={submitting} idleText="登 录" busyText="登录中..." />
+
+        <button
+          type="button"
+          onClick={() => window.__startDemo?.()}
+          data-demo="login-demo"
+          className="flex w-full items-center justify-center gap-2 rounded-md border border-wj-border py-2.5 text-sm tracking-wide text-wj-muted transition-colors hover:border-wj-cinnabar hover:text-wj-cinnabar"
+        >
+          <Play className="h-4 w-4" />
+          观看演示 · 约 3 分钟
+        </button>
       </form>
     </AuthShell>
   );
