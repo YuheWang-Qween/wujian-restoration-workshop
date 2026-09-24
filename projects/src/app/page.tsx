@@ -7,7 +7,8 @@ import { SECTIONS, STAGES } from '@/lib/workshop/content';
 import { useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { ExhibitionHall } from '@/components/workshop/ExhibitionHall';
-import { ArrowRight, Award, Check, LogOut, Play, RotateCcw } from 'lucide-react';
+import { ArrowRight, Award, Check, Compass, LogOut, Play, RotateCcw } from 'lucide-react';
+import { isGuestMode } from '@/lib/guest-mode';
 
 export default function WorkshopHall() {
   return (
@@ -29,9 +30,11 @@ function WorkshopHallInner() {
   const { user, signOut } = useAuth();
   const [excavation, exhibition] = SECTIONS;
   const [isTeacher, setIsTeacher] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
     setIsTeacher(localStorage.getItem('wj-role') === 'teacher');
+    setIsGuest(isGuestMode());
   }, []);
 
   function stageProgress(stageId: number) {
@@ -168,6 +171,15 @@ function WorkshopHallInner() {
 
             <div className="flex shrink-0 items-center gap-2 pb-1">
               {user && <UserChip user={user} isTeacher={isTeacher} />}
+              {!user && isGuest && (
+                <span
+                  title="游客模式：浏览与作答不受限制，进度仅保存在本机浏览器，登录后可同步到账号"
+                  className="flex items-center gap-1.5 rounded border border-wj-border bg-wj-raised px-2.5 py-1.5 text-xs text-wj-muted"
+                >
+                  <Compass className="h-3.5 w-3.5" />
+                  游客
+                </span>
+              )}
 
               <button
                 type="button"
@@ -183,13 +195,13 @@ function WorkshopHallInner() {
               <button
                 type="button"
                 onClick={() => {
-                  if (user) signOut();
+                  signOut();
                   setActive('excavation');
                 }}
                 className="flex items-center gap-1 rounded border border-wj-border px-2.5 py-1.5 text-xs text-wj-muted transition-colors hover:border-wj-cinnabar hover:text-wj-cinnabar"
               >
                 <LogOut className="h-3.5 w-3.5" />
-                退出
+                {user ? '退出' : '退出游客'}
               </button>
             </div>
           </div>

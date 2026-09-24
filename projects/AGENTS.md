@@ -143,6 +143,15 @@ token）→ 302 到 `/auth/finish?token_hash=` 由**浏览器端** verifyOtp 建
 LoginForm）解锁超星按钮。角色存 localStorage `wj-role`（每次登录覆盖），
 首页顶栏教师显示黛青徽章。纯前端校验，教师端有真实管理功能时需迁服务端。
 
+### 游客模式（2024-09）
+
+登录页「游客浏览」按钮 → `src/lib/guest-mode.ts`（localStorage `wj-guest`）。
+路由守卫与渲染闸门照 `__DEMO_MODE__` 同款旁路放行；作答与 AI 助教不带
+Authorization 也能用（服务端本就兼容无凭据）。进度同步以登录 user 为闸，
+游客天然只存本机 localStorage。`signOut()` 内部清游客标记（各页退出按钮统一
+生效）；真实登录（session 落定）也会自动清。顶栏游客态显示「游客」chip，
+退出按钮文案变「退出游客」。
+
 ## 目录结构
 
 ```

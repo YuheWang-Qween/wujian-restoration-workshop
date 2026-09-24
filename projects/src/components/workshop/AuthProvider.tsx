@@ -12,6 +12,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import type { User, Session } from '@supabase/supabase-js';
 import { useSupabaseConfig } from '@/lib/supabase-config-inject';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { isGuestMode, exitGuestMode } from '@/lib/guest-mode';
 
 interface AuthContextType {
   user: User | null;
@@ -66,6 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (cancelled) return;
         setSession(data.session);
         setUser(data.session?.user ?? null);
+        // 残留的游客标记随真实会话一起清掉
+        if (data.session?.user) exitGuestMode();
       } catch {
         // 配置尚未就绪，忽略
       } finally {
@@ -88,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
+      if (newSession?.user) exitGuestMode();
 
       if (event === 'SIGNED_OUT') {
         router.push('/login');
@@ -104,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isLoading || configLoading) return;
     if (window.__DEMO_MODE__) return;
+    if (isGuestMode()) return;
     if (config && !user && !PUBLIC_PATHS.has(pathname)) {
       router.replace('/login');
     }
@@ -111,6 +116,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /* ---- 登出 ---- */
   const signOut = useCallback(async () => {
+    // 游客点退出：清游客标记后同样回登录页
+    exitGuestMode();
     try {
       const supabase = getSupabaseBrowserClient();
       await supabase.auth.signOut();
@@ -124,9 +131,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /* ---- 渲染层闸门：配置可用但未登录时不输出受保护内容 ----
    * isLoading / configLoading 期间直接放行渲染，避免全屏 spinner。
-   * 只在鉴权明确落定（config 有值且 user 为 null）时才拦截。 */
+   * 只在鉴权明确落定（config 有值且 user 为 null）时才拦截。
+   * 演示模式与游客模式放行。 */
   const demoMode = typeof window !== 'undefined' && window.__DEMO_MODE__ === true;
-  const gated = !PUBLIC_PATHS.has(pathname) && !!config && !user && !demoMode;
+  const guestMode = isGuestMode();
+  const gated = !PUBLIC_PATHS.has(pathname) && !!config && !user && !demoMode && !guestMode;
 
   return (
     <AuthContext.Provider

@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Play, LogIn, GraduationCap, KeyRound } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Play, LogIn, GraduationCap, KeyRound, Compass } from 'lucide-react';
 import type { ChaoxingLoginOptions } from '@/lib/chaoxing-client';
+import { enterGuestMode, exitGuestMode } from '@/lib/guest-mode';
 import { AuthShell, useAuthPageReady } from '@/components/workshop/AuthShell';
 
 const TEACHER_PASSCODE = '123';
@@ -18,6 +20,7 @@ function formatInstitution({ fid, name }: { fid: string; name: string }): string
  */
 export function LoginForm({ chaoxing }: { chaoxing: ChaoxingLoginOptions }) {
   const { ready, screen } = useAuthPageReady();
+  const router = useRouter();
 
   const [role, setRole] = useState<'student' | 'teacher'>('student');
   const [passcode, setPasscode] = useState('');
@@ -32,10 +35,16 @@ export function LoginForm({ chaoxing }: { chaoxing: ChaoxingLoginOptions }) {
     if (teacherLocked) return;
     setPending(true);
     localStorage.setItem('wj-role', role);
+    exitGuestMode();
     // 没有下拉框时不带 fid，服务端会用第一个 FID 起头再轮询其余机构。
     window.location.assign(
       fid ? `/api/auth/chaoxing?fid=${encodeURIComponent(fid)}` : '/api/auth/chaoxing',
     );
+  }
+
+  function handleGuestBrowse() {
+    enterGuestMode();
+    router.push('/');
   }
 
   return (
@@ -157,6 +166,19 @@ export function LoginForm({ chaoxing }: { chaoxing: ChaoxingLoginOptions }) {
           <Play className="demo-cta-icon h-4 w-4" />
           观看演示 · 约 3 分钟
         </button>
+
+        {/* 游客浏览：跳过登录自由逛，进度只存本机 */}
+        <button
+          type="button"
+          onClick={handleGuestBrowse}
+          className="flex w-full items-center justify-center gap-2 rounded border border-wj-border bg-transparent py-2.5 text-sm text-wj-muted transition-colors hover:border-wj-muted/60 hover:text-wj-ink"
+        >
+          <Compass className="h-4 w-4" />
+          游客浏览 · 不登录先逛逛
+        </button>
+        <p className="text-center text-xs leading-relaxed text-wj-dim">
+          游客模式下学习进度仅保存在本机浏览器，登录后可同步到账号
+        </p>
       </div>
     </AuthShell>
   );
