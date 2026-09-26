@@ -27,24 +27,36 @@ function WorkshopHallInner() {
   const verdicts = useWorkshopStore((s) => s.verdicts);
   const done = hydrated ? completed : [];
   const allCompleted = done.length >= STAGES.length;
-  const { user, signOut } = useAuth();
+  const { user, signOut, isLoading } = useAuth();
   const [excavation, exhibition] = SECTIONS;
-  const [isTeacher, setIsTeacher] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
+  // 案例精读页回展厅时带 ?tab=exhibition，初始落回「简牍鉴赏」页签
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  // 本组件包在 Suspense 里、纯客户端渲染，首帧即可读本地角色；
+  // 服务端角色（app_metadata.teacher）覆盖换设备/旧会话里本地标记缺失的教师。
+  const [localTeacher] = useState(() =>
+    typeof window !== 'undefined' && localStorage.getItem('wj-role') === 'teacher',
+  );
+  const serverTeacher = user?.app_metadata?.teacher === true;
+  const isTeacher = localTeacher || serverTeacher;
+  // 只认挂载那一刻的 view 参数：Next 会把 history.replaceState 联动进路由，
+  // 学生视角落地后清理 URL 的动作若反过来触发重定向，教师就永远进不了学生视角。
+  const enteredAsStudent = useRef(searchParams.get('view') === 'student');
+  const teacherLeaving =
+    !enteredAsStudent.current && (localTeacher || (!isLoading && serverTeacher));
 
   useEffect(() => {
-    const teacher = localStorage.getItem('wj-role') === 'teacher';
-    setIsTeacher(teacher);
     setIsGuest(isGuestMode());
-    // 教师的首页就是学情分析；「学生视角」经 ?view=student 临时抑制跳转
-    if (teacher && searchParams.get('view') !== 'student') {
-      router.replace('/teacher');
+    if (enteredAsStudent.current) {
+      window.history.replaceState(null, '', '/');
       return;
     }
-    if (searchParams.get('view') === 'student') {
-      window.history.replaceState(null, '', '/');
+    // 教师的首页就是学情分析；「学生视角」经 ?view=student 临时抑制跳转
+    if (localTeacher || (!isLoading && serverTeacher)) {
+      router.replace('/teacher');
     }
-  }, []);
+  }, [localTeacher, serverTeacher, isLoading, router]);
 
   function stageProgress(stageId: number) {
     let total = 0;
@@ -68,9 +80,6 @@ function WorkshopHallInner() {
     return { total, answered, verified };
   }
 
-  // 案例精读页回展厅时带 ?tab=exhibition，初始落回「简牍鉴赏」页签
-  const searchParams = useSearchParams();
-  const router = useRouter();
   const [active, setActive] = useState(() =>
     searchParams.get('tab') === exhibition.id ? exhibition.id : excavation.id,
   );
@@ -91,6 +100,10 @@ function WorkshopHallInner() {
     switchTab(next.id);
     tabRefs.current[next.id]?.focus();
   };
+
+  // 教师被送去学情页前不渲染展馆内容：?tab=exhibition 复原的「简牍鉴赏」
+  // 若照常首帧渲染，教师刷新/重开应用时会先闪现整页鉴赏再跳走。
+  if (teacherLeaving) return null;
 
   return (
     <>

@@ -156,11 +156,18 @@ LoginForm）解锁超星按钮。角色存 localStorage `wj-role`（每次登录
 
 ### 教师端学情分析 /teacher（2026-09）
 
-**教师首页即学情分析**：`/` 挂载时 `wj-role==='teacher'` 且 URL 无
-`?view=student` → replace('/teacher')；`/teacher` 顶栏「学生视角」按钮
-push('/?view=student') 供教师临时查看学生端（首页读参后 replaceState 清掉
+**教师首页即学情分析**：`/` 挂载时角色命中且 URL 无 `?view=student` →
+replace('/teacher')。角色判定 = 本地 `wj-role==='teacher'` **或** 会话
+`user.app_metadata.teacher`（服务端权威标记，覆盖换设备/旧会话本地标记缺失）；
+判定为教师时首页**不渲染展馆内容直接空跳**（`teacherLeaving` 渲染闸门）——
+否则 `?tab=exhibition` 复原的简牍鉴赏会在教师刷新/重开应用时先闪现整页再跳走。
+「学生视角」按 **挂载时快照**（`enteredAsStudent` ref）判定：Next 会把
+history.replaceState 联动进路由，若按实时 searchParams 判定，清理 view 参数
+的动作会反过来触发重定向、教师永远进不了学生视角。`/teacher` 顶栏「学生视角」
+按钮 push('/?view=student') 供教师临时查看学生端（首页读参后 replaceState 清掉
 参数，刷新即回教师端）。曾经用 sessionStorage 一次性标记（读取即焚）实现，
-在二次挂载/受限 webview 下会把教师误弹回 /teacher，已废弃。
+在二次挂载/受限 webview 下会把教师误弹回 /teacher，已废弃。登出
+（AuthProvider.signOut）会同步清掉 `wj-role`，防止残留教师标记把游客浏览也拽去 /teacher。
 
 三层视图：班级卡片 → 班级学生表 → 学生学情详情（六环节 + 17 题逐题
 判定/提交/草稿状态）。**班级由教师手动划分**（2026-09 改造，废弃了按

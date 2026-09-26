@@ -118,7 +118,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     // 游客点退出：清游客标记后同样回登录页
     exitGuestMode();
+    // 本地角色标记随会话一起清掉，否则残留的教师标记会把游客浏览也拽去 /teacher
     try {
+      localStorage.removeItem('wj-role');
       const supabase = getSupabaseBrowserClient();
       await supabase.auth.signOut();
     } catch {
