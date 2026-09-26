@@ -805,6 +805,70 @@
   margin-bottom: 1rem;
 }
 
+.wj-teacher-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--wj-border);
+  margin: 4px 0 1.1rem;
+}
+
+.wj-teacher-tabs button {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 10px 16px 12px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--wj-dim);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wj-teacher-tabs button:hover {
+  color: var(--wj-ink);
+}
+
+.wj-teacher-tabs button.is-on {
+  color: var(--wj-cinnabar);
+  border-bottom-color: var(--wj-cinnabar);
+  font-weight: 600;
+}
+
+.wj-err-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-right: auto;
+}
+
+.wj-err-filter button {
+  appearance: none;
+  border: 1px solid var(--wj-border);
+  background: var(--wj-paper);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--wj-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.wj-err-filter button:hover {
+  color: var(--wj-cinnabar);
+  border-color: var(--wj-cinnabar);
+}
+
+.wj-err-filter button.is-on {
+  background: var(--wj-cinnabar);
+  border-color: var(--wj-cinnabar);
+  color: #fff;
+}
+
 .wj-teacher-toolbar strong {
   font-family: var(--font-serif);
   font-size: 15px;

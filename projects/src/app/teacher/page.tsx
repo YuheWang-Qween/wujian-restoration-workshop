@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ChevronDown, Eye, KeyRound, Plus, RefreshCw, Users, GraduationCap } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, ChevronDown, Eye, KeyRound, Plus, RefreshCw, Users, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { STAGES, ACT_WHY, ACT_DATA, ACT_SIM, ACT_QUESTIONS } from '@/lib/workshop/content';
 import { answerKey, isQuestionAnswered } from '@/store/useWorkshopStore';
@@ -301,6 +301,8 @@ export default function TeacherPage() {
   const [learners, setLearners] = useState<Learner[]>([]);
   const [fetchedAt, setFetchedAt] = useState('');
   const [view, setView] = useState<View>({ mode: 'classes' });
+  const [page, setPage] = useState<'classes' | 'errors'>('classes');
+  const [errClass, setErrClass] = useState('全部班级');
   const [extraClasses, setExtraClasses] = useState<string[]>([]);
   const [notice, setNotice] = useState('');
 
@@ -490,7 +492,32 @@ export default function TeacherPage() {
       {state !== 'ready' && <p className="wj-teacher-hint">正在读取学习档案……</p>}
       {notice && <p className="wj-teacher-notice">{notice}</p>}
 
-      {state === 'ready' && view.mode === 'classes' && (
+      {notice && <p className="wj-teacher-notice">{notice}</p>}
+
+      <nav className="wj-teacher-tabs" aria-label="学情视图">
+        <button
+          type="button"
+          className={page === 'classes' ? 'is-on' : ''}
+          onClick={() => {
+            setPage('classes');
+            setView({ mode: 'classes' });
+          }}
+        >
+          <Users size={14} aria-hidden /> 班级
+        </button>
+        <button
+          type="button"
+          className={page === 'errors' ? 'is-on' : ''}
+          onClick={() => {
+            setPage('errors');
+            setView({ mode: 'classes' });
+          }}
+        >
+          <AlertTriangle size={14} aria-hidden /> 高频错误
+        </button>
+      </nav>
+
+      {state === 'ready' && page === 'classes' && view.mode === 'classes' && (
         <>
           <div className="wj-teacher-toolbar">
             <span className="wj-teacher-dim">班级由教师手动划分：进入班级后，用学生行右侧的班级下拉调整归属。</span>
@@ -564,16 +591,49 @@ export default function TeacherPage() {
               })}
             </div>
           )}
-          <ErrorHotspots
-            ranking={errorRanking(learners).slice(0, 5)}
-            title="全体学生 · 高频错误 TOP 5"
-            hint="各班完整清单与学生原答，进入班级详情查看。"
-            showClass
-          />
         </>
       )}
 
-      {state === 'ready' && view.mode === 'class' && (
+      {state === 'ready' && page === 'errors' && (
+        <>
+          {(() => {
+            const pool = errClass === '全部班级' ? learners : groups.find(([c]) => c === errClass)?.[1] ?? [];
+            const vs = verdictStats(pool);
+            const errN = vs.bad + vs.part;
+            return (
+              <div className="wj-teacher-toolbar">
+                <div className="wj-err-filter">
+                  {['全部班级', ...groups.map(([c]) => c)].map((c) => (
+                    <button key={c} type="button" className={errClass === c ? 'is-on' : ''} onClick={() => setErrClass(c)}>
+                      {c}
+                    </button>
+                  ))}
+                </div>
+                <span className="wj-teacher-dim">
+                  {pool.length} 名学生 · {vs.ok + errN} 条判定 · {errN} 条错误
+                </span>
+              </div>
+            );
+          })()}
+          {(() => {
+            const pool = errClass === '全部班级' ? learners : groups.find(([c]) => c === errClass)?.[1] ?? [];
+            const ranking = errorRanking(pool);
+            if (!ranking.length) {
+              return <p className="wj-teacher-hint">该范围内还没有判定记录。学生完成工序中的判定练习后，这里会自动汇总错误。</p>;
+            }
+            return (
+              <ErrorHotspots
+                ranking={ranking}
+                title={errClass === '全部班级' ? '全体学生 · 高频错误排行' : `${errClass} · 高频错误`}
+                hint="按出错人数降序；点击题目可展开每位出错学生的原始作答。"
+                showClass={errClass === '全部班级'}
+              />
+            );
+          })()}
+        </>
+      )}
+
+      {state === 'ready' && page === 'classes' && view.mode === 'class' && (
         <>
           <div className="wj-teacher-toolbar">
             <button type="button" className="wj-teacher-ghost" onClick={() => setView({ mode: 'classes' })}>
@@ -786,7 +846,7 @@ export default function TeacherPage() {
         </>
       )}
 
-      {state === 'ready' && view.mode === 'student' && current && (
+      {state === 'ready' && page === 'classes' && view.mode === 'student' && current && (
         <>
           <div className="wj-teacher-toolbar">
             <button
