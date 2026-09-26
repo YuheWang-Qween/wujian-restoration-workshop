@@ -399,50 +399,100 @@ export default function TeacherPage() {
             const avgExhC = list.reduce((n, l) => n + exhCaseCount(l), 0) / list.length;
             const active = activeWithin7d(list);
             const seg = (n: number) => (totalSeg ? `${(n / totalSeg) * 100}%` : '0%');
+            const latest = list.reduce<string | null>((m, l) => (l.updatedAt && (!m || l.updatedAt > m) ? l.updatedAt : m), null);
             return (
-              <section className="wj-teacher-analytics">
-                <div className="wj-an-box">
+              <section className="wj-an-grid">
+                <div className="wj-an-card">
                   <h3>六道工序 · 完成度</h3>
-                  {STAGES.map((s) => {
-                    const n = list.filter((l) => l.completed.includes(s.id)).length;
-                    const pct = list.length ? Math.round((n / list.length) * 100) : 0;
-                    return (
-                      <div key={s.id} className="wj-an-row">
-                        <span className="wj-an-label">
-                          {s.id} {s.name}
-                        </span>
-                        <span className="wj-an-track">
-                          <i style={{ width: `${pct}%` }} />
-                        </span>
-                        <span className="wj-an-val">
-                          {n}/{list.length} · {pct}%
-                        </span>
-                      </div>
-                    );
-                  })}
+                  <ul className="wj-an-bars">
+                    {STAGES.map((s) => {
+                      const n = list.filter((l) => l.completed.includes(s.id)).length;
+                      const pct = list.length ? (n / list.length) * 100 : 0;
+                      const hot = pct < 40 ? ' is-low' : '';
+                      return (
+                        <li key={s.id} className={`wj-an-bar${hot}`}>
+                          <span className="wj-an-blabel">
+                            {s.id} {s.name}
+                          </span>
+                          <span className="wj-an-btrack">
+                            <i style={{ width: `${pct}%` }} />
+                          </span>
+                          <span className="wj-an-bval">
+                            <b>{n}</b>/{list.length}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
-                <div className="wj-an-box">
+                <div className="wj-an-card">
                   <h3>细问答卷 · 判定质量</h3>
-                  <div className="wj-an-stack">
-                    {vs.ok > 0 && <i className="is-ok" style={{ width: seg(vs.ok) }} />}
-                    {vs.part > 0 && <i className="is-part" style={{ width: seg(vs.part) }} />}
-                    {vs.bad > 0 && <i className="is-bad" style={{ width: seg(vs.bad) }} />}
-                    {ungraded > 0 && <i className="is-none" style={{ width: seg(ungraded) }} />}
+                  <div className="wj-an-donut-wrap">
+                    <div
+                      className="wj-an-donut"
+                      style={{
+                        background: `conic-gradient(
+                          var(--wj-cinnabar) 0 ${seg(vs.ok)},
+                          #c98a2e ${seg(vs.ok)} ${seg(vs.ok + vs.part)},
+                          #9a7a63 ${seg(vs.ok + vs.part)} ${seg(graded)},
+                          #e4ddd0 ${seg(graded)} 100%)`,
+                      }}
+                    >
+                      <b>{graded ? Math.round((vs.ok / graded) * 100) : '—'}</b>
+                      <i>成立率</i>
+                    </div>
+                    <ul className="wj-an-legend">
+                      <li className="is-ok">
+                        <i />成立 <b>{vs.ok}</b>
+                      </li>
+                      <li className="is-part">
+                        <i />部分成立 <b>{vs.part}</b>
+                      </li>
+                      <li className="is-bad">
+                        <i />不成立 <b>{vs.bad}</b>
+                      </li>
+                      <li className="is-none">
+                        <i />已答未评 <b>{ungraded}</b>
+                      </li>
+                    </ul>
                   </div>
-                  <p className="wj-an-legend">
-                    <span className="is-ok">成立 {vs.ok}</span>
-                    <span className="is-part">部分成立 {vs.part}</span>
-                    <span className="is-bad">不成立 {vs.bad}</span>
-                    <span className="is-none">已答未评 {ungraded}</span>
-                  </p>
+                </div>
+                <div className="wj-an-card">
                   <h3>鉴赏阅读 · 人均</h3>
-                  <p className="wj-an-line">
-                    板块 {avgExhB.toFixed(1)}/{EXH_BOARDS.length} · 案例精读 {avgExhC.toFixed(1)}/{EXH_CASE_IDS.length}
-                  </p>
+                  <ul className="wj-an-rings">
+                    <li>
+                      <div
+                        className="wj-an-ring"
+                        style={{
+                          background: `conic-gradient(var(--wj-cinnabar) 0 ${(avgExhB / EXH_BOARDS.length) * 100}%, #e4ddd0 0)`,
+                        }}
+                      >
+                        <b>{avgExhB.toFixed(1)}</b>
+                        <i>/{EXH_BOARDS.length}</i>
+                      </div>
+                      <span>板块</span>
+                    </li>
+                    <li>
+                      <div
+                        className="wj-an-ring"
+                        style={{
+                          background: `conic-gradient(var(--wj-cinnabar) 0 ${(avgExhC / EXH_CASE_IDS.length) * 100}%, #e4ddd0 0)`,
+                        }}
+                      >
+                        <b>{avgExhC.toFixed(1)}</b>
+                        <i>/{EXH_CASE_IDS.length}</i>
+                      </div>
+                      <span>案例精读</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="wj-an-card">
                   <h3>活跃度</h3>
-                  <p className="wj-an-line">
-                    近 7 天 {active}/{list.length} 人有学习记录
+                  <p className="wj-an-big">
+                    <b>{active}</b>
+                    <i>/{list.length} 人近 7 天有学习记录</i>
                   </p>
+                  <p className="wj-an-sub">最近更新 {fmtTime(latest)}</p>
                 </div>
               </section>
             );
