@@ -459,6 +459,10 @@ export default function TeacherPage() {
   const [cloudClass, setCloudClass] = useState('全部班级');
   const [extraClasses, setExtraClasses] = useState<string[]>([]);
   const [notice, setNotice] = useState('');
+  // 拦截墙上的当场解锁：输教师口令 → 服务端自愈补写账号标记 → 直接进学情
+  const [unlockPass, setUnlockPass] = useState('');
+  const [unlockBusy, setUnlockBusy] = useState(false);
+  const [unlockErr, setUnlockErr] = useState('');
 
   useEffect(() => {
     try {
@@ -511,6 +515,35 @@ export default function TeacherPage() {
     }
     void load();
   }, [isLoading, user, router, load]);
+
+  const unlock = async () => {
+    if (!session?.access_token || !unlockPass.trim() || unlockBusy) return;
+    setUnlockBusy(true);
+    setUnlockErr('');
+    try {
+      const res = await fetch('/api/teacher/overview', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'x-teacher-passcode': unlockPass.trim(),
+        },
+      });
+      if (res.status === 403) {
+        setUnlockErr('口令不对，请核对后重试');
+        return;
+      }
+      const json = (await res.json()) as { learners?: Learner[]; fetchedAt?: string; error?: string };
+      if (!res.ok) throw new Error(json.error || '解锁失败');
+      // 服务端已把教师标记补写进账号，本机存一份口令供后续会话自愈
+      window.localStorage.setItem('wj-teacher-passcode', unlockPass.trim());
+      setLearners(json.learners ?? []);
+      setFetchedAt(json.fetchedAt ?? '');
+      setState('ready');
+    } catch {
+      setUnlockErr('解锁失败，稍后再试');
+    } finally {
+      setUnlockBusy(false);
+    }
+  };
 
   const groups = useMemo(() => {
     const map = new Map<string, Learner[]>();
@@ -598,9 +631,26 @@ export default function TeacherPage() {
         <div className="wj-teacher-lockcard">
           <KeyRound size={26} aria-hidden />
           <h1>仅教师可查看</h1>
-          <p>该账号不是教师账号。请在登录页选择「我是教师」并输入教师口令重新登录。</p>
-          <button type="button" className="wj-teacher-lockbtn" onClick={() => router.replace('/login')}>
-            返回登录页
+          <p>该账号还不是教师账号。输入教师口令可当场解锁本账号（无需重新登录）：</p>
+          <div className="wj-teacher-unlock">
+            <input
+              type="password"
+              value={unlockPass}
+              onChange={(e) => setUnlockPass(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') void unlock();
+              }}
+              placeholder="教师口令"
+              aria-label="教师口令"
+              autoFocus
+            />
+            <button type="button" onClick={() => void unlock()} disabled={unlockBusy || !unlockPass.trim()}>
+              {unlockBusy ? '验证中…' : '解锁'}
+            </button>
+          </div>
+          {unlockErr && <p className="wj-teacher-unlock-err" role="alert">{unlockErr}</p>}
+          <button type="button" className="wj-teacher-lockbtn is-ghost" onClick={() => router.replace('/login')}>
+            或返回登录页换账号
           </button>
         </div>
       </div>

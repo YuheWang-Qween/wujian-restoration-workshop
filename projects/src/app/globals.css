@@ -1836,6 +1836,65 @@
   background: color-mix(in oklab, var(--wj-cinnabar) 85%, black);
 }
 
+.wj-teacher-lockbtn.is-ghost {
+  background: transparent;
+  color: color-mix(in oklab, var(--wj-ink) 60%, transparent);
+  border: 1px solid var(--wj-border);
+  font-size: 12.5px;
+  padding: 0.45rem 1rem;
+}
+
+.wj-teacher-lockbtn.is-ghost:hover {
+  color: var(--wj-ink);
+  border-color: color-mix(in oklab, var(--wj-ink) 40%, transparent);
+  background: transparent;
+}
+
+.wj-teacher-unlock {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 0.9rem;
+}
+
+.wj-teacher-unlock input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.55rem 0.8rem;
+  font-size: 13.5px;
+  font-family: inherit;
+  background: #fff;
+  border: 1px solid var(--wj-border);
+  border-radius: 8px;
+  color: var(--wj-ink);
+}
+
+.wj-teacher-unlock input:focus {
+  outline: none;
+  border-color: var(--wj-cinnabar);
+}
+
+.wj-teacher-unlock button {
+  padding: 0.55rem 1rem;
+  font-family: var(--font-serif);
+  font-size: 13.5px;
+  background: var(--wj-cinnabar);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.wj-teacher-unlock button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.wj-teacher-unlock-err {
+  color: var(--wj-cinnabar);
+  margin: -0.4rem 0 0.9rem !important;
+}
+
 @media (max-width: 640px) {
   .wj-teacher-wrap {
     padding: 1rem 0.9rem 3rem;

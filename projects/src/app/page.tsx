@@ -34,17 +34,18 @@ function WorkshopHallInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   // 本组件包在 Suspense 里、纯客户端渲染，首帧即可读本地角色；
-  // 服务端角色（app_metadata.teacher）覆盖换设备/旧会话里本地标记缺失的教师。
+  // 服务端角色（app_metadata.teacher）才是权威：换设备/旧会话本地标记缺失的教师
+  // 靠它兜住；反过来本地标记过期（当前会话是学生）也以会话为准，避免误拽去 /teacher。
   const [localTeacher] = useState(() =>
     typeof window !== 'undefined' && localStorage.getItem('wj-role') === 'teacher',
   );
   const serverTeacher = user?.app_metadata?.teacher === true;
-  const isTeacher = localTeacher || serverTeacher;
   // 只认挂载那一刻的 view 参数：Next 会把 history.replaceState 联动进路由，
   // 学生视角落地后清理 URL 的动作若反过来触发重定向，教师就永远进不了学生视角。
   const enteredAsStudent = useRef(searchParams.get('view') === 'student');
   const teacherLeaving =
-    !enteredAsStudent.current && (localTeacher || (!isLoading && serverTeacher));
+    !enteredAsStudent.current &&
+    (serverTeacher || (localTeacher && (isLoading || !user)));
 
   useEffect(() => {
     setIsGuest(isGuestMode());
@@ -52,11 +53,21 @@ function WorkshopHallInner() {
       window.history.replaceState(null, '', '/');
       return;
     }
-    // 教师的首页就是学情分析；「学生视角」经 ?view=student 临时抑制跳转
-    if (localTeacher || (!isLoading && serverTeacher)) {
+    // 会话未定先不跳：教师等确认（避免展馆闪现），学生也等确认（本地过期标记
+    // 不能单独触发跳转，否则学生会被拽去 /teacher 撞权限墙）。
+    if (isLoading) return;
+    if (serverTeacher) {
       router.replace('/teacher');
+      return;
     }
-  }, [localTeacher, serverTeacher, isLoading, router]);
+    if (user) {
+      // 已登录但会话不是教师：本地教师标记是过期的，清掉
+      if (localTeacher) localStorage.removeItem('wj-role');
+      return;
+    }
+    // 未登录但本地有教师标记（会话过期）：照旧送去 /teacher，由它转登录页
+    if (localTeacher) router.replace('/teacher');
+  }, [localTeacher, serverTeacher, isLoading, user, router]);
 
   function stageProgress(stageId: number) {
     let total = 0;
@@ -193,7 +204,7 @@ function WorkshopHallInner() {
             </div>
 
             <div className="flex shrink-0 items-center gap-2 pb-1">
-              {isTeacher && (
+              {serverTeacher && (
                 <button
                   type="button"
                   onClick={() => router.push('/teacher')}
@@ -204,7 +215,7 @@ function WorkshopHallInner() {
                   学情分析
                 </button>
               )}
-              {user && <UserChip user={user} isTeacher={isTeacher} />}
+              {user && <UserChip user={user} isTeacher={serverTeacher} />}
               {!user && isGuest && (
                 <span
                   title="游客模式：浏览与作答不受限制，进度仅保存在本机浏览器，登录后可同步到账号"
