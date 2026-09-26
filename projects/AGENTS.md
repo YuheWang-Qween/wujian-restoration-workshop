@@ -188,6 +188,14 @@ history.replaceState 联动进路由，若按实时 searchParams 判定，清理
 入口按钮因此无条件渲染，/teacher 自带权限墙 + 口令解锁守门，学生误点
 只会看到拦截卡。
 
+**操作者账号 2237121364@qq.com 已是教师**（2026-09-26 直接 SQL 写入
+`raw_app_meta_data.teacher`）：操作者浏览器长期挂着这个邮箱会话（非超星
+OAuth 的王雨荷），没有教师标记时只能撞墙。补标记后**即时生效无需重登**——
+overview 的 verifyUser 走 `supabase.auth.getUser(token)`，按 JWT 的 sub
+从数据库取新鲜 app_metadata（E2E 已验证旧 token + 事后补标记 → 同一
+token 立即 200）；首页自动跳转读的是浏览器 JWT 内嵌 claims，要等 token
+刷新（≤1h）才生效，期间走「学情分析」按钮路径不受影响。
+
 三层视图：班级卡片 → 班级学生表 → 学生学情详情（六环节 + 17 题逐题
 判定/提交/草稿状态）。**班级由教师手动划分**（2026-09 改造，废弃了按
 学工号前缀推导的旧方案）：归属存 `class_assignments` 表（user_id PK →
