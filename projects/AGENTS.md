@@ -203,6 +203,12 @@ LoginForm 跳 `/api/auth/chaoxing?teacher=1&pw=<口令>`，发起路由服务端
 verdict 值域「成立/部分成立/不成立」）；鉴赏人均板块/案例；近 7 天活跃人数。班级
 卡片含判定优良率与鉴赏阅读率；学生详情头部有判定汇总 chips 与「未完成环节」提示。
 
+**高频错误（2026-09）**：`errorRanking(list)`（teacher 页内）按题聚合判
+「不成立/部分成立」的人数降序排出错题榜；`ErrorHotspots` 组件渲染——班级
+详情显示完整榜单（分析卡下方），班级列表页显示全体学生 TOP 5（带班级标注）。
+每行点开看学生原答（`answerTextOf` 拼接各小问文字，画图题标注「画图作答」）；
+错误率 ≥50% 的题 `is-hot` 朱砂描边。判定口径与逐题徽章一致（每题取首个判据键）。
+
 **鉴赏篇阅读足迹（2026-09）**：鉴赏板块是纯陈列阅读（无题无进度），
 学情以「足迹」呈现——store 的 `exhibitsViewed`（板块 id
 discovery/forms/themes/cases/reference + 案例 `case-1…5` → 最近访问

@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Eye, KeyRound, Plus, RefreshCw, Users, GraduationCap } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Eye, KeyRound, Plus, RefreshCw, Users, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { STAGES, ACT_WHY, ACT_DATA, ACT_SIM, ACT_QUESTIONS } from '@/lib/workshop/content';
 import { answerKey, isQuestionAnswered } from '@/store/useWorkshopStore';
@@ -78,6 +78,148 @@ function verdictStats(list: Learner[]): { ok: number; part: number; bad: number 
     }
   }
   return { ok, part, bad };
+}
+
+/** 学生在一道细问上的作答文本（各小问拼接；画图题标注画图作答） */
+function answerTextOf(
+  l: Learner,
+  stageId: number,
+  q: { id: string; parts: { label: string }[] },
+): string {
+  const keys = [answerKey(stageId, q.id), ...q.parts.map((p) => answerKey(stageId, q.id, p.label))];
+  const segs = keys
+    .map((k) => {
+      const t = (l.answers[k] ?? '').trim();
+      if (t) return t;
+      if (l.imageKeys.includes(k)) return '（画图作答）';
+      return '';
+    })
+    .filter(Boolean);
+  return segs.join(' / ');
+}
+
+interface QuestionError {
+  key: string;
+  stageName: string;
+  label: string;
+  stem: string;
+  ok: number;
+  part: number;
+  bad: number;
+  graded: number;
+  errors: { learner: Learner; verdict: string; answer: string }[];
+}
+
+/** 高频错误排行：按判「部分成立/不成立」的人数降序，展示错答原文供讲评 */
+function errorRanking(list: Learner[]): QuestionError[] {
+  const out: QuestionError[] = [];
+  for (const s of STAGES) {
+    s.questions.forEach((q, qi) => {
+      let ok = 0;
+      let part = 0;
+      let bad = 0;
+      const errors: QuestionError['errors'] = [];
+      for (const l of list) {
+        const v = verdictOf(l, s.id, q);
+        if (v === '成立') ok++;
+        else if (v === '部分成立') part++;
+        else if (v === '不成立') bad++;
+        if (v === '部分成立' || v === '不成立') {
+          errors.push({ learner: l, verdict: v, answer: answerTextOf(l, s.id, q) });
+        }
+      }
+      if (part + bad > 0) {
+        out.push({
+          key: `${s.id}-${q.id}`,
+          stageName: s.name,
+          label: `${s.id}-${qi + 1}`,
+          stem: q.stem,
+          ok,
+          part,
+          bad,
+          graded: ok + part + bad,
+          errors,
+        });
+      }
+    });
+  }
+  return out.sort(
+    (a, b) =>
+      b.bad + b.part - (a.bad + a.part) ||
+      (b.bad + b.part) / b.graded - (a.bad + a.part) / a.graded,
+  );
+}
+
+function ErrorHotspots({
+  ranking,
+  title,
+  hint,
+  showClass = false,
+}: {
+  ranking: QuestionError[];
+  title: string;
+  hint?: string;
+  showClass?: boolean;
+}) {
+  const [open, setOpen] = useState<string | null>(null);
+  if (ranking.length === 0) return null;
+  return (
+    <section className="wj-an-card wj-err">
+      <h3>{title}</h3>
+      {hint && <p className="wj-err-hint">{hint}</p>}
+      <ul>
+        {ranking.map((e, i) => {
+          const errN = e.bad + e.part;
+          const rate = e.graded ? Math.round((errN / e.graded) * 100) : 0;
+          const isOpen = open === e.key;
+          return (
+            <li key={e.key} className={`wj-err-item${rate >= 50 ? ' is-hot' : ''}`}>
+              <button
+                type="button"
+                className="wj-err-head"
+                aria-expanded={isOpen}
+                onClick={() => setOpen(isOpen ? null : e.key)}
+              >
+                <span className="wj-err-rank">{i + 1}</span>
+                <span className="wj-err-stem" title={e.stem}>
+                  <i>{e.stageName}</i>
+                  {e.label} {e.stem}
+                </span>
+                <span className="wj-err-bar">
+                  <i style={{ width: `${rate}%` }} />
+                </span>
+                <span className="wj-err-val">
+                  <b>{errN}</b>/{e.graded} 错 · {rate}%
+                </span>
+                <ChevronDown size={14} aria-hidden className={`wj-err-chev${isOpen ? ' is-open' : ''}`} />
+              </button>
+              {isOpen && (
+                <div className="wj-err-body">
+                  <p className="wj-err-split">
+                    不成立 <b>{e.bad}</b> · 部分成立 <b>{e.part}</b> · 成立 <b>{e.ok}</b>
+                  </p>
+                  <ul className="wj-err-answers">
+                    {e.errors.map((x, xi) => (
+                      <li key={xi}>
+                        <span className="wj-err-who">{x.learner.name}</span>
+                        {showClass && <span className="wj-err-cls">{x.learner.className || UNASSIGNED}</span>}
+                        <span
+                          className={`wj-err-verdict ${x.verdict === '不成立' ? 'is-bad' : 'is-part'}`}
+                        >
+                          {x.verdict}
+                        </span>
+                        <span className="wj-err-answer">{x.answer || '（未留文字）'}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
 }
 
 function activeWithin7d(list: Learner[]): number {
@@ -420,6 +562,12 @@ export default function TeacherPage() {
               })}
             </div>
           )}
+          <ErrorHotspots
+            ranking={errorRanking(learners).slice(0, 5)}
+            title="全体学生 · 高频错误 TOP 5"
+            hint="各班完整清单与学生原答，进入班级详情查看。"
+            showClass
+          />
         </>
       )}
 
@@ -559,6 +707,11 @@ export default function TeacherPage() {
               </section>
             );
           })()}
+          <ErrorHotspots
+            ranking={errorRanking(groups.find(([c]) => c === view.cls)?.[1] ?? [])}
+            title="高频错误 · 优先讲评"
+            hint="按判「不成立 / 部分成立」的人数排序，点开看学生的原始作答。"
+          />
           <div className="wj-trow wj-trow-head">
             <span>学生</span>
             <span>学工号</span>
