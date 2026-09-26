@@ -1,6 +1,7 @@
 /**
  * 演示学情数据 seed：5 个班级 × 10 名学生 = 50 人，班级画像差异化。
  * 202501 标准梯度 / 202502 整体较好 / 202503 整体偏弱 / 202504 两极分化 / 202505 中段集中。
+ * 班级归属写入 class_assignments（教师端手动分班的存储），班级名沿用真实教学班命名。
  * 账号 email = 学工号@demo.invalid，可按此清理。
  * 可重复运行（幂等：账号按 email 复用，progress 按 user_id upsert）。
  */
@@ -11,6 +12,15 @@ const admin = createClient(
   process.env.COZE_SUPABASE_URL,
   process.env.COZE_SUPABASE_SERVICE_ROLE_KEY,
 );
+
+// 学工号前缀（生成账号用）→ 班级名（教师端展示）
+const CLASS_NAMES = {
+  202501: '文保2401班',
+  202502: '文保2402班',
+  202503: '考古2401班',
+  202504: '文保2301班',
+  202505: '博物馆学2401班',
+};
 
 // ---------- 小问清单（按学习顺序展开） ----------
 const PARTS = [];
@@ -278,8 +288,8 @@ async function main() {
   for (const [staffNo, name, profileKey, hoursAgo] of STUDENTS) {
     const email = `${staffNo}@demo.invalid`;
     const profile = PROFILES[profileKey];
-    const cls = staffNo.slice(0, 6);
-    const isTopClass = cls === '202502';
+    const clsName = CLASS_NAMES[staffNo.slice(0, 6)] ?? '';
+    const isTopClass = clsName === '文保2402班';
 
     let userId = byEmail.get(email);
     if (!userId) {
@@ -294,6 +304,14 @@ async function main() {
       if (error) throw new Error(`${email}: ${error.message}`);
       userId = created.user.id;
       console.log('created', staffNo, name);
+    }
+
+    // 班级归属（未开始的学生也占班级名额）
+    if (clsName) {
+      const { error: clsErr } = await admin
+        .from('class_assignments')
+        .upsert({ user_id: userId, class_name: clsName }, { onConflict: 'user_id' });
+      if (clsErr) throw new Error(`${staffNo} 班级归属: ${clsErr.message}`);
     }
 
     if (!profile) {

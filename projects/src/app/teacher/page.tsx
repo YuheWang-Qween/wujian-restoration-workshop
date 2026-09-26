@@ -2,14 +2,14 @@
 
 /**
  * 教师端 · 学情分析。三层视图：班级 → 班级学生 → 学生学情详情。
- * 数据来自 /api/teacher/overview（登录 Bearer + 教师口令双校验）。
- * 班级按学工号前缀推导（位数可调，默认 6 位），细问答完口径与
- * 学生端进度条、完成判定共用 store 的 isQuestionAnswered。
+ * 数据来自 /api/teacher/overview（登录 Bearer + 教师角色校验）。
+ * 班级由教师手动划分（class_assignments 表存归属，学生行右侧下拉
+ * 可移动/新建班级），细问答完口径与学生端共用 store 的 isQuestionAnswered。
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Eye, KeyRound, RefreshCw, Users, GraduationCap } from 'lucide-react';
+import { ArrowLeft, Eye, KeyRound, Plus, RefreshCw, Users, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { STAGES, ACT_WHY, ACT_DATA, ACT_SIM, ACT_QUESTIONS } from '@/lib/workshop/content';
 import { answerKey, isQuestionAnswered } from '@/store/useWorkshopStore';
@@ -18,6 +18,7 @@ interface Learner {
   userId: string;
   name: string;
   staffNo: string;
+  className: string;
   avatarUrl: string;
   updatedAt: string | null;
   completed: number[];
@@ -32,10 +33,8 @@ interface Learner {
 const TOTAL_STAGES = STAGES.length;
 const TOTAL_QUESTIONS = STAGES.reduce((n, s) => n + s.questions.length, 0);
 const ACT_NAMES = [ACT_WHY, ACT_DATA, ACT_SIM, ACT_QUESTIONS];
-const DIGIT_STORE = 'wj-teacher-digits';
-
-const DEFAULT_DIGITS = 6;
-const DIGIT_OPTIONS = [4, 6, 8, 0] as const;
+const UNASSIGNED = '未编班';
+const EXTRA_CLASS_STORE = 'wj-teacher-classes';
 
 function imagesOf(l: Learner): Record<string, string> {
   return Object.fromEntries(l.imageKeys.map((k) => [k, '1']));
@@ -47,12 +46,6 @@ function answeredCount(l: Learner): number {
     (n, s) => n + s.questions.filter((q) => isQuestionAnswered(l.answers, imgs, s.id, q)).length,
     0,
   );
-}
-
-function classOf(staffNo: string, digits: number): string {
-  if (digits === 0) return '全部学生';
-  if (!staffNo) return '未编班';
-  return staffNo.slice(0, digits) || '未编班';
 }
 
 function verdictOf(l: Learner, stageId: number, q: { id: string; parts: { label: string }[] }): string {
@@ -166,11 +159,16 @@ export default function TeacherPage() {
   const [learners, setLearners] = useState<Learner[]>([]);
   const [fetchedAt, setFetchedAt] = useState('');
   const [view, setView] = useState<View>({ mode: 'classes' });
-  const [digits, setDigits] = useState(DEFAULT_DIGITS);
+  const [extraClasses, setExtraClasses] = useState<string[]>([]);
+  const [notice, setNotice] = useState('');
 
   useEffect(() => {
-    const saved = Number(window.localStorage.getItem(DIGIT_STORE));
-    if (DIGIT_OPTIONS.includes(saved as 0)) setDigits(saved);
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(EXTRA_CLASS_STORE) ?? '[]');
+      if (Array.isArray(saved)) setExtraClasses(saved.filter((c) => typeof c === 'string'));
+    } catch {
+      // 忽略本地记录异常
+    }
   }, []);
 
   const load = useCallback(
@@ -219,28 +217,82 @@ export default function TeacherPage() {
   const groups = useMemo(() => {
     const map = new Map<string, Learner[]>();
     for (const l of learners) {
-      const c = classOf(l.staffNo, digits);
+      const c = l.className || UNASSIGNED;
       const arr = map.get(c);
       if (arr) arr.push(l);
       else map.set(c, [l]);
     }
-    const entries = [...map.entries()].sort((a, b) => {
-      if (a[0] === '未编班') return 1;
-      if (b[0] === '未编班') return -1;
+    // 教师自建但还没移入学生的空班级，保持卡片可见
+    for (const c of extraClasses) if (!map.has(c)) map.set(c, []);
+    return [...map.entries()].sort((a, b) => {
+      if (a[0] === UNASSIGNED) return 1;
+      if (b[0] === UNASSIGNED) return -1;
       return a[0].localeCompare(b[0]);
     });
-    if (digits === 0 && entries.length === 1 && entries[0][0] === '全部学生') return entries;
-    return entries.filter(([c]) => (digits === 0 ? true : c !== '全部学生'));
-  }, [learners, digits]);
+  }, [learners, extraClasses]);
 
   const current = view.mode === 'student' ? learners.find((l) => l.userId === view.userId) : undefined;
   const currentStats = current ? verdictStats([current]) : null;
 
-  const changeDigits = (d: number) => {
-    setDigits(d);
-    window.localStorage.setItem(DIGIT_STORE, String(d));
+  const flash = (msg: string) => {
+    setNotice(msg);
+    window.setTimeout(() => setNotice(''), 3000);
+  };
+
+  const rememberClass = (name: string) => {
+    if (extraClasses.includes(name)) return;
+    const next = [...extraClasses, name];
+    setExtraClasses(next);
+    window.localStorage.setItem(EXTRA_CLASS_STORE, JSON.stringify(next));
+  };
+
+  const createClass = () => {
+    const name = window.prompt('新班级名称')?.trim();
+    if (!name) return;
+    rememberClass(name);
+    setView({ mode: 'class', cls: name });
+  };
+
+  const removeClass = (name: string) => {
+    const next = extraClasses.filter((c) => c !== name);
+    setExtraClasses(next);
+    window.localStorage.setItem(EXTRA_CLASS_STORE, JSON.stringify(next));
     setView({ mode: 'classes' });
   };
+
+  const moveLearner = useCallback(
+    async (l: Learner, className: string | null) => {
+      if (!session?.access_token) return;
+      const key = window.localStorage.getItem('wj-teacher-passcode');
+      try {
+        const res = await fetch('/api/teacher/class-assign', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+            ...(key ? { 'x-teacher-passcode': key } : {}),
+          },
+          body: JSON.stringify({ userId: l.userId, className }),
+        });
+        if (!res.ok) throw new Error();
+        if (className) rememberClass(className);
+        setLearners((prev) =>
+          prev.map((x) => (x.userId === l.userId ? { ...x, className: className ?? '' } : x)),
+        );
+        // 当前班级被移空则退回班级列表
+        if (view.mode === 'class') {
+          const remaining = learners.filter(
+            (x) => x.userId !== l.userId && (x.className || UNASSIGNED) === view.cls,
+          );
+          if (!remaining.length) setView({ mode: 'classes' });
+        }
+      } catch {
+        flash('调整班级失败，请重试');
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [session?.access_token, learners, view, extraClasses],
+  );
 
   if (state === 'forbidden') {
     return (
@@ -294,22 +346,15 @@ export default function TeacherPage() {
       </header>
 
       {state !== 'ready' && <p className="wj-teacher-hint">正在读取学习档案……</p>}
+      {notice && <p className="wj-teacher-notice">{notice}</p>}
 
       {state === 'ready' && view.mode === 'classes' && (
         <>
           <div className="wj-teacher-toolbar">
-            <span>班级划分：学工号前</span>
-            {DIGIT_OPTIONS.map((d) => (
-              <button
-                key={d}
-                type="button"
-                className={`wj-teacher-chip ${digits === d ? 'is-on' : ''}`}
-                onClick={() => changeDigits(d)}
-              >
-                {d === 0 ? '不分组' : `${d} 位`}
-              </button>
-            ))}
-            <span className="wj-teacher-dim">（无学工号的学习者归入「未编班」）</span>
+            <span className="wj-teacher-dim">班级由教师手动划分：进入班级后，用学生行右侧的班级下拉调整归属。</span>
+            <button type="button" className="wj-teacher-ghost" onClick={createClass}>
+              <Plus size={14} aria-hidden /> 新建班级
+            </button>
           </div>
           {groups.length === 0 ? (
             <p className="wj-teacher-hint">还没有学习者的进度记录。学生登录并开始学习后，这里会出现班级。</p>
@@ -387,6 +432,23 @@ export default function TeacherPage() {
             <strong>{view.cls}</strong>
             <span className="wj-teacher-dim">{groups.find(([c]) => c === view.cls)?.[1].length ?? 0} 名学生</span>
           </div>
+          {(() => {
+            const list = groups.find(([c]) => c === view.cls)?.[1] ?? [];
+            if (list.length) return null;
+            return (
+              <p className="wj-teacher-hint">
+                该班级还没有学生。到「{UNASSIGNED}」或其他班级，用学生行右侧的班级下拉把学生移入。
+                {extraClasses.includes(view.cls) && (
+                  <>
+                    {' '}
+                    <button type="button" className="wj-teacher-ghost" onClick={() => removeClass(view.cls)}>
+                      删除该班级
+                    </button>
+                  </>
+                )}
+              </p>
+            );
+          })()}
           {(() => {
             const list = groups.find(([c]) => c === view.cls)?.[1] ?? [];
             if (!list.length) return null;
@@ -503,13 +565,23 @@ export default function TeacherPage() {
             <span>环节</span>
             <span>细问</span>
             <span>鉴赏</span>
+            <span>班级</span>
             <span>最近活跃</span>
           </div>
           {(groups.find(([c]) => c === view.cls)?.[1] ?? [])
             .slice()
             .sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''))
             .map((l) => (
-              <button key={l.userId} type="button" className="wj-trow" onClick={() => setView({ mode: 'student', userId: l.userId })}>
+              <div
+                key={l.userId}
+                role="button"
+                tabIndex={0}
+                className="wj-trow wj-trow-click"
+                onClick={() => setView({ mode: 'student', userId: l.userId })}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') setView({ mode: 'student', userId: l.userId });
+                }}
+              >
                 <span className="wj-trow-name">
                   <Avatar l={l} />
                   {l.name}
@@ -525,8 +597,36 @@ export default function TeacherPage() {
                   {exhBoardCount(l)}/{EXH_BOARDS.length}
                   {exhCaseCount(l) > 0 ? ` · 例${exhCaseCount(l)}` : ''}
                 </span>
+                <span onClick={(e) => e.stopPropagation()}>
+                  <select
+                    className="wj-trow-sel"
+                    value={l.className || ''}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === '__new__') {
+                        const name = window.prompt('新班级名称')?.trim();
+                        if (name) {
+                          rememberClass(name);
+                          void moveLearner(l, name);
+                        }
+                        return;
+                      }
+                      void moveLearner(l, v || null);
+                    }}
+                  >
+                    {groups
+                      .filter(([c]) => c !== UNASSIGNED)
+                      .map(([c]) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    <option value="">{UNASSIGNED}</option>
+                    <option value="__new__">＋ 新建班级…</option>
+                  </select>
+                </span>
                 <span className="wj-teacher-dim">{fmtTime(l.updatedAt)}</span>
-              </button>
+              </div>
             ))}
         </>
       )}
@@ -537,9 +637,9 @@ export default function TeacherPage() {
             <button
               type="button"
               className="wj-teacher-ghost"
-              onClick={() => setView({ mode: 'class', cls: classOf(current.staffNo, digits) })}
+              onClick={() => setView({ mode: 'class', cls: current.className || UNASSIGNED })}
             >
-              <ArrowLeft size={14} aria-hidden /> {classOf(current.staffNo, digits)}
+              <ArrowLeft size={14} aria-hidden /> {current.className || UNASSIGNED}
             </button>
           </div>
           <div className="wj-tprofile">

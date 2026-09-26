@@ -163,11 +163,15 @@ push('/?view=student') 供教师临时查看学生端（首页读参后 replaceS
 在二次挂载/受限 webview 下会把教师误弹回 /teacher，已废弃。
 
 三层视图：班级卡片 → 班级学生表 → 学生学情详情（六环节 + 17 题逐题
-判定/提交/草稿状态）。班级按**学工号前缀推导**（位数 4/6/8/不分组可调，
-默认 6 位，localStorage `wj-teacher-digits`；无学工号归「未编班」；手机号
-形态的学工号如 `phone18088...` 需手动切不分组）。数据走
-`GET /api/teacher/overview`：登录 Bearer + `x-teacher-passcode`
-（比对 `TEACHER_PASSCODE`，缺省 123，与登录页口令同源）双校验；service-role
+判定/提交/草稿状态）。**班级由教师手动划分**（2026-09 改造，废弃了按
+学工号前缀推导的旧方案）：归属存 `class_assignments` 表（user_id PK →
+class_name），`GET /api/teacher/overview` 的 learners 每人带 `className`
+（无归属 → 前端归「未编班」）；`POST /api/teacher/class-assign`
+`{userId, className}`（className 传 null = 移出班级）由教师在学生行
+右侧下拉操作，校验与 overview 一致（Bearer + app_metadata.teacher，
+口令自愈兜底）。教师自建的空班级记在 localStorage
+`wj-teacher-classes`（空班卡片保持可见，可删除）。数据走
+`GET /api/teacher/overview`：service-role
 读 auth.users 元数据 + workshop_progress 全表（画图题只回 imageKeys
 不回 dataURL）。**教师账号（app_metadata.teacher=true）不进学情列表**——
 教师自己不作为学习者出现，学生登录并产生进度后才有班级；无学工号且无
@@ -185,12 +189,13 @@ LoginForm 跳 `/api/auth/chaoxing?teacher=1&pw=<口令>`，发起路由服务端
 重输）。`wj-role` localStorage 仍用于首页教师重定向。
 
 **演示学情数据（2026-09）**：`scripts/seed-demo.mjs` 造了 5 个班 × 10 人（学工号前缀
-202501~202505，邮箱 `<学工号>@demo.invalid`），班级画像差异化：202501 标准梯度 /
+202501~202505 → 班级名 文保2401班/文保2402班/考古2401班/文保2301班/博物馆学2401班，
+写入 class_assignments；邮箱 `<学工号>@demo.invalid`），班级画像差异化：202501 标准梯度 /
 202502 整体较好 / 202503 整体偏弱 / 202504 两极分化 / 202505 中段集中；进度从 6/6
 全完成到未开始全覆盖，答案文本按报告事实逐题撰写（结构化题走
 「选择：/多选：/排序：/匹配：」协议）。幂等可重跑：
 `node --experimental-strip-types scripts/seed-demo.mjs`。清理：删
-`@demo.invalid` 邮箱的 auth.users 账号及对应 workshop_progress 行。
+`@demo.invalid` 邮箱的 auth.users 账号及对应 workshop_progress / class_assignments 行。
 
 **班级学情概览（2026-09）**：班级详情顶部有分析区（全部前端聚合，无新接口）——
 六工序逐环节完成人数条形（verdictStats/activeWithin7d 辅助函数在 teacher 页内）；

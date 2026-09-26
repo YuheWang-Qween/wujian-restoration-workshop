@@ -108,6 +108,14 @@ export async function GET(req: NextRequest) {
       (rows ?? []).map((r) => [r.user_id as string, r as { user_id: string; data: ProgressPayload; updated_at: string }]),
     );
 
+    // 班级归属由教师手动划分（class_assignments 表）；读失败不阻断，退回未编班
+    const { data: classRows, error: classError } = await admin
+      .from('class_assignments')
+      .select('user_id, class_name');
+    const classByUser = new Map(
+      classError ? [] : (classRows ?? []).map((r) => [r.user_id as string, r.class_name as string]),
+    );
+
     const learners = users
       // 教师账号不进学情统计（教师自己不作为学习者出现）
       .filter((u) => u.app_metadata?.teacher !== true)
@@ -124,6 +132,7 @@ export async function GET(req: NextRequest) {
             u.email?.split('@')[0] ||
             '未命名',
           staffNo: typeof cx.name === 'string' ? cx.name : '',
+          className: classByUser.get(u.id) ?? '',
           avatarUrl: typeof meta.avatar_url === 'string' ? meta.avatar_url : '',
           updatedAt: row?.updated_at ?? null,
           completed: Array.isArray(d.completed) ? (d.completed as number[]) : [],
