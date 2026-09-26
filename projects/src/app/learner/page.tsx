@@ -7,7 +7,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, BookOpen, RefreshCw } from 'lucide-react';
+import { ArrowLeft, BookOpen, LogOut, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { STAGES } from '@/lib/workshop/content';
 import {
@@ -48,7 +48,7 @@ function verdictBadge(v: string): string {
 
 export default function LearnerPage() {
   const router = useRouter();
-  const { user, session, isLoading } = useAuth();
+  const { user, session, isLoading, signOut } = useAuth();
   const [state, setState] = useState<'loading' | 'ready' | 'empty' | 'error'>('loading');
   const [me, setMe] = useState<Learner | null>(null);
   const [fetchedAt, setFetchedAt] = useState('');
@@ -143,6 +143,9 @@ export default function LearnerPage() {
           {fetchedAt ? fmtTime(fetchedAt) : ''}
           <button type="button" className="wj-teacher-ghost" onClick={() => void load()} disabled={state === 'loading'}>
             <RefreshCw size={14} aria-hidden /> 刷新
+          </button>
+          <button type="button" className="wj-teacher-ghost" onClick={() => void signOut()}>
+            <LogOut size={14} aria-hidden /> 退出
           </button>
         </span>
       </header>

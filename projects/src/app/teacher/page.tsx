@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AlertTriangle, ArrowLeft, ChevronDown, Cloud, Eye, FlaskConical, KeyRound, Plus, RefreshCw, Trash2, Users, GraduationCap } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, ChevronDown, Cloud, Eye, FlaskConical, KeyRound, LogOut, Plus, RefreshCw, Trash2, Users, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { STAGES } from '@/lib/workshop/content';
 import { isQuestionAnswered } from '@/store/useWorkshopStore';
@@ -344,7 +344,7 @@ type View = { mode: 'classes' } | { mode: 'class'; cls: string } | { mode: 'stud
 
 export default function TeacherPage() {
   const router = useRouter();
-  const { user, session, isLoading } = useAuth();
+  const { user, session, isLoading, signOut } = useAuth();
   const [state, setState] = useState<'loading' | 'forbidden' | 'ready' | 'error'>('loading');
   const [errorMsg, setErrorMsg] = useState('');
   const [learners, setLearners] = useState<Learner[]>([]);
@@ -636,6 +636,9 @@ export default function TeacherPage() {
           )}
           <button type="button" className="wj-teacher-ghost" onClick={() => void load()} disabled={state === 'loading' || demoBusy}>
             <RefreshCw size={14} aria-hidden /> 刷新
+          </button>
+          <button type="button" className="wj-teacher-ghost" onClick={() => void signOut()}>
+            <LogOut size={14} aria-hidden /> 退出
           </button>
         </span>
       </header>
