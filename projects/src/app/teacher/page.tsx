@@ -11,92 +11,30 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertTriangle, ArrowLeft, ChevronDown, Cloud, Eye, FlaskConical, KeyRound, Plus, RefreshCw, Trash2, Users, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/components/workshop/AuthProvider';
-import { STAGES, ACT_WHY, ACT_DATA, ACT_SIM, ACT_QUESTIONS } from '@/lib/workshop/content';
-import { answerKey, isQuestionAnswered } from '@/store/useWorkshopStore';
+import { STAGES } from '@/lib/workshop/content';
+import { isQuestionAnswered } from '@/store/useWorkshopStore';
+import {
+  type Learner,
+  TOTAL_STAGES,
+  TOTAL_QUESTIONS,
+  ACT_NAMES,
+  imagesOf,
+  answeredCount,
+  verdictOf,
+  submittedOf,
+  draftOf,
+  answerTextOf,
+  verdictStats,
+  fmtTime,
+  EXH_BOARDS,
+  EXH_CASE_IDS,
+  exhBoardCount,
+  exhCaseCount,
+  exhLatest,
+} from '@/lib/workshop/learner-metrics';
 
-interface Learner {
-  userId: string;
-  name: string;
-  staffNo: string;
-  className: string;
-  avatarUrl: string;
-  updatedAt: string | null;
-  completed: number[];
-  actsRevealed: Record<string, number>;
-  answers: Record<string, string>;
-  submitted: Record<string, unknown>;
-  verdicts: Record<string, string>;
-  imageKeys: string[];
-  exhibitsViewed: Record<string, string>;
-}
-
-const TOTAL_STAGES = STAGES.length;
-const TOTAL_QUESTIONS = STAGES.reduce((n, s) => n + s.questions.length, 0);
-const ACT_NAMES = [ACT_WHY, ACT_DATA, ACT_SIM, ACT_QUESTIONS];
 const UNASSIGNED = '未编班';
 const EXTRA_CLASS_STORE = 'wj-teacher-classes';
-
-function imagesOf(l: Learner): Record<string, string> {
-  return Object.fromEntries(l.imageKeys.map((k) => [k, '1']));
-}
-
-function answeredCount(l: Learner): number {
-  const imgs = imagesOf(l);
-  return STAGES.reduce(
-    (n, s) => n + s.questions.filter((q) => isQuestionAnswered(l.answers, imgs, s.id, q)).length,
-    0,
-  );
-}
-
-function verdictOf(l: Learner, stageId: number, q: { id: string; parts: { label: string }[] }): string {
-  const keys = [answerKey(stageId, q.id), ...q.parts.map((p) => answerKey(stageId, q.id, p.label))];
-  for (const k of keys) {
-    const v = l.verdicts[k];
-    if (v) return v;
-  }
-  return '';
-}
-
-function submittedOf(l: Learner, stageId: number, q: { id: string; parts: { label: string }[] }): boolean {
-  const keys = [answerKey(stageId, q.id), ...q.parts.map((p) => answerKey(stageId, q.id, p.label))];
-  return keys.some((k) => Boolean(l.submitted[k]));
-}
-
-/** 一组学习者的细问判定分布（口径与学生详情逐题徽章一致：每题取首个判据键的判定） */
-function verdictStats(list: Learner[]): { ok: number; part: number; bad: number } {
-  let ok = 0;
-  let part = 0;
-  let bad = 0;
-  for (const l of list) {
-    for (const s of STAGES) {
-      for (const q of s.questions) {
-        const v = verdictOf(l, s.id, q);
-        if (v === '成立') ok++;
-        else if (v === '部分成立') part++;
-        else if (v === '不成立') bad++;
-      }
-    }
-  }
-  return { ok, part, bad };
-}
-
-/** 学生在一道细问上的作答文本（各小问拼接；画图题标注画图作答） */
-function answerTextOf(
-  l: Learner,
-  stageId: number,
-  q: { id: string; parts: { label: string }[] },
-): string {
-  const keys = [answerKey(stageId, q.id), ...q.parts.map((p) => answerKey(stageId, q.id, p.label))];
-  const segs = keys
-    .map((k) => {
-      const t = (l.answers[k] ?? '').trim();
-      if (t) return t;
-      if (l.imageKeys.includes(k)) return '（画图作答）';
-      return '';
-    })
-    .filter(Boolean);
-  return segs.join(' / ');
-}
 
 interface QuestionError {
   key: string;
@@ -378,48 +316,6 @@ function CloudPage({
       )}
     </>
   );
-}
-
-function draftOf(l: Learner, stageId: number, q: { id: string; parts: { label: string }[] }): boolean {
-  const imgs = imagesOf(l);
-  return isQuestionAnswered(l.answers, imgs, stageId, q);
-}
-
-function fmtTime(iso: string | null): string {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '—';
-  const now = new Date();
-  const sameDay = d.toDateString() === now.toDateString();
-  const hh = String(d.getHours()).padStart(2, '0');
-  const mm = String(d.getMinutes()).padStart(2, '0');
-  if (sameDay) return `今天 ${hh}:${mm}`;
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${month}-${day} ${hh}:${mm}`;
-}
-
-/** 鉴赏篇五个板块的 id 与展示名（与 exhibition.ts 的 EXH_NAV 对齐，教师端独立维护轻量副本） */
-const EXH_BOARDS = [
-  { id: 'discovery', label: '发现与归属' },
-  { id: 'forms', label: '形制六类' },
-  { id: 'themes', label: '主题八类' },
-  { id: 'cases', label: '案例精读' },
-  { id: 'reference', label: '术语·出版·来源' },
-];
-const EXH_CASE_IDS = [1, 2, 3, 4, 5];
-
-function exhBoardCount(l: Learner): number {
-  return EXH_BOARDS.filter((b) => l.exhibitsViewed[b.id]).length;
-}
-
-function exhCaseCount(l: Learner): number {
-  return EXH_CASE_IDS.filter((n) => l.exhibitsViewed[`case-${n}`]).length;
-}
-
-function exhLatest(l: Learner): string | null {
-  const times = Object.values(l.exhibitsViewed ?? {}).filter(Boolean).sort();
-  return times[times.length - 1] ?? null;
 }
 
 function Avatar({ l, size = 30 }: { l: Learner; size?: number }) {
@@ -745,8 +641,6 @@ export default function TeacherPage() {
       </header>
 
       {state !== 'ready' && <p className="wj-teacher-hint">正在读取学习档案……</p>}
-      {notice && <p className="wj-teacher-notice">{notice}</p>}
-
       {notice && <p className="wj-teacher-notice">{notice}</p>}
 
       <nav className="wj-teacher-tabs" aria-label="学情视图">

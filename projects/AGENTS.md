@@ -213,6 +213,27 @@ class_name），`GET /api/teacher/overview` 的 learners 每人带 `className`
 名单失败」（如缺 service-role）——不能静默返回空列表，教师会误以为注入
 的数据丢了。细问答完口径与进度条/完成判定共用 store 的 `isQuestionAnswered`。
 
+**学情指标共享模块 `src/lib/workshop/learner-metrics.ts`（2026-09）**：
+Learner 形状、TOTAL_STAGES/QUESTIONS、verdictOf/submittedOf/draftOf/
+answerTextOf/verdictStats、fmtTime、鉴赏足迹 EXH_* 与计数函数——教师端
+与学生自视页共用同一判定口径，别再在页面里复制这些函数（曾因此在
+teacher/page.tsx 里维护过一份，已抽走）。
+
+**学生端「我的学情」页 `/learner`（2026-09）**：登录学生从首页「学情分析」
+按钮进入（教师仍进 /teacher，按 user.app_metadata.teacher 分流；游客无
+按钮）。数据走 `GET /api/progress`（本人 Bearer），复用教师端
+wj-tstage/wj-tbadge 视觉；判定三态徽章 `is-ver-ok`(竹青)/`is-ver-part`
+(赭石)/`is-ver-bad`(朱砂)，题行下展示本人作答原文（wj-tq-ans，两行截断）。
+无进度 → 空态卡引导回工坊。
+
+**[/api/progress 必须带用户 JWT]（2026-09 修复的存量 bug）**：
+workshop_progress 开了 RLS（policy `auth.uid() = user_id`）。该路由曾用
+**不带用户 token 的 anon 客户端**读写——RLS 静默挡成空：登录学生的进度
+保存/加载其实一直失败（库里只有 seed 走 service-role 写的行）。修复：
+`userClient(token)` 把 Bearer 传进 Supabase 客户端 global headers，
+RLS own-policy 生效。GET 同时透出 `updatedAt`。任何要按登录人读写的
+表（RLS own-policy 模式）都走这个套路；service-role 仅教师端/seed 用。
+
 **口令只在登录页出现一次，角色绑定账号（服务端）**：教师口令验过后
 LoginForm 跳 `/api/auth/chaoxing?teacher=1&pw=<口令>`，发起路由服务端比对
 `TEACHER_PASSCODE`（缺省 123）——验过才把 `teacher:true` 写进签名登录

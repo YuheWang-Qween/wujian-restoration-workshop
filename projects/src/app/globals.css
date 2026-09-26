@@ -1758,6 +1758,46 @@
   border-style: dashed;
 }
 
+/* 判定三态徽章：成立竹青、部分成立赭石、不成立朱砂（与学生端判定章同谱） */
+.wj-tbadge.is-ver-ok {
+  background: color-mix(in oklab, var(--wj-bamboo) 12%, transparent);
+  border-color: color-mix(in oklab, var(--wj-bamboo) 45%, transparent);
+  color: var(--wj-bamboo);
+}
+
+.wj-tbadge.is-ver-part {
+  background: color-mix(in oklab, var(--wj-ochre) 12%, transparent);
+  border-color: color-mix(in oklab, var(--wj-ochre) 45%, transparent);
+  color: var(--wj-ochre);
+}
+
+.wj-tbadge.is-ver-bad {
+  background: color-mix(in oklab, var(--wj-cinnabar) 12%, transparent);
+  border-color: color-mix(in oklab, var(--wj-cinnabar) 45%, transparent);
+  color: var(--wj-cinnabar);
+}
+
+/* 学生自视：题行下展示自己的作答原文（两行截断） */
+.wj-tstage li.has-ans {
+  flex-wrap: wrap;
+}
+
+.wj-tq-ans {
+  flex-basis: 100%;
+  font-size: 12px;
+  line-height: 1.55;
+  color: color-mix(in oklab, var(--wj-ink) 62%, transparent);
+  background: color-mix(in oklab, var(--wj-paper) 55%, transparent);
+  border-left: 2px solid color-mix(in oklab, var(--wj-border) 90%, transparent);
+  padding: 0.28rem 0.55rem;
+  margin-top: 0.3rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: pre-wrap;
+}
+
 .wj-tstage ul {
   list-style: none;
   margin: 0;
