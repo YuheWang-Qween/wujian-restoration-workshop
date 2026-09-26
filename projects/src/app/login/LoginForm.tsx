@@ -36,9 +36,10 @@ export function LoginForm({ chaoxing }: { chaoxing: ChaoxingLoginOptions }) {
     setPending(true);
     localStorage.setItem('wj-role', role);
     exitGuestMode();
-    // 登录页已验过教师口令，存入本会话供 /teacher 免二次验证。
-    if (role === 'teacher') window.sessionStorage.setItem('wj-teacher-passcode', passcode);
-    else window.sessionStorage.removeItem('wj-teacher-passcode');
+    // 教师口令验过后持久化到本机，/teacher 不再重复输入
+    // （超星 OAuth 跳转链路可能换标签页，sessionStorage 会丢，须用 localStorage）。
+    if (role === 'teacher') window.localStorage.setItem('wj-teacher-passcode', passcode);
+    else window.localStorage.removeItem('wj-teacher-passcode');
     // 没有下拉框时不带 fid，服务端会用第一个 FID 起头再轮询其余机构。
     window.location.assign(
       fid ? `/api/auth/chaoxing?fid=${encodeURIComponent(fid)}` : '/api/auth/chaoxing',

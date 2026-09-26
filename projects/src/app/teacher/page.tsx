@@ -130,7 +130,7 @@ export default function TeacherPage() {
 
   const load = useCallback(
     async () => {
-      const key = window.sessionStorage.getItem(PASSCODE_STORE);
+      const key = window.localStorage.getItem(PASSCODE_STORE);
       if (!key) {
         setState('locked');
         return;
@@ -146,7 +146,7 @@ export default function TeacherPage() {
           return;
         }
         if (res.status === 403) {
-          window.sessionStorage.removeItem(PASSCODE_STORE);
+          window.localStorage.removeItem(PASSCODE_STORE);
           setErrorMsg('教师口令不正确');
           setState('locked');
           return;
@@ -204,12 +204,12 @@ export default function TeacherPage() {
         <div className="wj-teacher-lockcard">
           <KeyRound size={26} aria-hidden />
           <h1>教师验证</h1>
-          <p>输入教师口令直接查看全部班级的学情数据；从登录页以教师身份进入时已验过，无需再输。</p>
+          <p>输入教师口令查看全部班级的学情数据；验证一次后本机记住，之后不再重复输入。</p>
           <form
             onSubmit={(e) => {
               e.preventDefault();
               setErrorMsg('');
-              window.sessionStorage.setItem(PASSCODE_STORE, passcode);
+              window.localStorage.setItem(PASSCODE_STORE, passcode);
               void load();
             }}
           >

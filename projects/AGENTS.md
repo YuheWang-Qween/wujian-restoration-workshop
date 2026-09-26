@@ -170,13 +170,14 @@ sessionStorage 无 `wj-view-as='student'` 标记 → replace('/teacher')；
 读 auth.users 元数据 + workshop_progress 全表（画图题只回 imageKeys
 不回 dataURL）。细问答完口径与进度条/完成判定共用 store 的 `isQuestionAnswered`。
 
-**口令双通路验证**：①登录页路径——教师口令验证通过后 LoginForm 写
-sessionStorage `wj-teacher-passcode`，与 /teacher 的 PASSCODE_STORE 同键，
-跳转后免输直接进学情；②直达路径——新标签页/浏览器重开直达 /teacher 时
-口令键已失效，页面显示口令输入框，输对即进（不再强迫回登录页）。403 清
-键并提示重输；网络错误显示「加载失败」可重试。学生登录清除该键防残留，
-`signOut()` 同时清 `wj-teacher-passcode` 与 `wj-view-as`。API 服务端
-双校验保持不变。
+**口令双通路验证（localStorage 持久化）**：①登录页路径——教师口令
+验证通过后 LoginForm 写 localStorage `wj-teacher-passcode`，与 /teacher 的
+PASSCODE_STORE 同键，登录后直达学情页免输；②直达路径——本机首次直达
+/teacher 且无存储口令时显示口令输入框，输对即进并存本机。**必须用
+localStorage 而非 sessionStorage**：超星 OAuth 跳转链路可能换标签页，
+sessionStorage 会丢导致登录后仍要求重复输入（已踩坑）。口令验证一次后
+本机记住；403 清键重输；学生登录与 `signOut()` 均清除该键防换人残留
+（signOut 同时清 `wj-view-as`）。API 服务端双校验保持不变。
 
 ### 游客模式（2024-09）
 
