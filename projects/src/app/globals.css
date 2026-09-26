@@ -75,6 +75,7 @@
 
   /* 纸与墨。底色取竹席／宣纸，强调色取朱砂印泥与竹青 */
   --wj-bg: #e8dfca;
+  --wj-paper: #fbf6ec;
   --wj-surface: #f6f1e4;
   --wj-raised: #efe8d6;
   --wj-sunk: #e2d8c0;
@@ -859,15 +860,15 @@
   padding: 0.9rem 1rem;
   background: var(--wj-paper);
   border: 1px solid var(--wj-border);
-  border-radius: 10px;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(93, 64, 28, 0.05);
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .wj-tcard:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--wj-cinnabar) 40%, transparent);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border-color: color-mix(in oklab, var(--wj-cinnabar) 45%, transparent);
+  box-shadow: 0 2px 10px rgba(93, 64, 28, 0.1);
 }
 
 .wj-tcard-head {
@@ -1022,9 +1023,9 @@
 
 .wj-an-card {
   padding: 1rem 1.1rem 1.1rem;
-  background: var(--wj-surface, #faf6ec);
+  background: var(--wj-paper);
   border: 1px solid var(--wj-border);
-  border-radius: 14px;
+  border-radius: 12px;
   box-shadow: 0 1px 6px rgba(93, 64, 28, 0.05);
 }
 

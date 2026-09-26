@@ -503,16 +503,18 @@ export default function TeacherPage() {
           ) : (
             <div className="wj-teacher-grid">
               {groups.map(([cls, list]) => {
-                const avgStages = list.reduce((n, l) => n + l.completed.length, 0) / list.length;
-                const avgQ = list.reduce((n, l) => n + answeredCount(l), 0) / list.length;
+                const empty = list.length === 0;
+                const avgStages = empty ? 0 : list.reduce((n, l) => n + l.completed.length, 0) / list.length;
+                const avgQ = empty ? 0 : list.reduce((n, l) => n + answeredCount(l), 0) / list.length;
                 const latest = list.reduce<string | null>(
                   (m, l) => (l.updatedAt && (!m || l.updatedAt > m) ? l.updatedAt : m),
                   null,
                 );
                 const vs = verdictStats(list);
                 const graded = vs.ok + vs.part + vs.bad;
-                const avgExh =
-                  list.reduce((n, l) => n + exhBoardCount(l) + exhCaseCount(l), 0) / (list.length * 10);
+                const avgExh = empty
+                  ? 0
+                  : list.reduce((n, l) => n + exhBoardCount(l) + exhCaseCount(l), 0) / (list.length * 10);
                 return (
                   <button key={cls} type="button" className="wj-tcard" onClick={() => setView({ mode: 'class', cls })}>
                     <div className="wj-tcard-head">
@@ -527,15 +529,15 @@ export default function TeacherPage() {
                       <div>
                         <dt>平均环节</dt>
                         <dd>
-                          {avgStages.toFixed(1)}
-                          <i>/{TOTAL_STAGES}</i>
+                          {empty ? '—' : avgStages.toFixed(1)}
+                          <i>{empty ? '' : `/${TOTAL_STAGES}`}</i>
                         </dd>
                       </div>
                       <div>
                         <dt>平均细问</dt>
                         <dd>
-                          {avgQ.toFixed(1)}
-                          <i>/{TOTAL_QUESTIONS}</i>
+                          {empty ? '—' : avgQ.toFixed(1)}
+                          <i>{empty ? '' : `/${TOTAL_QUESTIONS}`}</i>
                         </dd>
                       </div>
                       <div>
@@ -548,8 +550,8 @@ export default function TeacherPage() {
                       <div>
                         <dt>鉴赏阅读</dt>
                         <dd>
-                          {Math.round(avgExh * 100)}
-                          <i>%</i>
+                          {empty ? '—' : Math.round(avgExh * 100)}
+                          <i>{empty ? '' : '%'}</i>
                         </dd>
                       </div>
                       <div>
