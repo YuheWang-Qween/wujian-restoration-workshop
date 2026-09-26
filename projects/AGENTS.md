@@ -156,10 +156,11 @@ LoginForm）解锁超星按钮。角色存 localStorage `wj-role`（每次登录
 
 ### 教师端学情分析 /teacher（2026-09）
 
-**教师首页即学情分析**：`/` 挂载时 `wj-role==='teacher'` 且
-sessionStorage 无 `wj-view-as='student'` 标记 → replace('/teacher')；
-`/teacher` 顶栏「学生视角」按钮设一次性标记后 push('/') 供教师临时
-查看学生端（刷新即回教师端，首页读取后即焚标记）。
+**教师首页即学情分析**：`/` 挂载时 `wj-role==='teacher'` 且 URL 无
+`?view=student` → replace('/teacher')；`/teacher` 顶栏「学生视角」按钮
+push('/?view=student') 供教师临时查看学生端（首页读参后 replaceState 清掉
+参数，刷新即回教师端）。曾经用 sessionStorage 一次性标记（读取即焚）实现，
+在二次挂载/受限 webview 下会把教师误弹回 /teacher，已废弃。
 
 三层视图：班级卡片 → 班级学生表 → 学生学情详情（六环节 + 17 题逐题
 判定/提交/草稿状态）。班级按**学工号前缀推导**（位数 4/6/8/不分组可调，

@@ -36,12 +36,14 @@ function WorkshopHallInner() {
     const teacher = localStorage.getItem('wj-role') === 'teacher';
     setIsTeacher(teacher);
     setIsGuest(isGuestMode());
-    // 教师的首页就是学情分析；「学生视角」带一次性标记临时抑制跳转
-    if (teacher && sessionStorage.getItem('wj-view-as') !== 'student') {
+    // 教师的首页就是学情分析；「学生视角」经 ?view=student 临时抑制跳转
+    if (teacher && searchParams.get('view') !== 'student') {
       router.replace('/teacher');
       return;
     }
-    sessionStorage.removeItem('wj-view-as');
+    if (searchParams.get('view') === 'student') {
+      window.history.replaceState(null, '', '/');
+    }
   }, []);
 
   function stageProgress(stageId: number) {

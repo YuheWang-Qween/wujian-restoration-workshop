@@ -230,10 +230,7 @@ export default function TeacherPage() {
         <button
           type="button"
           className="wj-teacher-ghost"
-          onClick={() => {
-            sessionStorage.setItem('wj-view-as', 'student');
-            router.push('/');
-          }}
+          onClick={() => router.push('/?view=student')}
         >
           <Eye size={15} aria-hidden /> 学生视角
         </button>
