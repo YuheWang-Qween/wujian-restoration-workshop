@@ -204,17 +204,17 @@ function WorkshopHallInner() {
             </div>
 
             <div className="flex shrink-0 items-center gap-2 pb-1">
-              {serverTeacher && (
-                <button
-                  type="button"
-                  onClick={() => router.push('/teacher')}
-                  title="查看班级与学生的学习数据"
-                  className="flex items-center gap-1.5 rounded border border-wj-border bg-wj-raised px-2.5 py-1.5 text-xs text-wj-ink transition-colors hover:border-wj-cinnabar hover:text-wj-cinnabar"
-                >
-                  <BarChart3 className="h-3.5 w-3.5" />
-                  学情分析
-                </button>
-              )}
+              {/* 对全员开放入口：/teacher 自带权限墙 + 口令解锁。教师换了浏览器或
+                  当前是学生会话时，自动跳转不会触发，没有这个入口就再也进不去了。 */}
+              <button
+                type="button"
+                onClick={() => router.push('/teacher')}
+                title="查看班级与学生的学习数据"
+                className="flex items-center gap-1.5 rounded border border-wj-border bg-wj-raised px-2.5 py-1.5 text-xs text-wj-ink transition-colors hover:border-wj-cinnabar hover:text-wj-cinnabar"
+              >
+                <BarChart3 className="h-3.5 w-3.5" />
+                学情分析
+              </button>
               {user && <UserChip user={user} isTeacher={serverTeacher} />}
               {!user && isGuest && (
                 <span

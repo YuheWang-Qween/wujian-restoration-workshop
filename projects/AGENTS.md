@@ -176,6 +176,17 @@ history.replaceState 联动进路由，若按实时 searchParams 判定，清理
 卡上直接提供口令输入框——提交走 overview 的 `x-teacher-passcode` 自愈链路
 （服务端验口令 → 补写账号 `app_metadata.teacher` → 本机存
 `wj-teacher-passcode` 供后续会话），验证通过直接进学情页，无需重登。
+**自愈有副作用**：任何知道口令的账号都会被补写成教师——E2E 走这条通道
+后测试账号必须显式还原（`updateUserById` 的 app_metadata 是**合并语义**，
+删不掉已写入的 `teacher:true`，要还原就写 `teacher:false`，或 SQL
+`raw_app_meta_data - 'teacher'`），否则测试学生会从学情列表消失、
+下次登录还会被直接拽进教师端。
+
+**首页「学情分析」入口对全员开放**（2026-09）：会话权威判定落地后，
+学生会话不再被自动跳去 /teacher——教师若换了浏览器/当前挂着学生会话，
+就没有任何路径进教师端（表现为「学情数据不见了」，实际是入口没了）。
+入口按钮因此无条件渲染，/teacher 自带权限墙 + 口令解锁守门，学生误点
+只会看到拦截卡。
 
 三层视图：班级卡片 → 班级学生表 → 学生学情详情（六环节 + 17 题逐题
 判定/提交/草稿状态）。**班级由教师手动划分**（2026-09 改造，废弃了按
@@ -190,7 +201,9 @@ class_name），`GET /api/teacher/overview` 的 learners 每人带 `className`
 读 auth.users 元数据 + workshop_progress 全表（画图题只回 imageKeys
 不回 dataURL）。**教师账号（app_metadata.teacher=true）不进学情列表**——
 教师自己不作为学习者出现，学生登录并产生进度后才有班级；无学工号且无
-进度记录的账号同样不展示。细问答完口径与进度条/完成判定共用 store 的 `isQuestionAnswered`。
+进度记录的账号同样不展示。listUsers 第一页就报错时返回 500「读取学生
+名单失败」（如缺 service-role）——不能静默返回空列表，教师会误以为注入
+的数据丢了。细问答完口径与进度条/完成判定共用 store 的 `isQuestionAnswered`。
 
 **口令只在登录页出现一次，角色绑定账号（服务端）**：教师口令验过后
 LoginForm 跳 `/api/auth/chaoxing?teacher=1&pw=<口令>`，发起路由服务端比对
