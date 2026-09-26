@@ -69,6 +69,29 @@ function submittedOf(l: Learner, stageId: number, q: { id: string; parts: { labe
   return keys.some((k) => Boolean(l.submitted[k]));
 }
 
+/** 一组学习者的细问判定分布（口径与学生详情逐题徽章一致：每题取首个判据键的判定） */
+function verdictStats(list: Learner[]): { ok: number; part: number; bad: number } {
+  let ok = 0;
+  let part = 0;
+  let bad = 0;
+  for (const l of list) {
+    for (const s of STAGES) {
+      for (const q of s.questions) {
+        const v = verdictOf(l, s.id, q);
+        if (v === '成立') ok++;
+        else if (v === '部分成立') part++;
+        else if (v === '不成立') bad++;
+      }
+    }
+  }
+  return { ok, part, bad };
+}
+
+function activeWithin7d(list: Learner[]): number {
+  const weekMs = 7 * 24 * 3600e3;
+  return list.filter((l) => l.updatedAt && Date.now() - new Date(l.updatedAt).getTime() < weekMs).length;
+}
+
 function draftOf(l: Learner, stageId: number, q: { id: string; parts: { label: string }[] }): boolean {
   const imgs = imagesOf(l);
   return isQuestionAnswered(l.answers, imgs, stageId, q);
@@ -211,6 +234,7 @@ export default function TeacherPage() {
   }, [learners, digits]);
 
   const current = view.mode === 'student' ? learners.find((l) => l.userId === view.userId) : undefined;
+  const currentStats = current ? verdictStats([current]) : null;
 
   const changeDigits = (d: number) => {
     setDigits(d);
@@ -298,6 +322,10 @@ export default function TeacherPage() {
                   (m, l) => (l.updatedAt && (!m || l.updatedAt > m) ? l.updatedAt : m),
                   null,
                 );
+                const vs = verdictStats(list);
+                const graded = vs.ok + vs.part + vs.bad;
+                const avgExh =
+                  list.reduce((n, l) => n + exhBoardCount(l) + exhCaseCount(l), 0) / (list.length * 10);
                 return (
                   <button key={cls} type="button" className="wj-tcard" onClick={() => setView({ mode: 'class', cls })}>
                     <div className="wj-tcard-head">
@@ -324,6 +352,20 @@ export default function TeacherPage() {
                         </dd>
                       </div>
                       <div>
+                        <dt>判定优良率</dt>
+                        <dd>
+                          {graded ? Math.round((vs.ok / graded) * 100) : '—'}
+                          <i>{graded ? '%' : ''}</i>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>鉴赏阅读</dt>
+                        <dd>
+                          {Math.round(avgExh * 100)}
+                          <i>%</i>
+                        </dd>
+                      </div>
+                      <div>
                         <dt>最近活跃</dt>
                         <dd>{fmtTime(latest)}</dd>
                       </div>
@@ -345,6 +387,66 @@ export default function TeacherPage() {
             <strong>{view.cls}</strong>
             <span className="wj-teacher-dim">{groups.find(([c]) => c === view.cls)?.[1].length ?? 0} 名学生</span>
           </div>
+          {(() => {
+            const list = groups.find(([c]) => c === view.cls)?.[1] ?? [];
+            if (!list.length) return null;
+            const vs = verdictStats(list);
+            const graded = vs.ok + vs.part + vs.bad;
+            const answeredTotal = list.reduce((n, l) => n + answeredCount(l), 0);
+            const ungraded = Math.max(0, answeredTotal - graded);
+            const totalSeg = graded + ungraded;
+            const avgExhB = list.reduce((n, l) => n + exhBoardCount(l), 0) / list.length;
+            const avgExhC = list.reduce((n, l) => n + exhCaseCount(l), 0) / list.length;
+            const active = activeWithin7d(list);
+            const seg = (n: number) => (totalSeg ? `${(n / totalSeg) * 100}%` : '0%');
+            return (
+              <section className="wj-teacher-analytics">
+                <div className="wj-an-box">
+                  <h3>六道工序 · 完成度</h3>
+                  {STAGES.map((s) => {
+                    const n = list.filter((l) => l.completed.includes(s.id)).length;
+                    const pct = list.length ? Math.round((n / list.length) * 100) : 0;
+                    return (
+                      <div key={s.id} className="wj-an-row">
+                        <span className="wj-an-label">
+                          {s.id} {s.name}
+                        </span>
+                        <span className="wj-an-track">
+                          <i style={{ width: `${pct}%` }} />
+                        </span>
+                        <span className="wj-an-val">
+                          {n}/{list.length} · {pct}%
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="wj-an-box">
+                  <h3>细问答卷 · 判定质量</h3>
+                  <div className="wj-an-stack">
+                    {vs.ok > 0 && <i className="is-ok" style={{ width: seg(vs.ok) }} />}
+                    {vs.part > 0 && <i className="is-part" style={{ width: seg(vs.part) }} />}
+                    {vs.bad > 0 && <i className="is-bad" style={{ width: seg(vs.bad) }} />}
+                    {ungraded > 0 && <i className="is-none" style={{ width: seg(ungraded) }} />}
+                  </div>
+                  <p className="wj-an-legend">
+                    <span className="is-ok">成立 {vs.ok}</span>
+                    <span className="is-part">部分成立 {vs.part}</span>
+                    <span className="is-bad">不成立 {vs.bad}</span>
+                    <span className="is-none">已答未评 {ungraded}</span>
+                  </p>
+                  <h3>鉴赏阅读 · 人均</h3>
+                  <p className="wj-an-line">
+                    板块 {avgExhB.toFixed(1)}/{EXH_BOARDS.length} · 案例精读 {avgExhC.toFixed(1)}/{EXH_CASE_IDS.length}
+                  </p>
+                  <h3>活跃度</h3>
+                  <p className="wj-an-line">
+                    近 7 天 {active}/{list.length} 人有学习记录
+                  </p>
+                </div>
+              </section>
+            );
+          })()}
           <div className="wj-trow wj-trow-head">
             <span>学生</span>
             <span>学工号</span>
@@ -401,6 +503,26 @@ export default function TeacherPage() {
               </span>
             </div>
           </div>
+          {currentStats && (
+            <div className="wj-tchips">
+              <span className="wj-tchip">
+                判定：成立 {currentStats.ok} · 部分成立 {currentStats.part} · 不成立 {currentStats.bad}
+              </span>
+              {currentStats.bad > 0 && (
+                <span className="wj-tchip is-warn">{currentStats.bad} 题判定不成立，待巩固</span>
+              )}
+              {(() => {
+                const pending = STAGES.filter((s) => !current.completed.includes(s.id));
+                if (!pending.length)
+                  return <span className="wj-tchip is-ok">六道工序全部完成</span>;
+                return (
+                  <span className="wj-tchip is-warn">
+                    未完成：{pending.map((s) => `${s.id} ${s.name}`).join('、')}
+                  </span>
+                );
+              })()}
+            </div>
+          )}
           <section className="wj-tstage">
             <header>
               <span className="wj-tstage-no is-done">鉴</span>
