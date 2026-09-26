@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { CASES, getCase } from '@/lib/workshop/exhibition';
 import { ExhibitionShell, FigureCard, SlipText } from '@/components/workshop/ExhibitionParts';
+import { ExhibitVisit } from '@/components/workshop/ExhibitVisit';
 import { DataTable } from '@/components/workshop/DataTable';
 
 /**
@@ -38,6 +39,7 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
 
   return (
     <ExhibitionShell crumb="案例精读" width="read">
+      <ExhibitVisit id={`case-${current.id}`} />
       {/* 篇头 */}
         <header className="max-w-3xl">
           <p className="font-mono text-xs tracking-[0.2em] text-wj-cinnabar">{current.ordinal}</p>

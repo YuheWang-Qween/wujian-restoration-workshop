@@ -26,6 +26,7 @@ interface Learner {
   submitted: Record<string, unknown>;
   verdicts: Record<string, string>;
   imageKeys: string[];
+  exhibitsViewed: Record<string, string>;
 }
 
 const TOTAL_STAGES = STAGES.length;
@@ -85,6 +86,29 @@ function fmtTime(iso: string | null): string {
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${month}-${day} ${hh}:${mm}`;
+}
+
+/** 鉴赏篇五个板块的 id 与展示名（与 exhibition.ts 的 EXH_NAV 对齐，教师端独立维护轻量副本） */
+const EXH_BOARDS = [
+  { id: 'discovery', label: '发现与归属' },
+  { id: 'forms', label: '形制六类' },
+  { id: 'themes', label: '主题八类' },
+  { id: 'cases', label: '案例精读' },
+  { id: 'reference', label: '术语·出版·来源' },
+];
+const EXH_CASE_IDS = [1, 2, 3, 4, 5];
+
+function exhBoardCount(l: Learner): number {
+  return EXH_BOARDS.filter((b) => l.exhibitsViewed[b.id]).length;
+}
+
+function exhCaseCount(l: Learner): number {
+  return EXH_CASE_IDS.filter((n) => l.exhibitsViewed[`case-${n}`]).length;
+}
+
+function exhLatest(l: Learner): string | null {
+  const times = Object.values(l.exhibitsViewed ?? {}).filter(Boolean).sort();
+  return times[times.length - 1] ?? null;
 }
 
 function Avatar({ l, size = 30 }: { l: Learner; size?: number }) {
@@ -326,6 +350,7 @@ export default function TeacherPage() {
             <span>学工号</span>
             <span>环节</span>
             <span>细问</span>
+            <span>鉴赏</span>
             <span>最近活跃</span>
           </div>
           {(groups.find(([c]) => c === view.cls)?.[1] ?? [])
@@ -343,6 +368,10 @@ export default function TeacherPage() {
                 </span>
                 <span>
                   {answeredCount(l)}/{TOTAL_QUESTIONS}
+                </span>
+                <span>
+                  {exhBoardCount(l)}/{EXH_BOARDS.length}
+                  {exhCaseCount(l) > 0 ? ` · 例${exhCaseCount(l)}` : ''}
                 </span>
                 <span className="wj-teacher-dim">{fmtTime(l.updatedAt)}</span>
               </button>
@@ -367,10 +396,41 @@ export default function TeacherPage() {
               <strong>{current.name}</strong>
               <span className="wj-teacher-dim">
                 {current.staffNo || '无学工号'} · 环节 {current.completed.length}/{TOTAL_STAGES} · 细问{' '}
-                {answeredCount(current)}/{TOTAL_QUESTIONS} · 最近 {fmtTime(current.updatedAt)}
+                {answeredCount(current)}/{TOTAL_QUESTIONS} · 鉴赏 {exhBoardCount(current)}/{EXH_BOARDS.length} · 最近{' '}
+                {fmtTime(current.updatedAt)}
               </span>
             </div>
           </div>
+          <section className="wj-tstage">
+            <header>
+              <span className="wj-tstage-no is-done">鉴</span>
+              <h2>简牍鉴赏 · 阅读足迹</h2>
+              <span className="wj-teacher-dim">
+                板块 {exhBoardCount(current)}/{EXH_BOARDS.length} · 案例精读 {exhCaseCount(current)}/
+                {EXH_CASE_IDS.length} · 最近 {fmtTime(exhLatest(current))}
+              </span>
+            </header>
+            <div className="wj-texh">
+              {EXH_BOARDS.map((b) => {
+                const t = current.exhibitsViewed[b.id];
+                return (
+                  <span key={b.id} className={`wj-texh-item ${t ? 'is-seen' : ''}`}>
+                    {b.label}
+                    {t ? <i>{fmtTime(t)}</i> : <i>未读</i>}
+                  </span>
+                );
+              })}
+              {EXH_CASE_IDS.map((n) => {
+                const t = current.exhibitsViewed[`case-${n}`];
+                return (
+                  <span key={`case-${n}`} className={`wj-texh-item ${t ? 'is-seen' : ''}`}>
+                    案例 {n}
+                    {t ? <i>{fmtTime(t)}</i> : <i>未读</i>}
+                  </span>
+                );
+              })}
+            </div>
+          </section>
           {STAGES.map((s) => {
             const done = current.completed.includes(s.id);
             const revealed = current.actsRevealed[String(s.id)] ?? 1;

@@ -13,6 +13,7 @@ interface ProgressData {
   studentInfo?: { studentId: string; name: string } | null;
   achievementUnlocked?: boolean;
   actsRevealed?: Record<string, number>;
+  exhibitsViewed?: Record<string, string>;
   sessionId?: string;
 }
 

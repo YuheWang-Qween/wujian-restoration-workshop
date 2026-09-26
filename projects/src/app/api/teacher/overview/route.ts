@@ -18,6 +18,7 @@ interface ProgressPayload {
   submitted?: unknown;
   verdicts?: unknown;
   images?: unknown;
+  exhibitsViewed?: unknown;
 }
 
 async function verifyUser(
@@ -131,6 +132,7 @@ export async function GET(req: NextRequest) {
           submitted: asRecord(d.submitted),
           verdicts: asRecord(d.verdicts) as Record<string, string>,
           imageKeys: Object.keys(images).filter((k) => String(images[k] ?? '').length > 0),
+          exhibitsViewed: asRecord(d.exhibitsViewed) as Record<string, string>,
         };
       })
       .filter((l) => l.staffNo || l.updatedAt || l.completed.length > 0);

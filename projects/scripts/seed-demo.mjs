@@ -4,7 +4,7 @@
  * 可重复运行（幂等：账号按 email 复用，progress 按 user_id upsert）。
  */
 import { createClient } from '@supabase/supabase-js';
-import { STAGES } from './src/lib/workshop/content.ts';
+import { STAGES } from '../src/lib/workshop/content.ts';
 
 const admin = createClient(
   process.env.COZE_SUPABASE_URL,
@@ -188,13 +188,14 @@ function styled(key, level) {
 }
 
 // ---------- 画像 ----------
+// exhB/exhC：鉴赏篇浏览的板块数/案例数（按板块顺序推进，案例在 cases 板块后展开）
 const PROFILES = {
-  top: { stages: 6, answerQ: 17, submitQ: 17, revealCurrent: 4, v: [0.85, 0.15, 0] },
-  good: { stages: 5, answerQ: 16, submitQ: 15, revealCurrent: 2, v: [0.7, 0.28, 0.02] },
-  solid: { stages: 4, answerQ: 12, submitQ: 11, revealCurrent: 2, v: [0.6, 0.35, 0.05] },
-  mid: { stages: 3, answerQ: 9, submitQ: 8, revealCurrent: 1, v: [0.5, 0.4, 0.1] },
-  low: { stages: 2, answerQ: 7, submitQ: 6, revealCurrent: 1, v: [0.45, 0.4, 0.15] },
-  starter: { stages: 1, answerQ: 4, submitQ: 3, revealCurrent: 1, v: [0.4, 0.45, 0.15] },
+  top: { stages: 6, answerQ: 17, submitQ: 17, revealCurrent: 4, v: [0.85, 0.15, 0], exhB: 5, exhC: 5 },
+  good: { stages: 5, answerQ: 16, submitQ: 15, revealCurrent: 2, v: [0.7, 0.28, 0.02], exhB: 4, exhC: 3 },
+  solid: { stages: 4, answerQ: 12, submitQ: 11, revealCurrent: 2, v: [0.6, 0.35, 0.05], exhB: 3, exhC: 2 },
+  mid: { stages: 3, answerQ: 9, submitQ: 8, revealCurrent: 1, v: [0.5, 0.4, 0.1], exhB: 2, exhC: 1 },
+  low: { stages: 2, answerQ: 7, submitQ: 6, revealCurrent: 1, v: [0.45, 0.4, 0.15], exhB: 1, exhC: 0 },
+  starter: { stages: 1, answerQ: 4, submitQ: 3, revealCurrent: 1, v: [0.4, 0.45, 0.15], exhB: 1, exhC: 0 },
   none: null,
 };
 
@@ -310,18 +311,36 @@ async function main() {
     }
     actsRevealed[String(stages + 1)] = revealCurrent;
 
+    // 鉴赏足迹：按板块顺序推进，时间落在工序学习前后两小时内错落分布
+    const EXH_BOARD_IDS = ['discovery', 'forms', 'themes', 'cases', 'reference'];
+    const baseAt = Date.now() - hoursAgo * 3600e3;
+    const exhibitsViewed = {};
+    for (let i = 0; i < profile.exhB; i++) {
+      exhibitsViewed[EXH_BOARD_IDS[i]] = new Date(baseAt - i * 20 * 60e3).toISOString();
+    }
+    for (let c = 1; c <= profile.exhC; c++) {
+      exhibitsViewed[`case-${c}`] = new Date(baseAt - (30 + c * 15) * 60e3).toISOString();
+    }
+
     const { error: upErr } = await admin
       .from('workshop_progress')
       .upsert(
         {
           user_id: userId,
-          data: { completed, actsRevealed, answers, submitted, verdicts, images },
-          updated_at: new Date(Date.now() - hoursAgo * 3600e3).toISOString(),
+          data: { completed, actsRevealed, answers, submitted, verdicts, images, exhibitsViewed },
+          updated_at: new Date(baseAt).toISOString(),
         },
         { onConflict: 'user_id' },
       );
     if (upErr) throw new Error(`${staffNo}: ${upErr.message}`);
-    console.log('ready', staffNo, name, `${completed.length}/6`, `${submitQ}/17 提交`);
+    console.log(
+      'ready',
+      staffNo,
+      name,
+      `${completed.length}/6`,
+      `${submitQ}/17 提交`,
+      `鉴赏 ${profile.exhB}/5 板块 ${profile.exhC}/5 案例`,
+    );
   }
   console.log('done');
 }

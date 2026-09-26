@@ -191,6 +191,15 @@ LoginForm 跳 `/api/auth/chaoxing?teacher=1&pw=<口令>`，发起路由服务端
 `node --experimental-strip-types scripts/seed-demo.mjs`。清理：删
 `@demo.invalid` 邮箱的 auth.users 账号及对应 workshop_progress 行。
 
+**鉴赏篇阅读足迹（2026-09）**：鉴赏板块是纯陈列阅读（无题无进度），
+学情以「足迹」呈现——store 的 `exhibitsViewed`（板块 id
+discovery/forms/themes/cases/reference + 案例 `case-1…5` → 最近访问
+ISO 时间），五个板块页与案例页挂 `<ExhibitVisit id>` 上报（挂载即
+visitExhibit），随 useProgressSync 同步入 workshop_progress。教师端
+学生表有「鉴赏」列（板块 n/5 · 例 n），学生详情有「简牍鉴赏 · 阅读足迹」
+区块（十个条目逐个显示已读/未读+时间）。seed 脚本的画像含 exhB/exhC
+（板块/案例数，按板块顺序推进）。
+
 ### 游客模式（2024-09）
 
 登录页「游客浏览」按钮 → `src/lib/guest-mode.ts`（localStorage `wj-guest`）。

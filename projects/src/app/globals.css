@@ -909,7 +909,7 @@
 /* 学生表 */
 .wj-trow {
   display: grid;
-  grid-template-columns: 1.6fr 1.2fr 0.6fr 0.6fr 0.9fr;
+  grid-template-columns: 1.6fr 1.2fr 0.6fr 0.6fr 0.7fr 0.9fr;
   gap: 0.5rem;
   align-items: center;
   width: 100%;
@@ -934,6 +934,38 @@
   color: color-mix(in oklab, var(--wj-ink) 50%, transparent);
   cursor: default;
   border-bottom: 1px solid var(--wj-border);
+}
+
+.wj-texh {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0.2rem 0;
+}
+
+.wj-texh-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.28rem 0.6rem;
+  font-size: 12px;
+  color: color-mix(in oklab, var(--wj-ink) 45%, transparent);
+  background: color-mix(in oklab, var(--wj-ink) 3%, transparent);
+  border: 1px solid var(--wj-border);
+  border-radius: 4px;
+}
+
+.wj-texh-item.is-seen {
+  color: var(--wj-ink);
+  background: color-mix(in oklab, var(--wj-cinnabar) 6%, transparent);
+  border-color: color-mix(in oklab, var(--wj-cinnabar) 35%, var(--wj-border));
+}
+
+.wj-texh-item i {
+  font-style: normal;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10.5px;
+  color: color-mix(in oklab, var(--wj-ink) 40%, transparent);
 }
 
 .wj-trow-name {

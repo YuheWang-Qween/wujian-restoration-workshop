@@ -26,6 +26,8 @@ interface WorkshopState {
   achievementUnlocked: boolean;
   /** 各环节当前读到第几节（从 1 起；一节一屏，同屏只出现当前一节），key 为环节编号 */
   actsRevealed: Record<number, number>;
+  /** 简牍鉴赏篇的浏览足迹：板块/案例 id → 最近访问时间（ISO）。板块 5 个 + 案例 case-1…5 */
+  exhibitsViewed: Record<string, string>;
   /**
    * persist 是异步落定的。页面在它翻转之前渲染的是模块默认值，
    * 直接据此判断「未完成 / 无记录」会闪一下错误状态，所以先等这个标记。
@@ -47,6 +49,8 @@ interface WorkshopState {
   revealPrevAct: (stageId: number) => void;
   /** 跳到第 n 节（1 基）：进度条回看已解锁的节用，只允许往回或原地 */
   revealToAct: (stageId: number, n: number) => void;
+  /** 记录鉴赏篇浏览足迹（幂等刷新时间），由鉴赏页挂载时调用 */
+  visitExhibit: (id: string) => void;
   resetAll: () => void;
   resetStage: (stageId: number) => void;
 }
@@ -107,6 +111,7 @@ export const useWorkshopStore = create<WorkshopState>()(
       studentInfo: null,
       achievementUnlocked: false,
       actsRevealed: {},
+      exhibitsViewed: {},
       hydrated: false,
 
       setHydrated: (v) => set({ hydrated: v }),
@@ -173,6 +178,9 @@ export const useWorkshopStore = create<WorkshopState>()(
       revealToAct: (stageId, n) =>
         set((s) => ({ actsRevealed: { ...s.actsRevealed, [stageId]: Math.max(1, n) } })),
 
+      visitExhibit: (id) =>
+        set((s) => ({ exhibitsViewed: { ...s.exhibitsViewed, [id]: new Date().toISOString() } })),
+
       resetAll: () =>
         set({
           completed: [],
@@ -186,6 +194,7 @@ export const useWorkshopStore = create<WorkshopState>()(
           studentInfo: null,
           achievementUnlocked: false,
           actsRevealed: {},
+          exhibitsViewed: {},
           sessionId: newSessionId(),
         }),
 
@@ -225,6 +234,7 @@ export const useWorkshopStore = create<WorkshopState>()(
         studentInfo: s.studentInfo,
         achievementUnlocked: s.achievementUnlocked,
         actsRevealed: s.actsRevealed,
+        exhibitsViewed: s.exhibitsViewed,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated(true);

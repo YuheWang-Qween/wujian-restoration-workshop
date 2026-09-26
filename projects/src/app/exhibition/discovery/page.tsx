@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { DISCOVERY, EXH_NAV } from '@/lib/workshop/exhibition';
 import { BoardHeader, ExhibitionShell, FigureCard } from '@/components/workshop/ExhibitionParts';
+import { ExhibitVisit } from '@/components/workshop/ExhibitVisit';
 
 export const metadata: Metadata = { title: '发现与归属 · 简牍鉴赏' };
 
@@ -9,6 +10,7 @@ export default function DiscoveryPage() {
 
   return (
     <ExhibitionShell crumb={board.label}>
+      <ExhibitVisit id="discovery" />
       <BoardHeader order={board.order} title="发现概况与档案性质" desc={board.desc} />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_340px]">

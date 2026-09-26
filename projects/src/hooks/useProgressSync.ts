@@ -17,6 +17,7 @@ interface ProgressPayload {
   studentInfo: { studentId: string; name: string } | null;
   achievementUnlocked: boolean;
   actsRevealed: Record<string, number>;
+  exhibitsViewed: Record<string, string>;
   sessionId: string;
 }
 
@@ -32,6 +33,7 @@ function buildPayload(s: ReturnType<typeof useWorkshopStore.getState>): Progress
     studentInfo: s.studentInfo,
     achievementUnlocked: s.achievementUnlocked,
     actsRevealed: s.actsRevealed,
+    exhibitsViewed: s.exhibitsViewed,
     sessionId: s.sessionId,
   };
 }
@@ -82,6 +84,7 @@ export function useProgressSync() {
             studentInfo: data.studentInfo ?? s.studentInfo,
             achievementUnlocked: data.achievementUnlocked ?? s.achievementUnlocked,
             actsRevealed: { ...data.actsRevealed, ...s.actsRevealed },
+            exhibitsViewed: { ...data.exhibitsViewed, ...s.exhibitsViewed },
           });
         }
 

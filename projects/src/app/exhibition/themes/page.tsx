@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { ADMIN_NOTE, EXH_NAV, THEMES } from '@/lib/workshop/exhibition';
 import { BoardHeader, ExhibitionShell } from '@/components/workshop/ExhibitionParts';
+import { ExhibitVisit } from '@/components/workshop/ExhibitVisit';
 import { ThemesAccordion } from './ThemesAccordion';
 
 export const metadata: Metadata = { title: '主题八类 · 简牍鉴赏' };
@@ -10,6 +11,7 @@ export default function ThemesPage() {
 
   return (
     <ExhibitionShell crumb={board.label}>
+      <ExhibitVisit id="themes" />
       <BoardHeader order={board.order} title="按主题分：八类内容" desc={board.desc} />
 
       <div className="mt-8">

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { CASES, EXH_NAV } from '@/lib/workshop/exhibition';
 import { BoardHeader, ExhibitionShell } from '@/components/workshop/ExhibitionParts';
+import { ExhibitVisit } from '@/components/workshop/ExhibitVisit';
 
 export const metadata: Metadata = { title: '案例精读 · 简牍鉴赏' };
 
@@ -11,6 +12,7 @@ export default function CasesPage() {
 
   return (
     <ExhibitionShell crumb={board.label}>
+      <ExhibitVisit id="cases" />
       <BoardHeader order={board.order} title="代表性简牍精读" desc={board.desc} />
 
       <div className="mt-8 grid gap-3 md:grid-cols-2">
