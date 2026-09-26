@@ -168,8 +168,14 @@ sessionStorage 无 `wj-view-as='student'` 标记 → replace('/teacher')；
 `GET /api/teacher/overview`：登录 Bearer + `x-teacher-passcode`
 （比对 `TEACHER_PASSCODE`，缺省 123，与登录页口令同源）双校验；service-role
 读 auth.users 元数据 + workshop_progress 全表（画图题只回 imageKeys
-不回 dataURL）。口令存 sessionStorage `wj-teacher-passcode`（403 即清除
-重锁）。细问答完口径与进度条/完成判定共用 store 的 `isQuestionAnswered`。
+不回 dataURL）。细问答完口径与进度条/完成判定共用 store 的 `isQuestionAnswered`。
+
+**口令只在登录页输入一次**：教师口令验证通过后 LoginForm 写 sessionStorage
+`wj-teacher-passcode`，与 /teacher 的 PASSCODE_STORE 同键；学生登录则清除
+该键防残留。/teacher 不再有口令输入门——无键（会话过期/新标签页/403 失效/
+登出清除）时只显示「需要教师验证」提示卡引导回登录页；网络错误显示「加载
+失败」可重试。`signOut()` 同时清 `wj-teacher-passcode` 与 `wj-view-as`，
+防同浏览器换人登录后残留。API 服务端双校验保持不变。
 
 ### 游客模式（2024-09）
 
