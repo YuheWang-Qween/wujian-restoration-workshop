@@ -236,7 +236,10 @@ const CLOUD_STOP = new Set(
     '还有 另外 例如 比如 根据 按照 目前 后来 当时 以下 以上 这是 那个 一个 两个 学生 老师 而且 不过 只是 只有 ' +
     '哪些 什么 怎样 如何 关于 除了 基本上 大概 也许 略较 稍微 特别 十分 更加 极为 过于 还是 越来 ' +
     '的是 说明 选择 答案 理由 选项 填写 放在 任何 之上 先后 同样 全部 相容 可行 顺序 一致 ' +
-    '必须 应当 采用 下列 以上 内外 大小 左右 之前 之后 期间 过程 结果 情况 方式 方法 问题 时候')
+    '必须 应当 采用 下列 以上 内外 大小 左右 之前 之后 期间 过程 结果 情况 方式 方法 问题 时候 ' +
+    '针对 都是 自然 所有 解决 规定 最大 明显 至少 一是 对应 整个 保持 不受 失去 反而 分钟 只能 才能 ' +
+    '代替 组织 完成 实际 不可 多选 作业 足够 力量 机制 独立 上限 差异 线性 永久 并非 造成 整体 有限 ' +
+    '维系 配有 其余 追回 只剩 太紧 加上 之一 互相 一旦 依赖 厘米 毫米 三分之一 合法')
     .split(/\s+/)
     .filter(Boolean),
 );
@@ -244,6 +247,9 @@ const CLOUD_STOP = new Set(
 function validCloudWord(w: string): boolean {
   if (w.length < 2 || w.length > 8) return false;
   if (CLOUD_STOP.has(w)) return false;
+  // 尾字是虚词的（处的、它的）几乎都是分词残片；罗马数字（III/IV）来自阶段编号
+  if (/[的了是在和与或者呢吧]$/.test(w)) return false;
+  if (/^[ivxlc]+$/i.test(w)) return false;
   return /[\u4e00-\u9fff]/.test(w) || /^[a-zA-Z]{2,}$/.test(w);
 }
 
