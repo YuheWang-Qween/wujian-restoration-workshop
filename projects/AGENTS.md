@@ -224,14 +224,24 @@ LoginForm 跳 `/api/auth/chaoxing?teacher=1&pw=<口令>`，发起路由服务端
 口令的方案已废弃（OAuth 换标签页丢 sessionStorage、换设备/清缓存都要
 重输）。`wj-role` localStorage 仍用于首页教师重定向。
 
-**演示学情数据（2026-09）**：`scripts/seed-demo.mjs` 造了 5 个班 × 10 人（学工号前缀
-202501~202505 → 班级名 文保2401班/文保2402班/考古2401班/文保2301班/博物馆学2401班，
-写入 class_assignments；邮箱 `<学工号>@demo.invalid`），班级画像差异化：202501 标准梯度 /
+**演示学情数据（2026-09）**：5 个班 × 10 人（学工号前缀 202501~202505 → 班级名
+文保2401班/文保2402班/考古2401班/文保2301班/博物馆学2401班，写入
+class_assignments；邮箱 `<学工号>@demo.invalid`），班级画像差异化：202501 标准梯度 /
 202502 整体较好 / 202503 整体偏弱 / 202504 两极分化 / 202505 中段集中；进度从 6/6
 全完成到未开始全覆盖，答案文本按报告事实逐题撰写（结构化题走
-「选择：/多选：/排序：/匹配：」协议）。幂等可重跑：
-`node --experimental-strip-types scripts/seed-demo.mjs`。清理：删
-`@demo.invalid` 邮箱的 auth.users 账号及对应 workshop_progress / class_assignments 行。
+「选择：/多选：/排序：/匹配：」协议）。幂等可重跑。
+清理：删 `@demo.invalid` 邮箱的 auth.users 账号及对应 workshop_progress /
+class_assignments 行。
+
+**⚠️ 沙箱与线上是两个独立 Supabase 库（2026-09-26 踩坑）**：`exec_sql` 的
+develop 环境只作用于沙箱预览库；线上部署连 product 库（沙箱对 product 只读）。
+本地脚本 seed 的数据**线上看不到**。因此演示数据已移植为线上可自助注入：
+核心逻辑在 `src/lib/workshop/seed-demo.ts`（seedDemoData/clearDemoData，
+admin 客户端并行执行），`scripts/seed-demo.mjs` 是调它的薄壳；线上入口是
+`POST /api/teacher/seed-demo`（鉴权同 overview：Bearer + teacher）×
+`{action:'seed'|'clear'}`，教师页头部「注入演示数据/清除演示数据」按钮直连。
+注入幂等（账号 email 命中即复用，密码 123456），clear 只删 @demo.invalid
+不影响真实学生。E2E 已验证全链路（清除→注入→幂等→403）。
 
 **班级学情概览（2026-09）**：班级详情顶部有分析区（全部前端聚合，无新接口）——
 六工序逐环节完成人数条形（verdictStats/activeWithin7d 辅助函数在 teacher 页内）；

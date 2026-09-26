@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AlertTriangle, ArrowLeft, ChevronDown, Cloud, Eye, KeyRound, Plus, RefreshCw, Users, GraduationCap } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, ChevronDown, Cloud, Eye, FlaskConical, KeyRound, Plus, RefreshCw, Trash2, Users, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { STAGES, ACT_WHY, ACT_DATA, ACT_SIM, ACT_QUESTIONS } from '@/lib/workshop/content';
 import { answerKey, isQuestionAnswered } from '@/store/useWorkshopStore';
@@ -545,6 +545,49 @@ export default function TeacherPage() {
     }
   };
 
+  // 演示数据注入/清除：沙箱预览与线上是两套独立数据库，在哪个环境点
+  // 就写进哪个环境。演示账号 email 固定 @demo.invalid，清除不影响真实学生。
+  const [demoBusy, setDemoBusy] = useState(false);
+  const runDemo = async (action: 'seed' | 'clear') => {
+    if (!session?.access_token || demoBusy) return;
+    const msg =
+      action === 'seed'
+        ? '将注入 50 名演示学生（5 个班）的学情数据，真实学生不受影响。约需半分钟，继续？'
+        : '将删除全部演示学生及其学情数据（真实学生不受影响）。继续？';
+    if (!window.confirm(msg)) return;
+    setDemoBusy(true);
+    setNotice(action === 'seed' ? '正在注入演示数据……' : '正在清除演示数据……');
+    try {
+      const key = window.localStorage.getItem('wj-teacher-passcode');
+      const res = await fetch('/api/teacher/seed-demo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+          ...(key ? { 'x-teacher-passcode': key } : {}),
+        },
+        body: JSON.stringify({ action }),
+      });
+      const json = (await res.json()) as {
+        ok?: boolean;
+        seeded?: number;
+        removed?: number;
+        error?: string;
+      };
+      if (!res.ok || !json.ok) throw new Error(json.error || '操作失败');
+      flash(
+        action === 'seed'
+          ? `已注入 ${json.seeded ?? 0} 名演示学生`
+          : `已清除 ${json.removed ?? 0} 名演示学生`,
+      );
+      await load();
+    } catch (e) {
+      setNotice(e instanceof Error ? e.message : '操作失败');
+    } finally {
+      setDemoBusy(false);
+    }
+  };
+
   const groups = useMemo(() => {
     const map = new Map<string, Learner[]>();
     for (const l of learners) {
@@ -687,7 +730,15 @@ export default function TeacherPage() {
         </h1>
         <span className="wj-teacher-meta">
           {learners.length} 名学习者 · {fetchedAt ? fmtTime(fetchedAt) : ''}
-          <button type="button" className="wj-teacher-ghost" onClick={() => void load()} disabled={state === 'loading'}>
+          <button type="button" className="wj-teacher-ghost" onClick={() => void runDemo('seed')} disabled={demoBusy}>
+            <FlaskConical size={14} aria-hidden /> 注入演示数据
+          </button>
+          {learners.some((l) => /^20250[1-5]\d{4}$/.test(l.staffNo)) && (
+            <button type="button" className="wj-teacher-ghost" onClick={() => void runDemo('clear')} disabled={demoBusy}>
+              <Trash2 size={14} aria-hidden /> 清除演示
+            </button>
+          )}
+          <button type="button" className="wj-teacher-ghost" onClick={() => void load()} disabled={state === 'loading' || demoBusy}>
             <RefreshCw size={14} aria-hidden /> 刷新
           </button>
         </span>
