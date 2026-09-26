@@ -131,8 +131,13 @@ export default function TeacherPage() {
       if (!session?.access_token) return;
       setState('loading');
       try {
+        // 本机存过口令就带上：账号缺教师标记时由服务端校验并自愈补写
+        const key = window.localStorage.getItem('wj-teacher-passcode');
         const res = await fetch('/api/teacher/overview', {
-          headers: { Authorization: `Bearer ${session.access_token}` },
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            ...(key ? { 'x-teacher-passcode': key } : {}),
+          },
         });
         if (res.status === 401) {
           router.replace('/login');

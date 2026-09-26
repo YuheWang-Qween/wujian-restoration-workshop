@@ -22,7 +22,7 @@ interface ProgressPayload {
 
 async function verifyUser(
   req: NextRequest,
-): Promise<{ id: string; isTeacher: boolean } | null> {
+): Promise<{ id: string; isTeacher: boolean; appMetadata: Record<string, unknown> } | null> {
   let url: string, anonKey: string;
   try {
     ({ url, anonKey } = getSupabaseCredentials());
@@ -40,6 +40,7 @@ async function verifyUser(
     return {
       id: data.user.id,
       isTeacher: data.user.app_metadata?.teacher === true,
+      appMetadata: (data.user.app_metadata ?? {}) as Record<string, unknown>,
     };
   } catch {
     return null;
@@ -57,7 +58,20 @@ export async function GET(req: NextRequest) {
   }
 
   if (!user.isTeacher) {
-    return NextResponse.json({ error: '该账号不是教师账号' }, { status: 403 });
+    // 账号还没落教师标记（老会话/换浏览器）：凭本机存过的口令放行并补写标记，
+    // 下次起任何设备直接按账号角色放行，不再需要口令。
+    const passcode = req.headers.get('x-teacher-passcode');
+    if (passcode !== (process.env.TEACHER_PASSCODE || '123')) {
+      return NextResponse.json({ error: '该账号不是教师账号' }, { status: 403 });
+    }
+    try {
+      const admin = getSupabaseClient();
+      await admin.auth.admin.updateUserById(user.id, {
+        app_metadata: { ...user.appMetadata, teacher: true },
+      });
+    } catch {
+      // 补写失败不阻断本次访问
+    }
   }
 
   try {

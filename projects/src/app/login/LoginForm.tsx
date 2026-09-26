@@ -36,12 +36,16 @@ export function LoginForm({ chaoxing }: { chaoxing: ChaoxingLoginOptions }) {
     setPending(true);
     localStorage.setItem('wj-role', role);
     exitGuestMode();
-    // 教师角色与口令带给登录发起路由，服务端验过后在回调写入账号角色，
-    // 之后 /teacher 直接按账号角色放行，不再重复输口令。
+    // 教师登录：口令交服务端验证后写入账号角色（一次验证终身有效），并直接
+    // 落地学情页；本机另存一份口令兜底，老会话首访 /teacher 时自愈补写标记。
     const params = new URLSearchParams();
     if (role === 'teacher') {
       params.set('teacher', '1');
       params.set('pw', passcode);
+      params.set('next', '/teacher');
+      window.localStorage.setItem('wj-teacher-passcode', passcode);
+    } else {
+      window.localStorage.removeItem('wj-teacher-passcode');
     }
     if (fid) params.set('fid', fid);
     // 没有下拉框时不带 fid，服务端会用第一个 FID 起头再轮询其余机构。
