@@ -53,7 +53,9 @@ async function finishChaoxingLogin(request: NextRequest): Promise<NextResponse> 
   }
 
   try {
-    const tokenHash = await createSupabaseLoginToken(identity);
+    const tokenHash = await createSupabaseLoginToken(identity, {
+      teacher: context?.teacher === true,
+    });
     const nextPath = normalizeSafeRedirectPath(context?.nextPath ?? '/') ?? '/';
     const finishUrl = new URL('/auth/finish', getRealOrigin(request));
     finishUrl.searchParams.set('token_hash', tokenHash);

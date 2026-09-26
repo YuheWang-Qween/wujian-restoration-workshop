@@ -31,7 +31,6 @@ interface Learner {
 const TOTAL_STAGES = STAGES.length;
 const TOTAL_QUESTIONS = STAGES.reduce((n, s) => n + s.questions.length, 0);
 const ACT_NAMES = [ACT_WHY, ACT_DATA, ACT_SIM, ACT_QUESTIONS];
-const PASSCODE_STORE = 'wj-teacher-passcode';
 const DIGIT_STORE = 'wj-teacher-digits';
 
 const DEFAULT_DIGITS = 6;
@@ -115,9 +114,8 @@ type View = { mode: 'classes' } | { mode: 'class'; cls: string } | { mode: 'stud
 export default function TeacherPage() {
   const router = useRouter();
   const { user, session, isLoading } = useAuth();
-  const [state, setState] = useState<'loading' | 'locked' | 'ready' | 'error'>('loading');
+  const [state, setState] = useState<'loading' | 'forbidden' | 'ready' | 'error'>('loading');
   const [errorMsg, setErrorMsg] = useState('');
-  const [passcode, setPasscode] = useState('');
   const [learners, setLearners] = useState<Learner[]>([]);
   const [fetchedAt, setFetchedAt] = useState('');
   const [view, setView] = useState<View>({ mode: 'classes' });
@@ -130,25 +128,18 @@ export default function TeacherPage() {
 
   const load = useCallback(
     async () => {
-      const key = window.localStorage.getItem(PASSCODE_STORE);
-      if (!key) {
-        setState('locked');
-        return;
-      }
       if (!session?.access_token) return;
       setState('loading');
       try {
         const res = await fetch('/api/teacher/overview', {
-          headers: { Authorization: `Bearer ${session.access_token}`, 'x-teacher-passcode': key },
+          headers: { Authorization: `Bearer ${session.access_token}` },
         });
         if (res.status === 401) {
           router.replace('/login');
           return;
         }
         if (res.status === 403) {
-          window.localStorage.removeItem(PASSCODE_STORE);
-          setErrorMsg('教师口令不正确');
-          setState('locked');
+          setState('forbidden');
           return;
         }
         const json = (await res.json()) as { learners?: Learner[]; fetchedAt?: string; error?: string };
@@ -198,35 +189,14 @@ export default function TeacherPage() {
     setView({ mode: 'classes' });
   };
 
-  if (state === 'locked') {
+  if (state === 'forbidden') {
     return (
       <div className="wj-teacher-lock">
         <div className="wj-teacher-lockcard">
           <KeyRound size={26} aria-hidden />
-          <h1>教师验证</h1>
-          <p>输入教师口令查看全部班级的学情数据；验证一次后本机记住，之后不再重复输入。</p>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setErrorMsg('');
-              window.localStorage.setItem(PASSCODE_STORE, passcode);
-              void load();
-            }}
-          >
-            <input
-              type="password"
-              inputMode="numeric"
-              value={passcode}
-              onChange={(e) => setPasscode(e.target.value)}
-              placeholder="教师口令"
-              autoFocus
-            />
-            <button type="submit" disabled={!passcode.trim()}>
-              查看学情
-            </button>
-          </form>
-          {errorMsg && <em>{errorMsg}</em>}
-          <button type="button" className="wj-teacher-backlink" onClick={() => router.replace('/login')}>
+          <h1>仅教师可查看</h1>
+          <p>该账号不是教师账号。请在登录页选择「我是教师」并输入教师口令重新登录。</p>
+          <button type="button" className="wj-teacher-lockbtn" onClick={() => router.replace('/login')}>
             返回登录页
           </button>
         </div>

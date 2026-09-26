@@ -1108,61 +1108,6 @@
   margin: 0 0 1.1rem;
 }
 
-.wj-teacher-lockcard form {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.wj-teacher-lockcard input {
-  flex: 1;
-  min-width: 0;
-  padding: 0.55rem 0.8rem;
-  font-size: 14px;
-  border: 1px solid var(--wj-border);
-  border-radius: 8px;
-  background: color-mix(in oklab, var(--wj-paper) 55%, transparent);
-  color: var(--wj-ink);
-  letter-spacing: 0.2em;
-}
-
-.wj-teacher-lockcard input:focus {
-  outline: none;
-  border-color: var(--wj-cinnabar);
-}
-
-.wj-teacher-lockcard form button {
-  padding: 0.55rem 1rem;
-  font-size: 13.5px;
-  background: var(--wj-cinnabar);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.wj-teacher-lockcard form button:disabled {
-  opacity: 0.55;
-  cursor: default;
-}
-
-.wj-teacher-lockcard em {
-  display: block;
-  margin-top: 0.7rem;
-  font-style: normal;
-  font-size: 12px;
-  color: var(--wj-cinnabar);
-}
-
-.wj-teacher-backlink {
-  margin-top: 1rem;
-  background: none;
-  border: none;
-  font-size: 12px;
-  color: color-mix(in oklab, var(--wj-ink) 55%, transparent);
-  cursor: pointer;
-  text-decoration: underline;
-}
-
 .wj-teacher-lockbtn {
   width: 100%;
   padding: 0.6rem 1rem;

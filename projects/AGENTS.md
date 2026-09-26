@@ -170,14 +170,16 @@ sessionStorage 无 `wj-view-as='student'` 标记 → replace('/teacher')；
 读 auth.users 元数据 + workshop_progress 全表（画图题只回 imageKeys
 不回 dataURL）。细问答完口径与进度条/完成判定共用 store 的 `isQuestionAnswered`。
 
-**口令双通路验证（localStorage 持久化）**：①登录页路径——教师口令
-验证通过后 LoginForm 写 localStorage `wj-teacher-passcode`，与 /teacher 的
-PASSCODE_STORE 同键，登录后直达学情页免输；②直达路径——本机首次直达
-/teacher 且无存储口令时显示口令输入框，输对即进并存本机。**必须用
-localStorage 而非 sessionStorage**：超星 OAuth 跳转链路可能换标签页，
-sessionStorage 会丢导致登录后仍要求重复输入（已踩坑）。口令验证一次后
-本机记住；403 清键重输；学生登录与 `signOut()` 均清除该键防换人残留
-（signOut 同时清 `wj-view-as`）。API 服务端双校验保持不变。
+**口令只在登录页出现一次，角色绑定账号（服务端）**：教师口令验过后
+LoginForm 跳 `/api/auth/chaoxing?teacher=1&pw=<口令>`，发起路由服务端比对
+`TEACHER_PASSCODE`（缺省 123）——验过才把 `teacher:true` 写进签名登录
+上下文 Cookie（chaoxing-login-context），回调把它落成 Supabase 账号的
+`app_metadata.teacher`（只升不降，后续登录自然保留）。/teacher **没有
+口令门**：教师登录后任何路径直达学情数据；`GET /api/teacher/overview`
+校验登录 Bearer + `app_metadata.teacher`，学生账号 403（页面显示「仅教师
+可查看」），未登录 401 跳登录页。曾经用 sessionStorage/localStorage 存
+口令的方案已废弃（OAuth 换标签页丢 sessionStorage、换设备/清缓存都要
+重输）。`wj-role` localStorage 仍用于首页教师重定向。
 
 ### 游客模式（2024-09）
 

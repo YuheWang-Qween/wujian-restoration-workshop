@@ -9,6 +9,7 @@ import { getSupabaseClient } from '@/storage/database/supabase-client';
  */
 export async function createSupabaseLoginToken(
   identity: ChaoxingIdentity,
+  opts: { teacher?: boolean } = {},
 ): Promise<string> {
   // getSupabaseClient() 无参时使用 service role 密钥，即管理员客户端
   const admin = getSupabaseClient();
@@ -19,7 +20,7 @@ export async function createSupabaseLoginToken(
     avatar_url: avatar,
   };
   // app_metadata 会进入 JWT，只放已解析的字段，不把超星原始响应原样塞进来。
-  const appMetadata = { chaoxing: userInfo };
+  const appMetadata = { chaoxing: userInfo, ...(opts.teacher ? { teacher: true } : {}) };
 
   const { data: created } = await admin.auth.admin.createUser({
     email,

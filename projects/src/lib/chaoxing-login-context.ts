@@ -13,6 +13,8 @@ interface LoginContext {
   version: 1;
   nextPath: string;
   expiresAt: number;
+  /** 教师登录标记：发起时服务端已验过教师口令，回调落成账号角色。 */
+  teacher?: boolean;
 }
 
 function getSigningSecret(): string {
@@ -51,8 +53,7 @@ function decode(value: string | undefined): LoginContext | null {
     ) {
       return null;
     }
-    return context as LoginContext;
-  } catch {
+    return context as LoginContext;  } catch {
     return null;
   }
 }
@@ -61,6 +62,7 @@ export function setLoginContextCookie(
   response: NextResponse,
   request: NextRequest,
   nextPath: string,
+  teacher = false,
 ): void {
   response.cookies.set(
     LOGIN_CONTEXT_COOKIE,
@@ -68,6 +70,7 @@ export function setLoginContextCookie(
       version: 1,
       nextPath,
       expiresAt: Date.now() + LOGIN_CONTEXT_MAX_AGE * 1000,
+      ...(teacher ? { teacher: true } : {}),
     }),
     {
       httpOnly: true,

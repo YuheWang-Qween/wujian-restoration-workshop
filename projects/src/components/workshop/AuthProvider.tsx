@@ -118,8 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     // 游客点退出：清游客标记后同样回登录页
     exitGuestMode();
-    // 教师口令随登出作废，防止同浏览器换人登录后残留可用
-    window.localStorage.removeItem('wj-teacher-passcode');
+    // 一次性学生视角标记随登出清除，防止换人登录后误入学生视图
     window.sessionStorage.removeItem('wj-view-as');
     try {
       const supabase = getSupabaseBrowserClient();

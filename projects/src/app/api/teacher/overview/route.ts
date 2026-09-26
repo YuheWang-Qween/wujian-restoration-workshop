@@ -5,10 +5,10 @@ import { getSupabaseCredentials, getSupabaseClient } from '@/storage/database/su
 export const dynamic = 'force-dynamic';
 
 /**
- * 教师端学情总览。校验两层：登录 Bearer（任意有效账号）+ 教师口令
- * （header x-teacher-passcode，比对 TEACHER_PASSCODE，缺省 123，与登录页同源）。
- * 数据用 service-role 读全表：auth.users 的身份元数据 + workshop_progress。
- * 画图题只回 key 不回 dataURL（大字段），前端构造成“有图”标记。
+ * 教师端学情总览。校验两层：登录 Bearer + 账号教师角色（app_metadata.teacher，
+ * 由登录页教师口令验证后在回调写入）。数据用 service-role 读全表：
+ * auth.users 的身份元数据 + workshop_progress。画图题只回 key 不回
+ * dataURL（大字段），前端构造成“有图”标记。
  */
 
 interface ProgressPayload {
@@ -20,7 +20,9 @@ interface ProgressPayload {
   images?: unknown;
 }
 
-async function verifyUser(req: NextRequest): Promise<string | null> {
+async function verifyUser(
+  req: NextRequest,
+): Promise<{ id: string; isTeacher: boolean } | null> {
   let url: string, anonKey: string;
   try {
     ({ url, anonKey } = getSupabaseCredentials());
@@ -35,7 +37,10 @@ async function verifyUser(req: NextRequest): Promise<string | null> {
     });
     const { data, error } = await supabase.auth.getUser(token);
     if (error || !data.user) return null;
-    return data.user.id;
+    return {
+      id: data.user.id,
+      isTeacher: data.user.app_metadata?.teacher === true,
+    };
   } catch {
     return null;
   }
@@ -46,14 +51,13 @@ function asRecord(v: unknown): Record<string, unknown> {
 }
 
 export async function GET(req: NextRequest) {
-  const userId = await verifyUser(req);
-  if (!userId) {
+  const user = await verifyUser(req);
+  if (!user) {
     return NextResponse.json({ error: '请先登录' }, { status: 401 });
   }
 
-  const expected = process.env.TEACHER_PASSCODE || '123';
-  if (req.headers.get('x-teacher-passcode') !== expected) {
-    return NextResponse.json({ error: '教师口令不正确' }, { status: 403 });
+  if (!user.isTeacher) {
+    return NextResponse.json({ error: '该账号不是教师账号' }, { status: 403 });
   }
 
   try {

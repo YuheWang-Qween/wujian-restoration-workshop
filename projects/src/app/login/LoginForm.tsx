@@ -36,14 +36,16 @@ export function LoginForm({ chaoxing }: { chaoxing: ChaoxingLoginOptions }) {
     setPending(true);
     localStorage.setItem('wj-role', role);
     exitGuestMode();
-    // 教师口令验过后持久化到本机，/teacher 不再重复输入
-    // （超星 OAuth 跳转链路可能换标签页，sessionStorage 会丢，须用 localStorage）。
-    if (role === 'teacher') window.localStorage.setItem('wj-teacher-passcode', passcode);
-    else window.localStorage.removeItem('wj-teacher-passcode');
+    // 教师角色与口令带给登录发起路由，服务端验过后在回调写入账号角色，
+    // 之后 /teacher 直接按账号角色放行，不再重复输口令。
+    const params = new URLSearchParams();
+    if (role === 'teacher') {
+      params.set('teacher', '1');
+      params.set('pw', passcode);
+    }
+    if (fid) params.set('fid', fid);
     // 没有下拉框时不带 fid，服务端会用第一个 FID 起头再轮询其余机构。
-    window.location.assign(
-      fid ? `/api/auth/chaoxing?fid=${encodeURIComponent(fid)}` : '/api/auth/chaoxing',
-    );
+    window.location.assign(params.size ? `/api/auth/chaoxing?${params}` : '/api/auth/chaoxing');
   }
 
   function handleGuestBrowse() {
