@@ -869,6 +869,66 @@
   color: #fff;
 }
 
+.wj-cloud-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 16px;
+  padding: 18px 8px 14px;
+  line-height: 1.15;
+}
+
+.wj-w {
+  font-family: var(--font-serif);
+  letter-spacing: 0.04em;
+  cursor: default;
+  transition: opacity 0.15s ease;
+}
+
+.wj-w:hover {
+  opacity: 0.62;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
+}
+
+.wj-cloud-rank {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px dashed var(--wj-border);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 6px 22px;
+}
+
+.wj-cloud-rank li {
+  display: grid;
+  grid-template-columns: 22px auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.wj-cloud-term {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  color: var(--wj-ink);
+  min-width: 3em;
+}
+
+.wj-cloud-n {
+  color: var(--wj-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.wj-cloud-n b {
+  color: var(--wj-cinnabar);
+  font-size: 13px;
+}
+
 .wj-teacher-toolbar strong {
   font-family: var(--font-serif);
   font-size: 15px;

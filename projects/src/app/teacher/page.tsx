@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AlertTriangle, ArrowLeft, ChevronDown, Eye, KeyRound, Plus, RefreshCw, Users, GraduationCap } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, ChevronDown, Cloud, Eye, KeyRound, Plus, RefreshCw, Users, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { STAGES, ACT_WHY, ACT_DATA, ACT_SIM, ACT_QUESTIONS } from '@/lib/workshop/content';
 import { answerKey, isQuestionAnswered } from '@/store/useWorkshopStore';
@@ -227,6 +227,153 @@ function activeWithin7d(list: Learner[]): number {
   return list.filter((l) => l.updatedAt && Date.now() - new Date(l.updatedAt).getTime() < weekMs).length;
 }
 
+/** 词云停用词：虚词与泛化分析用语，过滤后留下领域术语 */
+const CLOUD_STOP = new Set(
+  ('的 了 和 是 在 有 与 不 人 都 为 上 也 个 到 说 要 地 去 着 没 会 及 或 等 之 其 这 那 就 被 把 让 从 向 而 但 并 ' +
+    '我们 你们 他们 自己 什么 可以 这样 那样 因为 所以 如果 虽然 然后 已经 可能 应该 需要 进行 通过 对于 由于 并且 以及 ' +
+    '不是 没有 就是 还是 只是 一些 一点 非常 比较 更加 其中 之后 之前 同时 使用 采用 出现 得到 认为 知道 时候 问题 ' +
+    '情况 方式 方法 作用 影响 结果 过程 方面 之间 相同 不同 一般 各种 一定 程度 无法 不能 主要 直接 予以 从而 ' +
+    '还有 另外 例如 比如 根据 按照 目前 后来 当时 以下 以上 这是 那个 一个 两个 学生 老师 而且 不过 只是 只有 ' +
+    '哪些 什么 怎样 如何 关于 除了 基本上 大概 也许 略较 稍微 特别 十分 更加 极为 过于 还是 越来 ' +
+    '的是 说明 选择 答案 理由 选项 填写 放在 任何 之上 先后 同样 全部 相容 可行 顺序 一致 ' +
+    '必须 应当 采用 下列 以上 内外 大小 左右 之前 之后 期间 过程 结果 情况 方式 方法 问题 时候')
+    .split(/\s+/)
+    .filter(Boolean),
+);
+
+function validCloudWord(w: string): boolean {
+  if (w.length < 2 || w.length > 8) return false;
+  if (CLOUD_STOP.has(w)) return false;
+  return /[\u4e00-\u9fff]/.test(w) || /^[a-zA-Z]{2,}$/.test(w);
+}
+
+function tokenizeAnswer(text: string): string[] {
+  try {
+    const seg = new Intl.Segmenter('zh-CN', { granularity: 'word' });
+    return [...seg.segment(text)].filter((s) => s.isWordLike && validCloudWord(s.segment)).map((s) => s.segment);
+  } catch {
+    // 环境不支持 Intl.Segmenter 时退化为中文串二元组
+    const out: string[] = [];
+    for (const run of text.match(/[\u4e00-\u9fff]{2,}/g) ?? []) {
+      for (let i = 0; i < run.length - 1; i++) out.push(run.slice(i, i + 2));
+    }
+    return out.filter(validCloudWord);
+  }
+}
+
+/** 每位学生对每词只计一次；score = 提到人数 × √出现的题目数，跨题复现的术语才排前面 */
+function buildWordCloud(list: Learner[]): { word: string; n: number; q: number; score: number }[] {
+  const students = new Map<string, number>();
+  const questions = new Map<string, Set<string>>();
+  for (const l of list) {
+    const seen = new Map<string, Set<string>>();
+    for (const [key, text] of Object.entries(l.answers ?? {})) {
+      if (!text || text.startsWith('data:')) continue;
+      for (const w of tokenizeAnswer(text)) {
+        if (!seen.has(w)) seen.set(w, new Set());
+        seen.get(w)!.add(key);
+      }
+    }
+    for (const [w, keys] of seen) {
+      students.set(w, (students.get(w) ?? 0) + 1);
+      if (!questions.has(w)) questions.set(w, new Set());
+      for (const k of keys) questions.get(w)!.add(k);
+    }
+  }
+  // 学生多时过滤只被 1 人提到的孤立词，班级小则保留
+  const floor = list.length >= 8 ? 2 : 1;
+  return [...students.entries()]
+    .filter(([, n]) => n >= floor)
+    .map(([word, n]) => {
+      const q = questions.get(word)?.size ?? 1;
+      return { word, n, q, score: n * Math.sqrt(q) };
+    })
+    .sort((a, b) => b.score - a.score || a.word.localeCompare(b.word));
+}
+
+const CLOUD_PALETTE = ['#9a3d1d', '#4a3f33', '#9a7b4f', '#6d5a43'];
+
+function CloudPage({
+  pool,
+  className,
+  onClass,
+  groups,
+}: {
+  pool: Learner[];
+  className: string;
+  onClass: (c: string) => void;
+  groups: [string, Learner[]][];
+}) {
+  const words = buildWordCloud(pool);
+  const shown = words.slice(0, 60);
+  const max = shown[0]?.score ?? 1;
+  const min = shown[shown.length - 1]?.score ?? 1;
+  const answerN = pool.reduce(
+    (n, l) => n + Object.values(l.answers ?? {}).filter((t) => t && !t.startsWith('data:')).length,
+    0,
+  );
+  const sizeOf = (s: number) => {
+    if (max <= min) return 22;
+    const t = (Math.log(s) - Math.log(min)) / (Math.log(max) - Math.log(min));
+    return Math.round(14 + t * 24);
+  };
+  const colorOf = (s: number) => {
+    if (max <= min) return CLOUD_PALETTE[0];
+    const t = (Math.log(s) - Math.log(min)) / (Math.log(max) - Math.log(min));
+    return t > 0.62 ? CLOUD_PALETTE[0] : t > 0.28 ? CLOUD_PALETTE[1] : CLOUD_PALETTE[2];
+  };
+  return (
+    <>
+      <div className="wj-teacher-toolbar">
+        <div className="wj-err-filter">
+          {['全部班级', ...groups.map(([c]) => c)].map((c) => (
+            <button key={c} type="button" className={className === c ? 'is-on' : ''} onClick={() => onClass(c)}>
+              {c}
+            </button>
+          ))}
+        </div>
+        <span className="wj-teacher-dim">
+          {pool.length} 名学生 · {answerN} 条作答
+        </span>
+      </div>
+      {shown.length === 0 ? (
+        <p className="wj-teacher-hint">该范围内还没有文字作答。学生在工序细问中写下分析文字后，这里会自动聚出热点词。</p>
+      ) : (
+        <section className="wj-an-card wj-cloud">
+          <h3>{className === '全部班级' ? '全体学生 · 回复热点词云' : `${className} · 回复热点词云`}</h3>
+          <p className="wj-err-hint">字号与颜色随热度加深（热度 = 提到人数 × √出现的题目数，跨题复现的术语更靠前）；悬停可看详情。</p>
+          <div className="wj-cloud-body">
+            {shown.map((w) => (
+              <span
+                key={w.word}
+                className="wj-w"
+                style={{ fontSize: sizeOf(w.score), color: colorOf(w.score) }}
+                title={`${w.word} · ${w.n} 人提到 · ${w.q} 道题出现`}
+              >
+                {w.word}
+              </span>
+            ))}
+          </div>
+          <ol className="wj-cloud-rank">
+            {words.slice(0, 20).map((w, i) => (
+              <li key={w.word}>
+                <span className="wj-err-rank">{i + 1}</span>
+                <span className="wj-cloud-term">{w.word}</span>
+                <span className="wj-err-bar">
+                  <i style={{ width: `${Math.max(4, (w.score / max) * 100)}%` }} />
+                </span>
+                <span className="wj-cloud-n">
+                  <b>{w.n}</b> 人 · {w.q} 题
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+    </>
+  );
+}
+
 function draftOf(l: Learner, stageId: number, q: { id: string; parts: { label: string }[] }): boolean {
   const imgs = imagesOf(l);
   return isQuestionAnswered(l.answers, imgs, stageId, q);
@@ -301,8 +448,9 @@ export default function TeacherPage() {
   const [learners, setLearners] = useState<Learner[]>([]);
   const [fetchedAt, setFetchedAt] = useState('');
   const [view, setView] = useState<View>({ mode: 'classes' });
-  const [page, setPage] = useState<'classes' | 'errors'>('classes');
+  const [page, setPage] = useState<'classes' | 'errors' | 'cloud'>('classes');
   const [errClass, setErrClass] = useState('全部班级');
+  const [cloudClass, setCloudClass] = useState('全部班级');
   const [extraClasses, setExtraClasses] = useState<string[]>([]);
   const [notice, setNotice] = useState('');
 
@@ -515,6 +663,16 @@ export default function TeacherPage() {
         >
           <AlertTriangle size={14} aria-hidden /> 高频错误
         </button>
+        <button
+          type="button"
+          className={page === 'cloud' ? 'is-on' : ''}
+          onClick={() => {
+            setPage('cloud');
+            setView({ mode: 'classes' });
+          }}
+        >
+          <Cloud size={14} aria-hidden /> 热点词云
+        </button>
       </nav>
 
       {state === 'ready' && page === 'classes' && view.mode === 'classes' && (
@@ -631,6 +789,15 @@ export default function TeacherPage() {
             );
           })()}
         </>
+      )}
+
+      {state === 'ready' && page === 'cloud' && (
+        <CloudPage
+          pool={cloudClass === '全部班级' ? learners : groups.find(([c]) => c === cloudClass)?.[1] ?? []}
+          className={cloudClass}
+          onClass={setCloudClass}
+          groups={groups}
+        />
       )}
 
       {state === 'ready' && page === 'classes' && view.mode === 'class' && (
