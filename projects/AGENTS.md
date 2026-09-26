@@ -169,7 +169,9 @@ push('/?view=student') 供教师临时查看学生端（首页读参后 replaceS
 `GET /api/teacher/overview`：登录 Bearer + `x-teacher-passcode`
 （比对 `TEACHER_PASSCODE`，缺省 123，与登录页口令同源）双校验；service-role
 读 auth.users 元数据 + workshop_progress 全表（画图题只回 imageKeys
-不回 dataURL）。细问答完口径与进度条/完成判定共用 store 的 `isQuestionAnswered`。
+不回 dataURL）。**教师账号（app_metadata.teacher=true）不进学情列表**——
+教师自己不作为学习者出现，学生登录并产生进度后才有班级；无学工号且无
+进度记录的账号同样不展示。细问答完口径与进度条/完成判定共用 store 的 `isQuestionAnswered`。
 
 **口令只在登录页出现一次，角色绑定账号（服务端）**：教师口令验过后
 LoginForm 跳 `/api/auth/chaoxing?teacher=1&pw=<口令>`，发起路由服务端比对

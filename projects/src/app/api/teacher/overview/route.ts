@@ -108,6 +108,8 @@ export async function GET(req: NextRequest) {
     );
 
     const learners = users
+      // 教师账号不进学情统计（教师自己不作为学习者出现）
+      .filter((u) => u.app_metadata?.teacher !== true)
       .map((u) => {
         const row = progressByUser.get(u.id);
         const d: ProgressPayload = (row?.data as ProgressPayload) ?? {};
