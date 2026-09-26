@@ -117,6 +117,7 @@ export default function TeacherPage() {
   const { user, session, isLoading } = useAuth();
   const [state, setState] = useState<'loading' | 'locked' | 'ready' | 'error'>('loading');
   const [errorMsg, setErrorMsg] = useState('');
+  const [passcode, setPasscode] = useState('');
   const [learners, setLearners] = useState<Learner[]>([]);
   const [fetchedAt, setFetchedAt] = useState('');
   const [view, setView] = useState<View>({ mode: 'classes' });
@@ -146,6 +147,7 @@ export default function TeacherPage() {
         }
         if (res.status === 403) {
           window.sessionStorage.removeItem(PASSCODE_STORE);
+          setErrorMsg('教师口令不正确');
           setState('locked');
           return;
         }
@@ -201,9 +203,30 @@ export default function TeacherPage() {
       <div className="wj-teacher-lock">
         <div className="wj-teacher-lockcard">
           <KeyRound size={26} aria-hidden />
-          <h1>需要教师验证</h1>
-          <p>请从登录页以教师身份登录并输入教师口令进入；口令在本次会话内有效，关闭浏览器后需重新验证。</p>
-          <button type="button" className="wj-teacher-lockbtn" onClick={() => router.replace('/login')}>
+          <h1>教师验证</h1>
+          <p>输入教师口令直接查看全部班级的学情数据；从登录页以教师身份进入时已验过，无需再输。</p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setErrorMsg('');
+              window.sessionStorage.setItem(PASSCODE_STORE, passcode);
+              void load();
+            }}
+          >
+            <input
+              type="password"
+              inputMode="numeric"
+              value={passcode}
+              onChange={(e) => setPasscode(e.target.value)}
+              placeholder="教师口令"
+              autoFocus
+            />
+            <button type="submit" disabled={!passcode.trim()}>
+              查看学情
+            </button>
+          </form>
+          {errorMsg && <em>{errorMsg}</em>}
+          <button type="button" className="wj-teacher-backlink" onClick={() => router.replace('/login')}>
             返回登录页
           </button>
         </div>
