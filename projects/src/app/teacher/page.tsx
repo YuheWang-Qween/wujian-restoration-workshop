@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, KeyRound, RefreshCw, Users, GraduationCap } from 'lucide-react';
+import { ArrowLeft, Eye, KeyRound, RefreshCw, Users, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { STAGES, ACT_WHY, ACT_DATA, ACT_SIM, ACT_QUESTIONS } from '@/lib/workshop/content';
 import { answerKey, isQuestionAnswered } from '@/store/useWorkshopStore';
@@ -225,8 +225,8 @@ export default function TeacherPage() {
             </button>
           </form>
           {errorMsg && <em>{errorMsg}</em>}
-          <button type="button" className="wj-teacher-backlink" onClick={() => router.push('/')}>
-            返回工坊首页
+          <button type="button" className="wj-teacher-backlink" onClick={() => router.replace('/login')}>
+            返回登录页
           </button>
         </div>
       </div>
@@ -236,8 +236,15 @@ export default function TeacherPage() {
   return (
     <div className="wj-teacher-wrap">
       <header className="wj-teacher-top">
-        <button type="button" className="wj-teacher-ghost" onClick={() => router.push('/')}>
-          <ArrowLeft size={15} aria-hidden /> 返回工坊
+        <button
+          type="button"
+          className="wj-teacher-ghost"
+          onClick={() => {
+            sessionStorage.setItem('wj-view-as', 'student');
+            router.push('/');
+          }}
+        >
+          <Eye size={15} aria-hidden /> 学生视角
         </button>
         <h1>
           <GraduationCap size={17} aria-hidden /> 学情分析

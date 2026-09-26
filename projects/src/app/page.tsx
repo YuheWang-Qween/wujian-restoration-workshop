@@ -33,8 +33,15 @@ function WorkshopHallInner() {
   const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
-    setIsTeacher(localStorage.getItem('wj-role') === 'teacher');
+    const teacher = localStorage.getItem('wj-role') === 'teacher';
+    setIsTeacher(teacher);
     setIsGuest(isGuestMode());
+    // 教师的首页就是学情分析；「学生视角」带一次性标记临时抑制跳转
+    if (teacher && sessionStorage.getItem('wj-view-as') !== 'student') {
+      router.replace('/teacher');
+      return;
+    }
+    sessionStorage.removeItem('wj-view-as');
   }, []);
 
   function stageProgress(stageId: number) {
