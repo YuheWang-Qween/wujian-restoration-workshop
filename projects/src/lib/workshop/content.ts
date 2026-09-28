@@ -70,7 +70,7 @@ export interface WjStage {
 
 export const WORKSHOP = {
   title: '走马楼三国吴简 · 简牍修复工坊',
-  subtitle: '简牍发掘 · 简牍鉴赏',
+  subtitle: '简牍修复 · 简牍鉴赏',
   flow: ['揭取', '清洗', '绑夹与核对', '饱水保存', '脱色', '脱水'],
   source: '《长沙走马楼三国吴简的保护与整理》',
   intro: [
@@ -81,7 +81,7 @@ export const WORKSHOP = {
 
 /**
  * 工坊分两块，大厅顶部同排页签切换。
- * 「简牍发掘」即现有的六道修复工序；「简牍鉴赏」目前只占位——
+ * 「简牍修复」即现有的六道修复工序；「简牍鉴赏」目前只占位——
  * 环节划分与内容方案都还没有，这里不放任何未经报告核实的内容。
  */
 export interface WjSection {
@@ -94,8 +94,10 @@ export interface WjSection {
 
 export const SECTIONS: WjSection[] = [
   {
+    // id 保留 excavation：它是内部标识（页签状态、?tab= 参数、DOM id、
+    // 演示模式的选择器），不面向用户；显示名改叫「简牍修复」
     id: 'excavation',
-    name: '简牍发掘',
+    name: '简牍修复',
     summary: '从井里取出来，到能被人读。六道工序，每道一个入口。',
     status: 'ready',
   },

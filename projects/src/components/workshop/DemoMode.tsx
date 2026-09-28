@@ -31,9 +31,9 @@ const SCENES: DemoScene[] = [
     actions: [],
   },
   {
-    title: '简牍发掘',
+    title: '简牍修复',
     narration:
-      '登录后进入工坊大厅。发掘页签里，六道工序按真实顺序排列，你来做修复。',
+      '登录后进入工坊大厅。修复页签里，六道工序按真实顺序排列，你来做修复。',
     path: '/',
     actions: [
       { delay: 500, type: 'highlight', selector: 'data:tab-excavation' },
