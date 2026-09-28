@@ -631,9 +631,11 @@
 }
 
 .wj-rail-slip {
+  position: relative;
   display: block;
   width: 12px;
   height: 42px;
+  overflow: hidden;
   border-radius: 3px;
   background: color-mix(in oklab, var(--wj-paper) 65%, transparent);
   border: 1.5px dashed color-mix(in oklab, var(--wj-ink) 35%, transparent);
@@ -666,6 +668,51 @@
     box-shadow: 0 0 0 5px color-mix(in oklab, var(--wj-cinnabar) 0%, transparent);
   }
 }
+
+/* ── 节内具体步骤的子进度：落墨 + 编绳刻度 ──
+   简片本身是「这一节」，片上由下而上的墨是「这一节走了多少步」。
+   只在本节尚未整体落墨时出现；整节读完后简片全墨，子进度自然并入。
+   （定位与裁切写在上面的 .wj-rail-slip 里，不另起同名规则。） */
+.wj-rail-fill {
+  position: absolute;
+  inset: 0;
+
+  /* 走过的工步在朱砂简片上落墨——与「已读节整片落墨」同一套语汇：
+     朱砂是「在这一节」，墨是「这一步走完了」，整节读完即全片落墨 */
+  background: color-mix(in oklab, var(--wj-ink) 62%, transparent);
+
+  /* 自上而下落墨：轨道本身是从上往下读的，简也是自上而下书写，
+     子进度跟着同一个方向，不要从底部往上长。
+     用 scaleY 而不是百分比高度：绝对定位下的百分比高度在这个上下文里解析不出
+     预期值（42px 的简片上 62.5% 曾解析成 4.875px），变换也不触发布局 */
+  transform-origin: top;
+  transition: transform 0.45s cubic-bezier(0.22, 0.8, 0.3, 1);
+}
+
+.wj-rail-ticks {
+  position: absolute;
+  inset: 0;
+}
+
+.wj-rail-tick {
+  position: absolute;
+  right: 2px;
+  left: 2px;
+  height: 1px;
+  background: color-mix(in oklab, var(--wj-ink) 26%, transparent);
+}
+
+.wj-rail-step.is-current .wj-rail-tick,
+.wj-rail-step.is-done .wj-rail-tick {
+  background: color-mix(in oklab, var(--wj-paper) 42%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wj-rail-fill {
+    transition: none;
+  }
+}
+
 
 /* 朱印「阅」：盖在末节简片上 */
 .wj-rail-seal {

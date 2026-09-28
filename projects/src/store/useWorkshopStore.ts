@@ -20,6 +20,12 @@ interface WorkshopState {
   images: Record<string, string>;
   /** 仿真工作台的操作记录，key 为环节编号。只存已收工的那一次，刷新后回到验收页 */
   simRuns: Record<number, WjSimRun>;
+  /**
+   * 仿真工作台当前走到第几个工步（0 起），key 为环节编号；收工后等于工步总数。
+   * 只给右缘进度轨道读，**不进 persist**——它是 StageSim 组件内部游标的镜像，
+   * 持久化会和组件自己的初始状态打架（刷新后轨道说第 5 步、工作台停在第 1 步）。
+   */
+  simCursor: Record<number, number>;
   /** 学生信息（学号 + 姓名），完成全部环节后填写 */
   studentInfo: { studentId: string; name: string } | null;
   /** 成就卡是否已解锁（填写学号姓名后标记） */
@@ -43,6 +49,7 @@ interface WorkshopState {
   setVerdict: (stageId: number, questionId: string, part: string | undefined, verdict: string, analysis: string) => void;
   setImage: (stageId: number, questionId: string, part: string | undefined, data: string) => void;
   setSimRun: (stageId: number, run: WjSimRun) => void;
+  setSimCursor: (stageId: number, index: number) => void;
   clearSimRun: (stageId: number) => void;
   setStudentInfo: (studentId: string, name: string) => void;
   revealNextAct: (stageId: number, totalActs: number) => void;
@@ -108,6 +115,7 @@ export const useWorkshopStore = create<WorkshopState>()(
       analyses: {},
       images: {},
       simRuns: {},
+      simCursor: {},
       studentInfo: null,
       achievementUnlocked: false,
       actsRevealed: {},
@@ -151,11 +159,16 @@ export const useWorkshopStore = create<WorkshopState>()(
       setSimRun: (stageId, run) =>
         set((s) => ({ simRuns: { ...s.simRuns, [stageId]: run } })),
 
+      setSimCursor: (stageId, index) =>
+        set((s) => (s.simCursor[stageId] === index ? s : { simCursor: { ...s.simCursor, [stageId]: index } })),
+
       clearSimRun: (stageId) =>
         set((s) => {
           const next = { ...s.simRuns };
           delete next[stageId];
-          return { simRuns: next };
+          const cur = { ...s.simCursor };
+          delete cur[stageId];
+          return { simRuns: next, simCursor: cur };
         }),
 
       setStudentInfo: (studentId, name) =>
@@ -191,6 +204,7 @@ export const useWorkshopStore = create<WorkshopState>()(
           analyses: {},
           images: {},
           simRuns: {},
+          simCursor: {},
           studentInfo: null,
           achievementUnlocked: false,
           actsRevealed: {},
@@ -214,6 +228,9 @@ export const useWorkshopStore = create<WorkshopState>()(
             simRuns: Object.fromEntries(
               Object.entries(s.simRuns).filter(([k]) => Number(k) !== stageId),
             ) as Record<number, WjSimRun>,
+            simCursor: Object.fromEntries(
+              Object.entries(s.simCursor).filter(([k]) => Number(k) !== stageId),
+            ) as Record<number, number>,
             actsRevealed: { ...s.actsRevealed, [stageId]: 1 },
           };
         }),

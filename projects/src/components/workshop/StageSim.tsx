@@ -11,7 +11,7 @@
  * 学习者可以把它带进右侧对话，导师据此追问「你这次为什么断了三枚」。
  */
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, CircleAlert, RotateCcw, Check, MessagesSquare, Play } from 'lucide-react';
 
 import { askGuide } from '@/lib/workshop/guide-bridge';
@@ -138,6 +138,7 @@ export function StageSim({ sim }: { sim: WjSim }) {
   const saved = useWorkshopStore((s) => s.simRuns[sim.stageId]);
   const saveRun = useWorkshopStore((s) => s.setSimRun);
   const clearRun = useWorkshopStore((s) => s.clearSimRun);
+  const setSimCursor = useWorkshopStore((s) => s.setSimCursor);
 
   const [started, setStarted] = useState(() => !!saved);
   const [cursor, setCursor] = useState(0);
@@ -160,6 +161,13 @@ export function StageSim({ sim }: { sim: WjSim }) {
 
   const step: WjSimStep | undefined = sim.steps[cursor];
   const isLast = cursor >= sim.steps.length - 1;
+
+  // 把当前工步镜像进 store，供右缘进度轨道显示工步子进度。
+  // 收工（本次或上次留下的记录）一律记满格
+  const done = settled || (!!saved?.settled && !started);
+  useEffect(() => {
+    setSimCursor(sim.stageId, done ? sim.steps.length : cursor);
+  }, [setSimCursor, sim.stageId, sim.steps.length, cursor, done]);
 
   // 逐段推进的实时进度（供画面用）。推进步走完之后进度要停在 1——
   // 泥已经洗掉、简已经剥出，后面的工步不能让画面倒回去
