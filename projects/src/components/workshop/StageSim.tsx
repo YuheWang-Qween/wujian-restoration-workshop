@@ -12,7 +12,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, CircleAlert, RotateCcw, Check, MessagesSquare, Play } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CircleAlert, RotateCcw, Check, MessagesSquare, Play, History, X } from 'lucide-react';
 
 import { askGuide } from '@/lib/workshop/guide-bridge';
 import {
@@ -135,15 +135,21 @@ function effectSummary(e: WjSimEffect): string {
 }
 
 /**
- * 一个工步的**入口现场**：进入这一步时四项指标与此前所有记录的样子。
- * 退回上一工步＝把现场整个换回去——只挪游标不还原指标的话，
- * 重做这一步会把代价再扣一遍。
+ * 一个已走完工步的**履历**：当时怎么选的、工作台当场给了什么后果、指标变成了什么样。
+ *
+ * 回看用它渲染，**只读**——不还原状态、不允许改选。揭取这一环的立意是
+ * 「唯一一道不可重来的工序」，翻回去把已发生的事重做一遍，会把这份分量抹掉；
+ * 要重来有「重新开工」，那是从头再走一遍，不是把某一步的后果撤销。
  */
-interface SimSnapshot {
-  state: WjSimState;
-  picks: Record<string, string>;
-  dials: Record<string, number>;
-  orders: Record<string, string[]>;
+interface SimStepLog {
+  /** 这一步选了什么／设了什么，直接拿来在回看里显示 */
+  label: string;
+  verdict: string;
+  text: string;
+  irreversible?: boolean;
+  effect: WjSimEffect;
+  /** 这一步走完之后的指标 */
+  stateAfter: WjSimState;
 }
 
 export function StageSim({ sim }: { sim: WjSim }) {
@@ -167,10 +173,10 @@ export function StageSim({ sim }: { sim: WjSim }) {
   const [firedEvents, setFiredEvents] = useState<number[]>([]);
   const [lastDelta, setLastDelta] = useState<WjSimEffect>({});
   const [settled, setSettled] = useState(false);
-  /** 各工步的入口现场，history[i] 是第 i 步刚进入时的样子，供「上一工步」还原 */
-  const [history, setHistory] = useState<SimSnapshot[]>([
-    { state: SIM_INIT, picks: {}, dials: {}, orders: {} },
-  ]);
+  /** 已走完工步的履历，log[i] 对应第 i 个工步，供只读回看 */
+  const [log, setLog] = useState<SimStepLog[]>([]);
+  /** 正在回看第几个工步；null 表示停在当前工步 */
+  const [viewAt, setViewAt] = useState<number | null>(null);
   /** 最近一次落手：画面据此放一段对应的动效。nonce 变一次动效重放一次 */
   const [cue, setCue] = useState<SimCue | null>(null);
   const fire = (c: Omit<SimCue, 'nonce'>) => setCue({ ...c, nonce: Date.now() });
@@ -215,7 +221,8 @@ export function StageSim({ sim }: { sim: WjSim }) {
     setLastDelta({});
     setSettled(false);
     setCue(null);
-    setHistory([{ state: SIM_INIT, picks: {}, dials: {}, orders: {} }]);
+    setLog([]);
+    setViewAt(null);
     setStarted(true);
   };
 
@@ -231,15 +238,32 @@ export function StageSim({ sim }: { sim: WjSim }) {
     });
   };
 
+  /** 这一步「选了什么」的人话，记进履历给回看用 */
+  const choiceLabel = (st: WjSimStep): string => {
+    if (st.type === 'pick') return st.choices.find((c) => c.key === picks[st.id])?.label ?? '未选';
+    if (st.type === 'dial') return `${dials[st.id] ?? st.init} ${st.unit}`;
+    if (st.type === 'order') return (orders[st.id] ?? []).join(' → ') || '未排';
+    return `走完 ${st.total} ${st.unit}`;
+  };
+
   const goNext = () => {
+    if (step && resolved) {
+      const entry: SimStepLog = {
+        label: choiceLabel(step),
+        verdict: resolved.verdict,
+        text: resolved.text,
+        irreversible: resolved.irreversible,
+        effect: resolved.effect,
+        stateAfter: state,
+      };
+      setLog((l) => [...l.slice(0, cursor), entry]);
+    }
     setResolved(null);
     setLastDelta({});
     if (isLast) {
       finish(state);
       return;
     }
-    // 记下下一步的入口现场：此刻的指标与记录，就是它被退回时该还原成的样子
-    setHistory((h) => [...h.slice(0, cursor + 1), { state, picks, dials, orders }]);
     setCursor((c) => c + 1);
     setTicks(0);
     setFiredEvents([]);
@@ -250,29 +274,22 @@ export function StageSim({ sim }: { sim: WjSim }) {
   };
 
   /**
-   * 退回上一工步：把上一步的入口现场整个换回去——指标、已选项、已设参数一并还原，
-   * 那一步于是可以重做。和「重新开工」的区别是只退一步，前面走过的不丢。
+   * 回看：翻回已走完的工步，**只看不改**。
+   * 状态一概不动——回看期间 state / picks / cursor 全部保持现场，
+   * 退出回看就回到原处继续。要重来走「重新开工」，不在这里撤销后果。
    */
-  const canGoBack = cursor > 0 && !settled;
-  const goBack = () => {
-    if (!canGoBack) return;
-    const snap = history[cursor - 1];
-    if (!snap) return;
-    setState(snap.state);
-    setPicks(snap.picks);
-    setDials(snap.dials);
-    setOrders(snap.orders);
-    setHistory((h) => h.slice(0, cursor));
-    setCursor(cursor - 1);
-    setResolved(null);
-    setLastDelta({});
-    setTicks(0);
-    setPending(null);
-    setFiredEvents([]);
-    setCue(null);
+  const canReview = log.length > 0 && !settled;
+  const reviewScroll = () =>
     requestAnimationFrame(() => {
       document.getElementById('stage-act-sim')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+  const openReview = (i: number) => {
+    setViewAt(Math.max(0, Math.min(i, log.length - 1)));
+    reviewScroll();
+  };
+  const closeReview = () => {
+    setViewAt(null);
+    reviewScroll();
   };
 
   // ── 起始屏 ──
@@ -415,6 +432,100 @@ export function StageSim({ sim }: { sim: WjSim }) {
   }
 
   if (!step) return null;
+
+  // ── 回看屏：只读翻看已走完的工步，现场状态一概不动 ──
+  if (viewAt !== null && log[viewAt]) {
+    const rec = log[viewAt];
+    const st = sim.steps[viewAt];
+    return (
+      <div id="stage-act-sim-body" className="mt-4">
+        {/* 画面与指标都还原成那一步走完时的样子，但这只是「看」，现场没有回退 */}
+        <SimStageView
+          scene={sim.visual}
+          state={rec.stateAfter}
+          progress={sim.steps[viewAt].type === 'advance' ? 1 : 0}
+          picks={picks}
+          dials={dials}
+          orders={orders}
+          cue={null}
+        />
+        <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+          {sim.readouts.map((r) => (
+            <Readout key={r.key} label={r.label} value={rec.stateAfter[r.key]} unit={r.unit} lower={r.lower} />
+          ))}
+        </div>
+
+        <div className="mt-3 rounded-lg border border-wj-border bg-wj-surface p-5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-sm border border-wj-border bg-wj-raised px-2 py-0.5 text-[11px] text-wj-muted">
+              <History className="h-3 w-3" />
+              回看
+            </span>
+            <span className="font-mono text-[11px] text-wj-dim">
+              工步 {viewAt + 1} / {sim.steps.length}
+            </span>
+            <span className="font-serif text-[15px] font-semibold text-wj-ink">{st.title}</span>
+            <button
+              type="button"
+              onClick={closeReview}
+              className="ml-auto inline-flex items-center gap-1 text-xs text-wj-dim transition-colors hover:text-wj-cinnabar"
+            >
+              <X className="h-3.5 w-3.5" />
+              退出回看
+            </button>
+          </div>
+
+          <p className="mt-3 text-[13px] leading-6 text-wj-muted">{'prompt' in st ? st.prompt : ''}</p>
+
+          <div className="mt-3 rounded border border-wj-line bg-wj-raised px-3.5 py-3">
+            <p className="text-[11px] text-wj-muted">当时的做法</p>
+            <p className="mt-1 text-[14.5px] leading-7 text-wj-ink">{rec.label}</p>
+          </div>
+
+          <Feedback verdict={rec.verdict} text={rec.text} irreversible={rec.irreversible} />
+          {effectSummary(rec.effect) && (
+            <p className="mt-2 font-mono text-[11px] text-wj-dim">{effectSummary(rec.effect)}</p>
+          )}
+
+          <p className="mt-4 text-[11.5px] leading-6 text-wj-dim">
+            回看只是看——已经发生的后果不会撤销，现场仍停在第 {cursor + 1} 工步。
+            要从头再走一遍，用下面的「重新开工」。
+          </p>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2.5">
+            <button
+              type="button"
+              disabled={viewAt <= 0}
+              onClick={() => openReview(viewAt - 1)}
+              className="inline-flex h-9 items-center gap-1.5 rounded border border-wj-border px-4 text-sm text-wj-muted transition-colors hover:border-wj-cinnabar/60 hover:text-wj-ink disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              上一工步
+            </button>
+            {viewAt < log.length - 1 ? (
+              <button
+                type="button"
+                onClick={() => openReview(viewAt + 1)}
+                className="inline-flex h-9 items-center gap-1.5 rounded border border-wj-border px-4 text-sm text-wj-muted transition-colors hover:border-wj-cinnabar/60 hover:text-wj-ink"
+              >
+                下一工步
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={closeReview}
+                className="inline-flex h-9 items-center gap-1.5 rounded border border-wj-cinnabar bg-wj-cinnabar px-4 text-sm text-wj-cinnabar-ink transition-opacity hover:opacity-90"
+              >
+                回到当前 · {sim.steps[cursor].title}
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // ── 操作屏 ──
   return (
@@ -587,15 +698,15 @@ export function StageSim({ sim }: { sim: WjSim }) {
               </button>
             ) : (
               <div className="mt-4 flex flex-wrap items-center gap-2.5">
-                {canGoBack && (
+                {canReview && (
                   <button
                     type="button"
-                    onClick={goBack}
-                    title={`退回「${sim.steps[cursor - 1].title}」重做，指标一并还原`}
+                    onClick={() => openReview(log.length - 1)}
+                    title="翻回已走完的工步看一眼，只看不改"
                     className="inline-flex h-9 items-center gap-1.5 rounded border border-wj-border px-4 text-sm text-wj-muted transition-colors hover:border-wj-cinnabar/60 hover:text-wj-ink"
                   >
-                    <ArrowLeft className="h-4 w-4" />
-                    上一工步
+                    <History className="h-4 w-4" />
+                    回看
                   </button>
                 )}
                 <button
@@ -613,15 +724,17 @@ export function StageSim({ sim }: { sim: WjSim }) {
 
         {!resolved && cursor > 0 && (
           <div className="mt-4 flex flex-wrap items-center gap-4">
-            <button
-              type="button"
-              onClick={goBack}
-              title={`退回「${sim.steps[cursor - 1].title}」重做，指标一并还原`}
-              className="inline-flex h-9 items-center gap-1.5 rounded border border-wj-border px-4 text-sm text-wj-muted transition-colors hover:border-wj-cinnabar/60 hover:text-wj-ink"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              上一工步 · {sim.steps[cursor - 1].title}
-            </button>
+            {canReview && (
+              <button
+                type="button"
+                onClick={() => openReview(log.length - 1)}
+                title="翻回已走完的工步看一眼，只看不改"
+                className="inline-flex h-9 items-center gap-1.5 rounded border border-wj-border px-4 text-sm text-wj-muted transition-colors hover:border-wj-cinnabar/60 hover:text-wj-ink"
+              >
+                <History className="h-4 w-4" />
+                回看已走的 {log.length} 步
+              </button>
+            )}
             <button
               type="button"
               onClick={reset}
