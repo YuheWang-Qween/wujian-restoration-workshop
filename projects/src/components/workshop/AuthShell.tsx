@@ -113,7 +113,7 @@ export function AuthShell({ cardTitle, altLink, children }: AuthShellProps) {
         </div>
 
         <p className="mt-8 text-center text-xs tracking-wide text-wj-ink/25">
-          资料出自《长沙走马楼三国吴简的保护与整理》
+          资料出自《走马楼三国吴简保护修复报告》
         </p>
       </div>
     </div>
