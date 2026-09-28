@@ -12,6 +12,7 @@ import { askGuide } from '@/lib/workshop/guide-bridge';
 import { answerKey, isQuestionAnswered, useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { StageProgressStrip } from '@/components/workshop/StageProgressStrip';
+import { StageActSteps } from '@/components/workshop/StageActSteps';
 
 function cleanLatex(text: string): string {
   return text
@@ -218,6 +219,18 @@ export function StageContent() {
           </div>
         </div>
       </header>
+
+      {/* 顶部横向分节条：四节的名字读得到，窄屏也在；右缘竖轨是余光里的位置感 */}
+      <StageActSteps
+        stageId={stage.id}
+        actTitles={acts.map((a) => a.title)}
+        revealed={revealed}
+        onGo={(n) => {
+          revealToAct(stage.id, n);
+          scrollToAct(acts[n - 1].key);
+        }}
+        questions={stage.questions}
+      />
 
       <StageProgressStrip
         stageId={stage.id}

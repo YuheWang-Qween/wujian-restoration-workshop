@@ -2,8 +2,8 @@
 
 import { Fragment } from 'react';
 import { useWorkshopStore, isQuestionAnswered } from '@/store/useWorkshopStore';
-import { ACT_QUESTIONS, ACT_SIM, type WjQuestion } from '@/lib/workshop/content';
-import { getSim } from '@/lib/workshop/sim';
+import type { WjQuestion } from '@/lib/workshop/content';
+import { actSubProgress } from '@/lib/workshop/act-progress';
 
 /**
  * 「编绳串简」竖向节进度轨道（右缘常驻）：竖排简片更贴近吴简编联原貌。
@@ -15,16 +15,8 @@ import { getSim } from '@/lib/workshop/sim';
  *   - 细问 → 题目（已答完的题数）。
  * 子进度用两样东西表达，都落在同一片简上：编绳刻度（每步一道横线）+ 自上而下的落墨。
  * 签上同步写「上机操作 3/8 · 定推进步距」，当前在哪一步一眼可见。
+ * 子进度的口径走 lib/workshop/act-progress，与顶部横向分节条共用一份，不各算各的。
  */
-
-interface SubProgress {
-  /** 已完成的步数 */
-  done: number;
-  /** 总步数 */
-  total: number;
-  /** 当前这一步的名字，收工/答完后为空 */
-  current?: string;
-}
 
 export function StageProgressStrip({
   stageId,
@@ -49,31 +41,6 @@ export function StageProgressStrip({
   const lastAct = actTitles.length;
   const answered = questions.filter((q) => isQuestionAnswered(answers, images, stageId, q)).length;
   const allDone = hydrated && completed.includes(stageId);
-  const sim = getSim(stageId);
-
-  /**
-   * 这一节内部有没有可数的步骤。
-   * 只在数字可信时才给：细问的进度由持久化的答案算出，任何时候都准；
-   * 仿真的游标是运行时状态（刷新即归零），所以只在「正在这一节」或
-   * 「有已收工的记录」时报数——否则刷新后回看会显示成 0/8，像是什么都没做过。
-   */
-  const subOf = (title: string, reached: boolean, isCurrent: boolean): SubProgress | null => {
-    if (!reached) return null;
-    if (title === ACT_SIM && sim) {
-      if (simSettled) return { done: sim.steps.length, total: sim.steps.length };
-      if (!isCurrent) return null;
-      const at = Math.min(simCursor ?? 0, sim.steps.length);
-      return { done: at, total: sim.steps.length, current: sim.steps[at]?.title };
-    }
-    if (title === ACT_QUESTIONS && questions.length > 0) {
-      return {
-        done: answered,
-        total: questions.length,
-        current: answered < questions.length ? `细问 ${answered + 1}` : undefined,
-      };
-    }
-    return null;
-  };
 
   return (
     <nav className="wj-rail" aria-label="环节进度">
@@ -83,7 +50,15 @@ export function StageProgressStrip({
         const isCurrent = act === revealed;
         const done = isPast || allDone;
         const reached = isPast || isCurrent;
-        const sub = subOf(t, reached, isCurrent);
+        const sub = actSubProgress(t, {
+          reached,
+          isCurrent,
+          stageId,
+          questions,
+          answered,
+          simCursor,
+          simSettled,
+        });
         // 签上的字：有子进度就带上步数，当前节再缀一句步骤名
         const label = sub ? `${t} ${sub.done}/${sub.total}` : t;
         const detail = isCurrent && sub?.current ? ` · ${sub.current}` : '';

@@ -2001,3 +2001,177 @@
     display: none;
   }
 }
+
+/* ── 环节页顶部的横向分节进度条 ──────────────────────────
+   四节的名字全部写出来，当前节朱砂、已读节落墨可回跳、未到节留白。
+   与右缘竖向轨道同一份数据、不同职责：这条读得到字，窄屏照常显示。 */
+.wj-steps {
+  position: relative;
+  z-index: 10;
+  margin: 0 auto;
+  padding: 10px 16px 0;
+  width: 100%;
+  max-width: 48rem;
+}
+
+.wj-steps-list {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wj-step {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.wj-step-btn {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  padding: 0;
+  min-width: 0;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wj-step.is-done .wj-step-btn:not(:disabled) {
+  cursor: pointer;
+}
+
+/* 节号：未到留白圈，已读落墨，当前朱砂 */
+.wj-step-no {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid color-mix(in oklab, var(--wj-ink) 24%, transparent);
+  border-radius: 999px;
+  color: var(--wj-muted);
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  line-height: 1;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.wj-step.is-done .wj-step-no {
+  background: var(--wj-ink);
+  border-color: var(--wj-ink);
+  color: var(--wj-paper);
+}
+
+.wj-step.is-current .wj-step-no {
+  background: var(--wj-cinnabar);
+  border-color: var(--wj-cinnabar);
+  color: var(--wj-cinnabar-ink);
+}
+
+.wj-step-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.wj-step-name {
+  overflow: hidden;
+  color: var(--wj-muted);
+  font-family: var(--font-serif, serif);
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: color 0.3s ease;
+}
+
+.wj-step.is-done .wj-step-name {
+  color: var(--wj-ink);
+}
+
+.wj-step.is-current .wj-step-name {
+  color: var(--wj-cinnabar);
+  font-weight: 600;
+}
+
+.wj-step-sub {
+  overflow: hidden;
+  color: var(--wj-dim);
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+.wj-step.is-current .wj-step-sub {
+  color: color-mix(in oklab, var(--wj-cinnabar) 78%, transparent);
+}
+
+/* 节内步骤的细分格：一步一格，走过的落墨 */
+.wj-step-ticks {
+  display: flex;
+  gap: 2px;
+  height: 3px;
+}
+
+.wj-step-tick {
+  flex: 1 1 0;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--wj-ink) 12%, transparent);
+  transition: background-color 0.35s ease;
+}
+
+.wj-step-tick.is-ink {
+  background: color-mix(in oklab, var(--wj-cinnabar) 62%, transparent);
+}
+
+.wj-step.is-done .wj-step-tick.is-ink {
+  background: color-mix(in oklab, var(--wj-ink) 58%, transparent);
+}
+
+/* 没有细分格的节：留一条同高的底线，四节的基线才对得齐 */
+.wj-step:not(:has(.wj-step-ticks))::after {
+  height: 3px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--wj-ink) 12%, transparent);
+  content: '';
+}
+
+.wj-step.is-done:not(:has(.wj-step-ticks))::after {
+  background: color-mix(in oklab, var(--wj-ink) 58%, transparent);
+}
+
+.wj-step.is-current:not(:has(.wj-step-ticks))::after {
+  background: color-mix(in oklab, var(--wj-cinnabar) 62%, transparent);
+}
+
+@media (width < 640px) {
+  .wj-step-sub {
+    display: none;
+  }
+
+  .wj-step-name {
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wj-step-no,
+  .wj-step-name,
+  .wj-step-tick {
+    transition: none;
+  }
+}
