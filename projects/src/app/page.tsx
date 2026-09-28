@@ -314,9 +314,11 @@ function WorkshopHallInner() {
                           <>
                             <span className="text-wj-line">·</span>
                             <span>评阅 {p.verified}/{p.total}</span>
-                            <div className="ml-1 h-1 flex-1 max-w-[80px] overflow-hidden rounded-full bg-wj-line/40">
+                            <div className="ml-1 h-1 flex-1 overflow-hidden rounded-full bg-wj-line/40">
                               <div
-                                className="h-full rounded-full bg-wj-cinnabar/60 transition-all duration-500"
+                                className={`h-full rounded-full transition-all duration-500 ${
+                                  p.answered === p.total ? 'bg-wj-bamboo/70' : 'bg-wj-cinnabar/60'
+                                }`}
                                 style={{ width: `${(p.answered / p.total) * 100}%` }}
                               />
                             </div>

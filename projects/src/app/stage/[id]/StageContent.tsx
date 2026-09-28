@@ -462,6 +462,28 @@ function QuestionWizard({ stage, nextStage, isDone, allCompleted }: { stage: WjS
 
   return (
     <div className="mt-4">
+      {/* 本环节作答进度条：答满即由朱砂转竹青 */}
+      <div className="mb-3 flex items-center gap-3">
+        <div
+          className="h-1.5 flex-1 overflow-hidden rounded-full bg-wj-line/40"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={total}
+          aria-valuenow={answered.filter(Boolean).length}
+          aria-label="本环节作答进度"
+        >
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${
+              answered.every(Boolean) ? 'bg-wj-bamboo' : 'bg-wj-cinnabar'
+            }`}
+            style={{ width: `${(answered.filter(Boolean).length / total) * 100}%` }}
+          />
+        </div>
+        <span className="shrink-0 font-mono text-xs text-wj-muted">
+          已答 {answered.filter(Boolean).length} / {total}
+        </span>
+      </div>
+
       {/* 进度：题号圆点（✓ 已答 / 朱砂当前 / 可进入 / 置灰待解锁） */}
       <div className="flex flex-wrap items-center gap-2">
         {stage.questions.map((question, i) => {
@@ -491,10 +513,7 @@ function QuestionWizard({ stage, nextStage, isDone, allCompleted }: { stage: WjS
             </button>
           );
         })}
-        <span className="ml-1 text-xs text-wj-muted">
-          第 {current + 1} / {total} 题
-          {answered.filter(Boolean).length > 0 && ` · 已答 ${answered.filter(Boolean).length} 题`}
-        </span>
+        <span className="ml-1 text-xs text-wj-muted">第 {current + 1} / {total} 题</span>
       </div>
 
       {/* 当前题卡（key 触发切题进场动效） */}
