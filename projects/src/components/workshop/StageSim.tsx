@@ -12,7 +12,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, CircleAlert, RotateCcw, Check, MessagesSquare, Play } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CircleAlert, RotateCcw, Check, MessagesSquare, Play } from 'lucide-react';
 
 import { askGuide } from '@/lib/workshop/guide-bridge';
 import {
@@ -134,6 +134,18 @@ function effectSummary(e: WjSimEffect): string {
   return parts.join(' · ');
 }
 
+/**
+ * 一个工步的**入口现场**：进入这一步时四项指标与此前所有记录的样子。
+ * 退回上一工步＝把现场整个换回去——只挪游标不还原指标的话，
+ * 重做这一步会把代价再扣一遍。
+ */
+interface SimSnapshot {
+  state: WjSimState;
+  picks: Record<string, string>;
+  dials: Record<string, number>;
+  orders: Record<string, string[]>;
+}
+
 export function StageSim({ sim }: { sim: WjSim }) {
   const saved = useWorkshopStore((s) => s.simRuns[sim.stageId]);
   const saveRun = useWorkshopStore((s) => s.setSimRun);
@@ -155,6 +167,10 @@ export function StageSim({ sim }: { sim: WjSim }) {
   const [firedEvents, setFiredEvents] = useState<number[]>([]);
   const [lastDelta, setLastDelta] = useState<WjSimEffect>({});
   const [settled, setSettled] = useState(false);
+  /** 各工步的入口现场，history[i] 是第 i 步刚进入时的样子，供「上一工步」还原 */
+  const [history, setHistory] = useState<SimSnapshot[]>([
+    { state: SIM_INIT, picks: {}, dials: {}, orders: {} },
+  ]);
   /** 最近一次落手：画面据此放一段对应的动效。nonce 变一次动效重放一次 */
   const [cue, setCue] = useState<SimCue | null>(null);
   const fire = (c: Omit<SimCue, 'nonce'>) => setCue({ ...c, nonce: Date.now() });
@@ -199,6 +215,7 @@ export function StageSim({ sim }: { sim: WjSim }) {
     setLastDelta({});
     setSettled(false);
     setCue(null);
+    setHistory([{ state: SIM_INIT, picks: {}, dials: {}, orders: {} }]);
     setStarted(true);
   };
 
@@ -221,9 +238,38 @@ export function StageSim({ sim }: { sim: WjSim }) {
       finish(state);
       return;
     }
+    // 记下下一步的入口现场：此刻的指标与记录，就是它被退回时该还原成的样子
+    setHistory((h) => [...h.slice(0, cursor + 1), { state, picks, dials, orders }]);
     setCursor((c) => c + 1);
     setTicks(0);
     setFiredEvents([]);
+    setCue(null);
+    requestAnimationFrame(() => {
+      document.getElementById('stage-act-sim')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
+  /**
+   * 退回上一工步：把上一步的入口现场整个换回去——指标、已选项、已设参数一并还原，
+   * 那一步于是可以重做。和「重新开工」的区别是只退一步，前面走过的不丢。
+   */
+  const canGoBack = cursor > 0 && !settled;
+  const goBack = () => {
+    if (!canGoBack) return;
+    const snap = history[cursor - 1];
+    if (!snap) return;
+    setState(snap.state);
+    setPicks(snap.picks);
+    setDials(snap.dials);
+    setOrders(snap.orders);
+    setHistory((h) => h.slice(0, cursor));
+    setCursor(cursor - 1);
+    setResolved(null);
+    setLastDelta({});
+    setTicks(0);
+    setPending(null);
+    setFiredEvents([]);
+    setCue(null);
     requestAnimationFrame(() => {
       document.getElementById('stage-act-sim')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
@@ -540,27 +586,51 @@ export function StageSim({ sim }: { sim: WjSim }) {
                 <ArrowRight className="h-4 w-4" />
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={goNext}
-                className="mt-4 inline-flex h-9 items-center gap-1.5 rounded border border-wj-cinnabar bg-wj-cinnabar px-4 text-sm text-wj-cinnabar-ink transition-opacity hover:opacity-90"
-              >
-                {isLast ? '收工验收' : `下一工步 · ${sim.steps[cursor + 1].title}`}
-                <ArrowRight className="h-4 w-4" />
-              </button>
+              <div className="mt-4 flex flex-wrap items-center gap-2.5">
+                {canGoBack && (
+                  <button
+                    type="button"
+                    onClick={goBack}
+                    title={`退回「${sim.steps[cursor - 1].title}」重做，指标一并还原`}
+                    className="inline-flex h-9 items-center gap-1.5 rounded border border-wj-border px-4 text-sm text-wj-muted transition-colors hover:border-wj-cinnabar/60 hover:text-wj-ink"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    上一工步
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={goNext}
+                  className="inline-flex h-9 items-center gap-1.5 rounded border border-wj-cinnabar bg-wj-cinnabar px-4 text-sm text-wj-cinnabar-ink transition-opacity hover:opacity-90"
+                >
+                  {isLast ? '收工验收' : `下一工步 · ${sim.steps[cursor + 1].title}`}
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
             )}
           </>
         )}
 
         {!resolved && cursor > 0 && (
-          <button
-            type="button"
-            onClick={reset}
-            className="mt-4 inline-flex items-center gap-1.5 text-xs text-wj-dim transition-colors hover:text-wj-cinnabar"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-            重新开工
-          </button>
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <button
+              type="button"
+              onClick={goBack}
+              title={`退回「${sim.steps[cursor - 1].title}」重做，指标一并还原`}
+              className="inline-flex h-9 items-center gap-1.5 rounded border border-wj-border px-4 text-sm text-wj-muted transition-colors hover:border-wj-cinnabar/60 hover:text-wj-ink"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              上一工步 · {sim.steps[cursor - 1].title}
+            </button>
+            <button
+              type="button"
+              onClick={reset}
+              className="inline-flex items-center gap-1.5 text-xs text-wj-dim transition-colors hover:text-wj-cinnabar"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              重新开工
+            </button>
+          </div>
         )}
       </div>
     </div>
