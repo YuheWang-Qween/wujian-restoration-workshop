@@ -59,36 +59,26 @@ export function StageActSteps({
             <li
               key={title}
               className={`wj-step${isCurrent ? ' is-current' : ''}${done ? ' is-done' : ''}`}
-              aria-current={isCurrent ? 'step' : undefined}
             >
               <button
                 type="button"
                 className="wj-step-btn"
                 disabled={!isPast}
                 onClick={() => isPast && onGo(act)}
-                title={isPast ? `回到「${title}」` : title}
+                aria-current={isCurrent ? 'step' : undefined}
+                aria-label={`${title}${sub ? `，已完成 ${sub.done}/${sub.total}${isCurrent && sub.current ? `，${sub.current}` : ''}` : ''}${isPast ? '，可回看' : ''}`}
+                title={isPast ? `回到「${title}」` : sub?.current || title}
               >
-                <span className="wj-step-no" aria-hidden>
-                  {done && !isCurrent ? <Check className="h-3.5 w-3.5" /> : act}
-                </span>
-                <span className="wj-step-text">
+                <span className="wj-step-label">
+                  {done && !isCurrent && <Check className="wj-step-check" aria-hidden />}
                   <span className="wj-step-name">{title}</span>
                   {sub && (
-                    <span className="wj-step-sub">
+                    <span className="wj-step-sub" aria-hidden>
                       {sub.done}/{sub.total}
-                      {isCurrent && sub.current ? ` · ${sub.current}` : ''}
                     </span>
                   )}
                 </span>
               </button>
-              {/* 节内步骤的细分格：走过的落墨，与右缘轨道同一套语汇 */}
-              {sub && sub.total > 1 && sub.total <= 12 && (
-                <span className="wj-step-ticks" aria-hidden>
-                  {Array.from({ length: sub.total }).map((_, k) => (
-                    <span key={k} className={`wj-step-tick${k < sub.done ? ' is-ink' : ''}`} />
-                  ))}
-                </span>
-              )}
             </li>
           );
         })}

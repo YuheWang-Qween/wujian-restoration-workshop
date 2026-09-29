@@ -2002,176 +2002,142 @@
   }
 }
 
-/* ── 环节页顶部的横向分节进度条 ──────────────────────────
-   四节的名字全部写出来，当前节朱砂、已读节落墨可回跳、未到节留白。
-   与右缘竖向轨道同一份数据、不同职责：这条读得到字，窄屏照常显示。 */
+/* ── 环节页顶部的横向分节导览 ──────────────────────────
+   节名共用一条基线；当前节以短朱砂线定位，已读节以轻勾示意。
+   数字仍与右缘轨道同源，窄屏保留完整节名与回看入口。 */
 .wj-steps {
   position: relative;
   z-index: 10;
-  margin: 0 auto;
-  padding: 10px 16px 0;
-  width: 100%;
+  flex-shrink: 0;
+  margin: 8px auto 0;
+  width: calc(100% - 32px);
   max-width: 48rem;
 }
 
 .wj-steps-list {
   display: grid;
-  grid-auto-columns: 1fr;
+  grid-auto-columns: minmax(0, 1fr);
   grid-auto-flow: column;
-  gap: 6px;
   margin: 0;
   padding: 0;
+  border-bottom: 1px solid var(--wj-line);
   list-style: none;
 }
 
 .wj-step {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
   min-width: 0;
 }
 
 .wj-step-btn {
+  position: relative;
   display: flex;
-  gap: 7px;
   align-items: center;
-  padding: 0;
-  min-width: 0;
-  background: none;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 4px;
   border: none;
-  text-align: left;
+  border-radius: 3px 3px 0 0;
+  background: none;
+  color: var(--wj-muted);
+  text-align: center;
   cursor: default;
   -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.wj-step.is-done .wj-step-btn:not(:disabled) {
+.wj-step-btn:focus-visible {
+  outline: 2px solid var(--wj-cinnabar);
+  outline-offset: -3px;
+  box-shadow: none;
+}
+
+.wj-step-btn:not(:disabled) {
   cursor: pointer;
 }
 
-/* 节号：未到留白圈，已读落墨，当前朱砂 */
-.wj-step-no {
-  display: flex;
-  flex: 0 0 auto;
+.wj-step-btn:not(:disabled):hover {
+  background: color-mix(in oklab, var(--wj-paper) 45%, transparent);
+}
+
+.wj-step-label {
+  position: relative;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  border: 1px solid color-mix(in oklab, var(--wj-ink) 24%, transparent);
-  border-radius: 999px;
-  color: var(--wj-muted);
-  font-family: var(--font-mono, monospace);
-  font-size: 11px;
-  line-height: 1;
-  transition:
-    background-color 0.3s ease,
-    border-color 0.3s ease,
-    color 0.3s ease;
-}
-
-.wj-step.is-done .wj-step-no {
-  background: var(--wj-ink);
-  border-color: var(--wj-ink);
-  color: var(--wj-paper);
-}
-
-.wj-step.is-current .wj-step-no {
-  background: var(--wj-cinnabar);
-  border-color: var(--wj-cinnabar);
-  color: var(--wj-cinnabar-ink);
-}
-
-.wj-step-text {
-  display: flex;
-  flex-direction: column;
+  gap: 7px;
   min-width: 0;
-  line-height: 1.25;
+  line-height: 24px;
+  white-space: nowrap;
+}
+
+.wj-step-check {
+  position: absolute;
+  right: calc(100% + 6px);
+  width: 12px;
+  height: 12px;
+  color: var(--wj-bamboo);
+  stroke-width: 1.75;
 }
 
 .wj-step-name {
-  overflow: hidden;
-  color: var(--wj-muted);
   font-family: var(--font-serif, serif);
-  font-size: 13px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  transition: color 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.wj-step.is-done .wj-step-name {
+.wj-step.is-done .wj-step-btn {
   color: var(--wj-ink);
 }
 
-.wj-step.is-current .wj-step-name {
+.wj-step.is-current .wj-step-btn {
   color: var(--wj-cinnabar);
+}
+
+.wj-step.is-current .wj-step-name {
   font-weight: 600;
 }
 
+.wj-step.is-current .wj-step-btn::after {
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  width: 32px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--wj-cinnabar);
+  content: '';
+  transform: translateX(-50%);
+}
+
 .wj-step-sub {
-  overflow: hidden;
-  color: var(--wj-dim);
-  font-family: var(--font-mono, monospace);
-  font-size: 10px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  color: var(--wj-muted);
+  font-family: var(--font-sans, sans-serif);
+  font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 
 .wj-step.is-current .wj-step-sub {
-  color: color-mix(in oklab, var(--wj-cinnabar) 78%, transparent);
-}
-
-/* 节内步骤的细分格：一步一格，走过的落墨 */
-.wj-step-ticks {
-  display: flex;
-  gap: 2px;
-  height: 3px;
-}
-
-.wj-step-tick {
-  flex: 1 1 0;
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--wj-ink) 12%, transparent);
-  transition: background-color 0.35s ease;
-}
-
-.wj-step-tick.is-ink {
-  background: color-mix(in oklab, var(--wj-cinnabar) 62%, transparent);
-}
-
-.wj-step.is-done .wj-step-tick.is-ink {
-  background: color-mix(in oklab, var(--wj-ink) 58%, transparent);
-}
-
-/* 没有细分格的节：留一条同高的底线，四节的基线才对得齐 */
-.wj-step:not(:has(.wj-step-ticks))::after {
-  height: 3px;
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--wj-ink) 12%, transparent);
-  content: '';
-}
-
-.wj-step.is-done:not(:has(.wj-step-ticks))::after {
-  background: color-mix(in oklab, var(--wj-ink) 58%, transparent);
-}
-
-.wj-step.is-current:not(:has(.wj-step-ticks))::after {
-  background: color-mix(in oklab, var(--wj-cinnabar) 62%, transparent);
+  color: var(--wj-cinnabar);
 }
 
 @media (width < 640px) {
-  .wj-step-sub {
-    display: none;
+  .wj-steps {
+    margin-top: 4px;
   }
 
   .wj-step-name {
-    font-size: 12px;
+    font-size: 13px;
+  }
+
+  .wj-step-sub,
+  .wj-step-check {
+    display: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wj-step-no,
-  .wj-step-name,
-  .wj-step-tick {
+  .wj-step-btn {
     transition: none;
   }
 }
