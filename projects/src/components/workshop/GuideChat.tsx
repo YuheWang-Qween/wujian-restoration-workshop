@@ -3,7 +3,7 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Loader2, Send, X } from 'lucide-react';
 import { stageActTitles, type WjStage } from '@/lib/workshop/content';
-import { useWorkshopStore } from '@/store/useWorkshopStore';
+import { getReachedAct, useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from './AuthProvider';
 
 /**
@@ -11,7 +11,7 @@ import { useAuth } from './AuthProvider';
  * 在原页面就地展开，不另起一页；顶栏保持全宽可见，桌面端展开时正文滚动区让位（.wj-chat-dodge，同为 lg 断点），互不遮挡。
  * 真实 LLM 对话（/api/chat SSE 流式 + 环节材料注入 + 三册参考书 RAG）。
  * 上下文实时跟随学生所在页面：哪个环节（宿主 key 重挂）+ 读到第几节
- * （订阅 store.actsRevealed，随请求透传给后端写进系统提示）；
+ * （订阅 store.activeActs，随请求透传给后端写进系统提示）；
  * 对话中学生在节之间翻动时，自动发一条 hidden 翻节通知让小简接住新话题。
  * 小简不主动开口：面板打开后静候，第一条消息永远来自学习者（点题卡上的
  * 「问小简」也算学习者开口）。对话只存组件 state，收起即卸载、重开重新来过。
@@ -123,8 +123,8 @@ export function GuideChat({
   const stageId = stage?.id ?? 0;
   const { user, session } = useAuth();
 
-  // 实时感知学生读到第几节（环节页一节一屏，节序号存本机）
-  const actRaw = useWorkshopStore((s) => (stageId ? (s.actsRevealed[stageId] ?? 1) : 1));
+  // 助教跟随正在查看的节，回看时不把最远学习进度当作当前位置。
+  const actRaw = useWorkshopStore((s) => (stageId ? (s.activeActs[stageId] ?? getReachedAct(s, stageId)) : 1));
   const actTitles = useMemo(() => (stage ? stageActTitles(stage) : []), [stage]);
   const actTitle = stage ? actTitles[Math.min(actRaw, actTitles.length) - 1] : null;
 

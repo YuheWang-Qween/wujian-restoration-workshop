@@ -31,8 +31,8 @@ export interface WjActProgressInput {
 /**
  * 节内有没有可数的具体步骤。**只在数字可信时才给**：
  *   - 细问的进度由持久化的答案算出，任何时候都准，到达即可显示；
- *   - 仿真的工步游标是运行时状态（刷新即归零），所以只在「正在这一节」或
- *     「有已收工的记录」时报数——否则刷新后回看会显示成 0/8，像是什么都没做过。
+ *   - 仿真的工步游标是运行时状态；跨节回看时保留现场，有游标或已收工记录就继续报数。
+ *     尚无现场且非当前节时不臆测 0/8。
  */
 export function actSubProgress(
   title: string,
@@ -45,7 +45,7 @@ export function actSubProgress(
     const sim = getSim(stageId);
     if (!sim) return null;
     if (simSettled) return { done: sim.steps.length, total: sim.steps.length };
-    if (!isCurrent) return null;
+    if (!isCurrent && simCursor === undefined) return null;
     const at = Math.min(simCursor ?? 0, sim.steps.length);
     return { done: at, total: sim.steps.length, current: sim.steps[at]?.title };
   }

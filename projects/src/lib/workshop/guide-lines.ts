@@ -29,8 +29,8 @@ export interface GuideContextInput {
   pathname: string;
   /** 已完成环节编号（store.completed） */
   completed: number[];
-  /** 各环节当前读到第几节（store.actsRevealed，1 起） */
-  actsRevealed: Record<number, number>;
+  /** 各环节正在查看第几节（store.activeActs，1 起） */
+  activeActs: Record<number, number>;
 }
 
 /** 每个环节各节的台词：why / data / sim（上机操作）/ question（细问，未完成）/ done（本环节已完成） */
@@ -114,7 +114,7 @@ function stageSpeech(stageId: number, ctx: GuideContextInput): GuideSpeech | nul
   // 其「第二节」是细问，按序号分支会错发关键数据台词，按标题分支不会
   const actTitles = stageActTitles(stage);
   const totalActs = actTitles.length;
-  const revealed = Math.min(ctx.actsRevealed[stageId] ?? 1, totalActs);
+  const revealed = Math.min(ctx.activeActs[stageId] ?? 1, totalActs);
   const actTitle = actTitles[revealed - 1];
   const where = `${whereBase} · ${actTitle}`;
   const lines = STAGE_LINES[stageId];

@@ -22,12 +22,14 @@ export function StageProgressStrip({
   stageId,
   actTitles,
   revealed,
+  current,
   onGo,
   questions,
 }: {
   stageId: number;
   actTitles: string[];
   revealed: number;
+  current: number;
   onGo: (act: number) => void;
   questions: WjQuestion[];
 }) {
@@ -47,9 +49,10 @@ export function StageProgressStrip({
       {actTitles.map((t, i) => {
         const act = i + 1;
         const isPast = act < revealed;
-        const isCurrent = act === revealed;
+        const isCurrent = act === current;
         const done = isPast || allDone;
-        const reached = isPast || isCurrent;
+        const reached = act <= revealed;
+        const canGo = reached && !isCurrent;
         const sub = actSubProgress(t, {
           reached,
           isCurrent,
@@ -75,9 +78,10 @@ export function StageProgressStrip({
             <button
               type="button"
               className={`wj-rail-step${isCurrent ? ' is-current' : ''}${done ? ' is-done' : ''}`}
-              disabled={!isPast}
-              onClick={() => isPast && onGo(act)}
-              title={isPast ? `回到「${label}${detail}」` : label + detail}
+              disabled={!canGo}
+              onClick={() => canGo && onGo(act)}
+              title={canGo ? `回到「${label}${detail}」` : label + detail}
+              aria-current={isCurrent ? 'step' : undefined}
               aria-label={sub ? `${label}${detail}` : label}
             >
               <span className="wj-rail-slip" aria-hidden>

@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useWorkshopStore } from '@/store/useWorkshopStore';
+import { getReachedAct, mergeReachedActs, useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
+import { STAGES } from '@/lib/workshop/content';
 
 const SYNC_DEBOUNCE_MS = 2000;
 
@@ -21,20 +22,20 @@ interface ProgressPayload {
   sessionId: string;
 }
 
-function buildPayload(s: ReturnType<typeof useWorkshopStore.getState>): ProgressPayload {
+function buildPayload(s: Partial<ProgressPayload>): ProgressPayload {
   return {
-    completed: s.completed,
-    answers: s.answers,
-    submitted: s.submitted,
-    referenceAnswers: s.referenceAnswers,
-    verdicts: s.verdicts,
-    analyses: s.analyses,
-    images: s.images,
-    studentInfo: s.studentInfo,
-    achievementUnlocked: s.achievementUnlocked,
-    actsRevealed: s.actsRevealed,
-    exhibitsViewed: s.exhibitsViewed,
-    sessionId: s.sessionId,
+    completed: s.completed ?? [],
+    answers: s.answers ?? {},
+    submitted: s.submitted ?? {},
+    referenceAnswers: s.referenceAnswers ?? {},
+    verdicts: s.verdicts ?? {},
+    analyses: s.analyses ?? {},
+    images: s.images ?? {},
+    studentInfo: s.studentInfo ?? null,
+    achievementUnlocked: s.achievementUnlocked ?? false,
+    actsRevealed: s.actsRevealed ?? {},
+    exhibitsViewed: s.exhibitsViewed ?? {},
+    sessionId: s.sessionId ?? '',
   };
 }
 
@@ -69,12 +70,25 @@ export function useProgressSync() {
 
         const s = useWorkshopStore.getState();
         const dbAnswerCount = Object.keys(data.answers ?? {}).length;
-        const localAnswerCount = Object.keys(s.answers).length;
+        const actsRevealed = mergeReachedActs(s.actsRevealed, data.actsRevealed ?? {});
+        const completed = [...new Set<number>([...s.completed, ...(data.completed ?? [])])].sort((a, b) => a - b);
+        const readingState = {
+          ...s,
+          completed,
+          actsRevealed,
+          answers: { ...data.answers, ...s.answers },
+          submitted: { ...data.submitted, ...s.submitted },
+          images: { ...data.images, ...s.images },
+        };
+        for (const { id: stageId } of STAGES) {
+          const reached = getReachedAct(readingState, stageId);
+          if (reached > (actsRevealed[stageId] ?? 1)) actsRevealed[stageId] = reached;
+        }
 
         // 数据库有记录就合并到本地（数据库优先，但保留本地已有的）
         if (dbAnswerCount > 0) {
           useWorkshopStore.setState({
-            completed: data.completed ?? s.completed,
+            completed,
             answers: { ...data.answers, ...s.answers },
             submitted: { ...data.submitted, ...s.submitted },
             referenceAnswers: { ...data.referenceAnswers, ...s.referenceAnswers },
@@ -83,12 +97,17 @@ export function useProgressSync() {
             images: { ...data.images, ...s.images },
             studentInfo: data.studentInfo ?? s.studentInfo,
             achievementUnlocked: data.achievementUnlocked ?? s.achievementUnlocked,
-            actsRevealed: { ...data.actsRevealed, ...s.actsRevealed },
+            actsRevealed,
             exhibitsViewed: { ...data.exhibitsViewed, ...s.exhibitsViewed },
           });
+        } else {
+          // 只阅读、尚未作答的记录也有进度；回看位置 activeActs 始终留在本机。
+          useWorkshopStore.setState({ completed, actsRevealed });
         }
 
-        lastSync.current = JSON.stringify(buildPayload(useWorkshopStore.getState()));
+        // 这里只确认服务端已有的记录。合并后本地若更靠前，让订阅的定时推送补齐云端，
+        // 不能把尚未上传的合并结果当作已同步，否则只回看时学情会一直停留在旧进度。
+        lastSync.current = JSON.stringify(buildPayload(data));
       } catch {
         // 拉取失败不影响本地使用
       }

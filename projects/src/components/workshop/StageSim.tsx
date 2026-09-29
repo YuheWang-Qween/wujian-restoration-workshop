@@ -158,7 +158,8 @@ export function StageSim({ sim }: { sim: WjSim }) {
   const clearRun = useWorkshopStore((s) => s.clearSimRun);
   const setSimCursor = useWorkshopStore((s) => s.setSimCursor);
 
-  const [started, setStarted] = useState(() => !!saved);
+  // 已有收工记录时先显示验收页，只有明确重新开工才创建新现场。
+  const [started, setStarted] = useState(false);
   const [cursor, setCursor] = useState(0);
   const [state, setState] = useState<WjSimState>(SIM_INIT);
   const [picks, setPicks] = useState<Record<string, string>>({});

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { WjSimRun } from '@/lib/workshop/sim';
+import { ACT_SIM, getStage, STAGES, stageActTitles } from '@/lib/workshop/content';
 import { persist } from 'zustand/middleware';
 
 interface WorkshopState {
@@ -30,8 +31,10 @@ interface WorkshopState {
   studentInfo: { studentId: string; name: string } | null;
   /** 成就卡是否已解锁（填写学号姓名后标记） */
   achievementUnlocked: boolean;
-  /** 各环节当前读到第几节（从 1 起；一节一屏，同屏只出现当前一节），key 为环节编号 */
+  /** 各环节已到达的最远节（从 1 起）；回看只改 activeActs，不回退学习进度 */
   actsRevealed: Record<number, number>;
+  /** 各环节正在查看的节，仅存本机；旧缓存缺省时沿用 actsRevealed */
+  activeActs: Record<number, number>;
   /** 简牍鉴赏篇的浏览足迹：板块/案例 id → 最近访问时间（ISO）。板块 5 个 + 案例 case-1…5 */
   exhibitsViewed: Record<string, string>;
   /**
@@ -54,7 +57,7 @@ interface WorkshopState {
   setStudentInfo: (studentId: string, name: string) => void;
   revealNextAct: (stageId: number, totalActs: number) => void;
   revealPrevAct: (stageId: number) => void;
-  /** 跳到第 n 节（1 基）：进度条回看已解锁的节用，只允许往回或原地 */
+  /** 跳到第 n 节（1 基）：已到达的节可前后回看，未到达的节不可跳过 */
   revealToAct: (stageId: number, n: number) => void;
   /** 记录鉴赏篇浏览足迹（幂等刷新时间），由鉴赏页挂载时调用 */
   visitExhibit: (id: string) => void;
@@ -99,6 +102,41 @@ export function isStageUnlocked(stageId: number, completed: number[]): boolean {
   return completed.includes(stageId - 1);
 }
 
+/** 旧缓存可能被回看降低节序；完成、作答与已结算操作记录仍可证明已到达的位置。 */
+export function getReachedAct(
+  state: Pick<WorkshopState, 'actsRevealed' | 'completed'>
+    & Partial<Pick<WorkshopState, 'answers' | 'images' | 'submitted' | 'simRuns'>>,
+  stageId: number,
+): number {
+  const reached = state.actsRevealed[stageId] ?? 1;
+  const stage = getStage(stageId);
+  if (!stage) return reached;
+  const titles = stageActTitles(stage);
+  const prefix = `${stageId}-`;
+  const hasAnswer = [state.answers, state.images, state.submitted].some((records) =>
+    Object.entries(records ?? {}).some(([key, value]) =>
+      key.startsWith(prefix) && (value === true || (typeof value === 'string' && value.trim().length > 0)),
+    ),
+  );
+  if (state.completed.includes(stageId) || hasAnswer) return Math.max(reached, titles.length);
+  return state.simRuns?.[stageId]?.settled
+    ? Math.max(reached, titles.indexOf(ACT_SIM) + 1)
+    : reached;
+}
+
+/** 跨设备合并阅读进度时保留逐环节的最远位置。 */
+export function mergeReachedActs(
+  local: Record<number, number>,
+  remote: Record<number, number>,
+): Record<number, number> {
+  const merged = { ...local };
+  for (const [stageId, reached] of Object.entries(remote)) {
+    const id = Number(stageId);
+    merged[id] = Math.max(merged[id] ?? 1, reached);
+  }
+  return merged;
+}
+
 function newSessionId() {
   return `wj_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -119,17 +157,25 @@ export const useWorkshopStore = create<WorkshopState>()(
       studentInfo: null,
       achievementUnlocked: false,
       actsRevealed: {},
+      activeActs: {},
       exhibitsViewed: {},
       hydrated: false,
 
       setHydrated: (v) => set({ hydrated: v }),
 
       markCompleted: (stageId) =>
-        set((s) =>
-          s.completed.includes(stageId)
-            ? s
-            : { completed: [...s.completed, stageId].sort((a, b) => a - b) },
-        ),
+        set((s) => {
+          const completed = s.completed.includes(stageId)
+            ? s.completed
+            : [...s.completed, stageId].sort((a, b) => a - b);
+          const reached = getReachedAct({ ...s, completed }, stageId);
+          if (completed === s.completed && s.actsRevealed[stageId] === reached) return s;
+          return {
+            completed,
+            actsRevealed: { ...s.actsRevealed, [stageId]: reached },
+            activeActs: { ...s.activeActs, [stageId]: s.activeActs[stageId] ?? getReachedAct(s, stageId) },
+          };
+        }),
 
       setAnswer: (stageId, questionId, text, part) =>
         set((s) => ({ answers: { ...s.answers, [answerKey(stageId, questionId, part)]: text } })),
@@ -176,20 +222,27 @@ export const useWorkshopStore = create<WorkshopState>()(
 
       revealNextAct: (stageId, totalActs) =>
         set((s) => {
-          const cur = s.actsRevealed[stageId] ?? 1;
+          const cur = s.activeActs[stageId] ?? getReachedAct(s, stageId);
           if (cur >= totalActs) return s;
-          return { actsRevealed: { ...s.actsRevealed, [stageId]: cur + 1 } };
+          return {
+            activeActs: { ...s.activeActs, [stageId]: cur + 1 },
+            actsRevealed: { ...s.actsRevealed, [stageId]: Math.max(getReachedAct(s, stageId), cur + 1) },
+          };
         }),
 
       revealPrevAct: (stageId) =>
         set((s) => {
-          const cur = s.actsRevealed[stageId] ?? 1;
+          const cur = s.activeActs[stageId] ?? getReachedAct(s, stageId);
           if (cur <= 1) return s;
-          return { actsRevealed: { ...s.actsRevealed, [stageId]: cur - 1 } };
+          return { activeActs: { ...s.activeActs, [stageId]: cur - 1 } };
         }),
 
       revealToAct: (stageId, n) =>
-        set((s) => ({ actsRevealed: { ...s.actsRevealed, [stageId]: Math.max(1, n) } })),
+        set((s) => {
+          if (!Number.isInteger(n) || n < 1 || n > getReachedAct(s, stageId)) return s;
+          if ((s.activeActs[stageId] ?? getReachedAct(s, stageId)) === n) return s;
+          return { activeActs: { ...s.activeActs, [stageId]: n } };
+        }),
 
       visitExhibit: (id) =>
         set((s) => ({ exhibitsViewed: { ...s.exhibitsViewed, [id]: new Date().toISOString() } })),
@@ -208,6 +261,7 @@ export const useWorkshopStore = create<WorkshopState>()(
           studentInfo: null,
           achievementUnlocked: false,
           actsRevealed: {},
+          activeActs: {},
           exhibitsViewed: {},
           sessionId: newSessionId(),
         }),
@@ -232,6 +286,9 @@ export const useWorkshopStore = create<WorkshopState>()(
               Object.entries(s.simCursor).filter(([k]) => Number(k) !== stageId),
             ) as Record<number, number>,
             actsRevealed: { ...s.actsRevealed, [stageId]: 1 },
+            activeActs: Object.fromEntries(
+              Object.entries(s.activeActs).filter(([k]) => Number(k) !== stageId),
+            ),
           };
         }),
     }),
@@ -251,8 +308,23 @@ export const useWorkshopStore = create<WorkshopState>()(
         studentInfo: s.studentInfo,
         achievementUnlocked: s.achievementUnlocked,
         actsRevealed: s.actsRevealed,
+        activeActs: s.activeActs,
         exhibitsViewed: s.exhibitsViewed,
       }),
+      merge: (persisted, current) => {
+        const saved = (persisted ?? {}) as Partial<WorkshopState>;
+        const state = { ...current, ...saved };
+        const actsRevealed = { ...state.actsRevealed };
+        const activeActs = { ...state.activeActs };
+        for (const { id: stageId } of STAGES) {
+          const reached = getReachedAct(state, stageId);
+          if (reached <= (actsRevealed[stageId] ?? 1)) continue;
+          // 修复旧缓存最远进度时，保留学习者当时正在回看的位置。
+          activeActs[stageId] ??= actsRevealed[stageId] ?? 1;
+          actsRevealed[stageId] = reached;
+        }
+        return { ...state, actsRevealed, activeActs };
+      },
       onRehydrateStorage: () => (state) => {
         state?.setHydrated(true);
       },

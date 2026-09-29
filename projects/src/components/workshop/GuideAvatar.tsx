@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { RefreshCw, X } from 'lucide-react';
-import { useWorkshopStore } from '@/store/useWorkshopStore';
+import { getReachedAct, useWorkshopStore } from '@/store/useWorkshopStore';
 import { resolveGuideSpeech } from '@/lib/workshop/guide-lines';
 import { STAGES } from '@/lib/workshop/content';
 import { WJ_ASK_GUIDE_EVENT, type AskGuideDetail } from '@/lib/workshop/guide-bridge';
@@ -30,12 +30,13 @@ export function GuideAvatar() {
   const pathname = usePathname();
   const hydrated = useWorkshopStore((s) => s.hydrated);
   const completed = useWorkshopStore((s) => s.completed);
-  const actsRevealed = useWorkshopStore((s) => s.actsRevealed);
+  const stageId = Number(pathname.match(/^\/stage\/(\d+)/)?.[1] ?? 0);
+  const activeAct = useWorkshopStore((s) => s.activeActs[stageId] ?? getReachedAct(s, stageId));
 
   // persist 落定前不解析，避免拿「空进度」说出错位的台词（与环节页守卫同一口径）
   const speech = useMemo(
-    () => (hydrated ? resolveGuideSpeech({ pathname, completed, actsRevealed }) : null),
-    [hydrated, pathname, completed, actsRevealed],
+    () => (hydrated ? resolveGuideSpeech({ pathname, completed, activeActs: { [stageId]: activeAct } }) : null),
+    [hydrated, pathname, completed, stageId, activeAct],
   );
 
   const [variant, setVariant] = useState(0);

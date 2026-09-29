@@ -9,7 +9,7 @@ import { getSim } from '@/lib/workshop/sim';
 import { StageSim } from '@/components/workshop/StageSim';
 import { DataTable } from '@/components/workshop/DataTable';
 import { askGuide } from '@/lib/workshop/guide-bridge';
-import { answerKey, isQuestionAnswered, useWorkshopStore } from '@/store/useWorkshopStore';
+import { answerKey, getReachedAct, isQuestionAnswered, useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { StageProgressStrip } from '@/components/workshop/StageProgressStrip';
 import { StageActSteps } from '@/components/workshop/StageActSteps';
@@ -61,7 +61,8 @@ export function StageContent() {
   const { signOut } = useAuth();
   const completed = useWorkshopStore((s) => s.completed);
   const markCompleted = useWorkshopStore((s) => s.markCompleted);
-  const actsRevealedRaw = useWorkshopStore((s) => s.actsRevealed[stageId] ?? 1);
+  const actsRevealedRaw = useWorkshopStore((s) => getReachedAct(s, stageId));
+  const activeActRaw = useWorkshopStore((s) => s.activeActs[stageId] ?? getReachedAct(s, stageId));
   const revealNextAct = useWorkshopStore((s) => s.revealNextAct);
   const revealPrevAct = useWorkshopStore((s) => s.revealPrevAct);
   const revealToAct = useWorkshopStore((s) => s.revealToAct);
@@ -106,16 +107,17 @@ export function StageContent() {
 
   const next = STAGES.find((s) => s.id === stage.id + 1);
 
-  // 一节一屏：同屏只出现当前这一节，上一节随切换离场；当前节序号存本机，刷新回到已读位置。
+  // 查看位置与学习进度分开：回看只切换当前节，已经到达的节继续保持可访问。
   // 节数与节序统一走 content.stageActTitles，与 GuideChat / guide-lines 一致——
   // 这里只把标题翻成锚点 key，不自己判断「第几节是什么」，加节时不必改这段
   const acts = stageActTitles(stage).map((title) => ({ key: ACT_ANCHOR[title] ?? 'why', title }));
   const totalActs = acts.length;
   const isDemoStage = typeof window !== 'undefined' && window.__DEMO_MODE__;
   const revealed = isDemoStage ? totalActs : Math.min(actsRevealedRaw, totalActs);
-  const currentAct = acts[revealed - 1];
-  const nextAct = acts[revealed] ?? null;
-  const prevAct = revealed > 1 ? acts[revealed - 2] : null;
+  const current = isDemoStage ? totalActs : Math.min(activeActRaw, revealed);
+  const currentAct = acts[current - 1];
+  const nextAct = acts[current] ?? null;
+  const prevAct = current > 1 ? acts[current - 2] : null;
   const sim = getSim(stage.id);
 
   // rAF 排在本轮状态提交之后执行，此时新节已经渲染出来，可以直接滚
@@ -225,6 +227,7 @@ export function StageContent() {
         stageId={stage.id}
         actTitles={acts.map((a) => a.title)}
         revealed={revealed}
+        current={current}
         onGo={(n) => {
           revealToAct(stage.id, n);
           scrollToAct(acts[n - 1].key);
@@ -236,6 +239,7 @@ export function StageContent() {
         stageId={stage.id}
         actTitles={acts.map((a) => a.title)}
         revealed={revealed}
+        current={current}
         onGo={(n) => {
           revealToAct(stage.id, n);
           scrollToAct(acts[n - 1].key);
@@ -318,9 +322,11 @@ export function StageContent() {
 
             {/* 三 · 细问（最后一节，此时底部出现环节间导航） */}
             {/* 三 · 上机操作：细问之前先动手，操作的后果就是这一节的反馈 */}
-            {currentAct.key === 'sim' && sim && (
+            {/* 到达后保持挂载，回看资料时不清空正在进行的仿真现场。 */}
+            {acts.slice(0, revealed).some((act) => act.key === 'sim') && sim && (
               <section
                 id="stage-act-sim"
+                hidden={currentAct.key !== 'sim'}
                 className="scroll-mt-4 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 motion-safe:duration-500"
               >
                 <SectionHeading
@@ -331,9 +337,10 @@ export function StageContent() {
               </section>
             )}
 
-            {currentAct.key === 'questions' && (
+            {acts.slice(0, revealed).some((act) => act.key === 'questions') && (
             <section
               id="stage-act-questions"
+              hidden={currentAct.key !== 'questions'}
               className="scroll-mt-4 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 motion-safe:duration-500"
             >
               <SectionHeading

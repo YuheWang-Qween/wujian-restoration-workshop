@@ -18,12 +18,14 @@ export function StageActSteps({
   stageId,
   actTitles,
   revealed,
+  current,
   onGo,
   questions,
 }: {
   stageId: number;
   actTitles: string[];
   revealed: number;
+  current: number;
   onGo: (act: number) => void;
   questions: WjQuestion[];
 }) {
@@ -43,10 +45,12 @@ export function StageActSteps({
         {actTitles.map((title, i) => {
           const act = i + 1;
           const isPast = act < revealed;
-          const isCurrent = act === revealed;
+          const isCurrent = act === current;
+          const reached = act <= revealed;
+          const canGo = reached && !isCurrent;
           const done = isPast || allDone;
           const sub = actSubProgress(title, {
-            reached: isPast || isCurrent,
+            reached,
             isCurrent,
             stageId,
             questions,
@@ -63,11 +67,11 @@ export function StageActSteps({
               <button
                 type="button"
                 className="wj-step-btn"
-                disabled={!isPast}
-                onClick={() => isPast && onGo(act)}
+                disabled={!canGo}
+                onClick={() => canGo && onGo(act)}
                 aria-current={isCurrent ? 'step' : undefined}
-                aria-label={`${title}${sub ? `，已完成 ${sub.done}/${sub.total}${isCurrent && sub.current ? `，${sub.current}` : ''}` : ''}${isPast ? '，可回看' : ''}`}
-                title={isPast ? `回到「${title}」` : sub?.current || title}
+                aria-label={`${title}${sub ? `，已完成 ${sub.done}/${sub.total}${isCurrent && sub.current ? `，${sub.current}` : ''}` : ''}${canGo ? '，可回看' : ''}`}
+                title={canGo ? `回到「${title}」` : sub?.current || title}
               >
                 <span className="wj-step-label">
                   {done && !isCurrent && <Check className="wj-step-check" aria-hidden />}
