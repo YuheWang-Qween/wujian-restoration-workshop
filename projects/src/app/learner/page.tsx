@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, BookOpen, LogOut, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { STAGES } from '@/lib/workshop/content';
+import { WORKSHOP_HOME_HREF } from '@/lib/workshop/navigation';
 import {
   type Learner,
   TOTAL_STAGES,
@@ -133,7 +134,7 @@ export default function LearnerPage() {
   return (
     <div className="wj-teacher-wrap">
       <header className="wj-teacher-top">
-        <button type="button" className="wj-teacher-ghost" onClick={() => router.push('/')}>
+        <button type="button" className="wj-teacher-ghost" onClick={() => router.push(WORKSHOP_HOME_HREF)}>
           <ArrowLeft size={15} aria-hidden /> 返回工坊
         </button>
         <h1>
@@ -158,7 +159,7 @@ export default function LearnerPage() {
             <BookOpen size={26} aria-hidden />
             <h1>还没有学习记录</h1>
             <p>进入修复工坊完成第一道工序后，这里会呈现你的学习足迹。</p>
-            <button type="button" className="wj-teacher-lockbtn" onClick={() => router.push('/')}>
+            <button type="button" className="wj-teacher-lockbtn" onClick={() => router.push(WORKSHOP_HOME_HREF)}>
               进入修复工坊
             </button>
           </div>

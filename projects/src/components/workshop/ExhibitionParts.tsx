@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import type { ExFigure, ExSlipText } from '@/lib/workshop/exhibition';
+import { EXHIBITION_HOME_HREF } from '@/lib/workshop/navigation';
 import { ExhibitionImage } from './ExhibitionImage';
 
 /**
@@ -75,7 +76,7 @@ export function ExhibitionShell({
           }`}
         >
           <Link
-            href="/?tab=exhibition"
+            href={EXHIBITION_HOME_HREF}
             className="inline-flex items-center gap-1.5 text-sm text-wj-muted transition-colors hover:text-wj-cinnabar"
           >
             <ArrowLeft className="h-4 w-4" />

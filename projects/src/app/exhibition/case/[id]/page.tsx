@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { CASES, getCase } from '@/lib/workshop/exhibition';
+import { EXHIBITION_HOME_HREF } from '@/lib/workshop/navigation';
 import { ExhibitionShell, FigureCard, SlipText } from '@/components/workshop/ExhibitionParts';
 import { ExhibitVisit } from '@/components/workshop/ExhibitVisit';
 import { DataTable } from '@/components/workshop/DataTable';
@@ -144,7 +145,7 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
             </Link>
           ) : (
             <Link
-              href="/?tab=exhibition"
+              href={EXHIBITION_HOME_HREF}
               className="inline-flex items-center gap-2 text-sm text-wj-muted transition-colors hover:text-wj-cinnabar"
             >
               返回展厅

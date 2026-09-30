@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { AlertTriangle, ArrowLeft, ChevronDown, Cloud, Eye, FlaskConical, KeyRound, LogOut, Plus, RefreshCw, Trash2, Users, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { STAGES } from '@/lib/workshop/content';
+import { WORKSHOP_HOME_HREF } from '@/lib/workshop/navigation';
 import { isQuestionAnswered } from '@/store/useWorkshopStore';
 import {
   type Learner,
@@ -617,7 +618,7 @@ export default function TeacherPage() {
         <button
           type="button"
           className="wj-teacher-ghost"
-          onClick={() => router.push('/?view=student')}
+          onClick={() => router.push(WORKSHOP_HOME_HREF)}
         >
           <Eye size={15} aria-hidden /> 学生视角
         </button>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { toPng } from 'html-to-image';
 import { STAGES } from '@/lib/workshop/content';
+import { WORKSHOP_HOME_HREF } from '@/lib/workshop/navigation';
 import { useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { ArrowLeft, Award, BadgeCheck, Check, Download, RotateCcw } from 'lucide-react';
@@ -99,7 +100,7 @@ export default function AchievementPage() {
               })}
             </div>
             <Link
-              href="/"
+              href={WORKSHOP_HOME_HREF}
               className="mt-8 inline-flex h-9 items-center gap-2 rounded border border-wj-border px-4 text-sm text-wj-ink transition-colors hover:border-wj-cinnabar/60"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -163,7 +164,7 @@ export default function AchievementPage() {
               </button>
             </form>
             <div className="mt-6 text-center">
-              <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-wj-muted hover:text-wj-cinnabar">
+              <Link href={WORKSHOP_HOME_HREF} className="inline-flex items-center gap-1.5 text-sm text-wj-muted hover:text-wj-cinnabar">
                 <ArrowLeft className="h-4 w-4" />
                 返回工坊
               </Link>
@@ -308,7 +309,7 @@ export default function AchievementPage() {
         {/* 操作 */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href="/"
+            href={WORKSHOP_HOME_HREF}
             className="inline-flex h-9 items-center gap-2 rounded border border-wj-border px-4 text-sm text-wj-ink transition-colors hover:border-wj-cinnabar/60"
           >
             <ArrowLeft className="h-4 w-4" />

@@ -187,6 +187,12 @@ history.replaceState 联动进路由，若按实时 searchParams 判定，清理
 在二次挂载/受限 webview 下会把教师误弹回 /teacher，已废弃。登出
 （AuthProvider.signOut）会同步清掉 `wj-role`，防止残留教师标记把游客浏览也拽去 /teacher。
 
+**学习界面的返回链接必须保留学生视角**：显式「返回工坊」与教师端「学生视角」
+统一使用 `navigation.ts` 的 `WORKSHOP_HOME_HREF`，鉴赏「返回展厅」使用
+`EXHIBITION_HOME_HREF`（同时带 `tab=exhibition`）。否则教师进入环节后返回裸 `/`
+会被重新送到学情分析。首页只移除 `view` 参数，保留页签参数；不要改登录/注册落地的
+裸 `/`，也不要把学生视角实现为角色变更、持久会话标记或接口鉴权旁路。
+
 **/teacher 权限墙可当场解锁**：非教师账号访问 /teacher 出现拦截卡时，
 卡上直接提供口令输入框——提交走 overview 的 `x-teacher-passcode` 自愈链路
 （服务端验口令 → 补写账号 `app_metadata.teacher` → 本机存

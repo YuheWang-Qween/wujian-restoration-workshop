@@ -13,6 +13,7 @@ import { answerKey, getReachedAct, isQuestionAnswered, useWorkshopStore } from '
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { StageProgressStrip } from '@/components/workshop/StageProgressStrip';
 import { StageActSteps } from '@/components/workshop/StageActSteps';
+import { WORKSHOP_HOME_HREF } from '@/lib/workshop/navigation';
 
 function cleanLatex(text: string): string {
   return text
@@ -90,7 +91,7 @@ export function StageContent() {
           <h1 className="font-serif text-xl font-semibold text-wj-ink">没有这道工序</h1>
           <p className="mt-2 text-sm text-wj-muted">工坊只有六个环节，编号 1 到 6。</p>
           <Link
-            href="/"
+            href={WORKSHOP_HOME_HREF}
             className="mt-5 inline-flex h-9 items-center gap-2 rounded border border-wj-border px-4 text-sm text-wj-ink transition-colors hover:border-wj-cinnabar/60"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -161,7 +162,7 @@ export function StageContent() {
       <header className="relative z-10 shrink-0 border-b border-wj-border bg-wj-surface/85 backdrop-blur">
         <div className="mx-auto flex h-14 w-full max-w-[1400px] items-center gap-3 px-4 sm:px-6">
           <Link
-            href="/"
+            href={WORKSHOP_HOME_HREF}
             aria-label="返回工坊"
             className="inline-flex size-9 shrink-0 items-center justify-center rounded text-wj-muted transition-colors hover:bg-wj-raised hover:text-wj-ink"
           >

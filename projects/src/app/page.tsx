@@ -4,6 +4,7 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { SECTIONS, STAGES } from '@/lib/workshop/content';
+import { STAGE_COVERS, STAGE_COVER_CREDIT } from '@/lib/workshop/stage-covers';
 import { useWorkshopStore } from '@/store/useWorkshopStore';
 import { useAuth } from '@/components/workshop/AuthProvider';
 import { ExhibitionHall } from '@/components/workshop/ExhibitionHall';
@@ -50,7 +51,10 @@ function WorkshopHallInner() {
   useEffect(() => {
     setIsGuest(isGuestMode());
     if (enteredAsStudent.current) {
-      window.history.replaceState(null, '', '/');
+      // 仅消费本次学生视角标记，保留鉴赏页签等已有导航参数。
+      const url = new URL(window.location.href);
+      url.searchParams.delete('view');
+      window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
       return;
     }
     // 会话未定先不跳：教师等确认（避免展馆闪现），学生也等确认（本地过期标记
@@ -257,6 +261,7 @@ function WorkshopHallInner() {
         <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {STAGES.map((stage) => {
           const isDone = done.includes(stage.id);
+          const cover = STAGE_COVERS[stage.id];
 
           return (
             <Link
@@ -269,12 +274,13 @@ function WorkshopHallInner() {
               {/* 封面图 + 标题叠加 */}
               <div className="relative h-52 overflow-hidden">
                 <img
-                  src={`/stage-${stage.id}.jpeg`}
-                  alt={stage.name}
+                  src={cover.src}
+                  alt={cover.alt}
                   loading="lazy"
+                  style={{ objectPosition: cover.position }}
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/5" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
 
                 {/* 完成标记 */}
                 {isDone && (
@@ -303,6 +309,7 @@ function WorkshopHallInner() {
               {/* 文字内容 */}
               <div className="flex flex-1 flex-col justify-between p-5">
                 <div>
+                  <p className="mb-2 text-[11px] leading-relaxed text-wj-dim">资料照片 · {cover.caption}</p>
                   <p className="text-sm leading-relaxed text-wj-muted">{stage.tagline}</p>
                   {(() => {
                     const p = stageProgress(stage.id);
@@ -360,6 +367,7 @@ function WorkshopHallInner() {
           );
         })}
         </div>
+        <p className="mt-4 text-xs leading-6 text-wj-dim">{STAGE_COVER_CREDIT}</p>
 
         {/* 全环节完成后展示成就卡入口 */}
         {allCompleted && (
