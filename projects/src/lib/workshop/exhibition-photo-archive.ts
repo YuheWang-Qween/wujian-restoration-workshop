@@ -1,0 +1,396 @@
+import type { ExFigure } from './exhibition';
+import { EXHIBITION_IMAGES } from './exhibition-images';
+
+/** 按观察主题整理的项目供图；原文件及去重说明见 supplied/sources.json。 */
+export interface ExhibitionPhotoGroup {
+  title: string;
+  description?: string;
+  photos: { label: string; figure: ExFigure }[];
+}
+
+const credit = '项目提供的走马楼吴简图片资料';
+
+/** 只描述画面可见内容，不据照片补定简号、井号、人物或处理方法。 */
+const ARCHIVE_IMAGES = {
+  Z03: {
+    src: "/exhibition/supplied/pit-overview.webp",
+    alt: "井坑与底部堆积的照片",
+    caption: "井坑全貌：可见坑壁、坑底与集中堆积的材料。",
+    credit,
+    width: 1213,
+    height: 833,
+  },
+  Z05: {
+    src: "/exhibition/supplied/pit-work-grid.webp",
+    alt: "工作人员在拉线的井坑内作业",
+    caption: "坑内作业：工作人员、拉线与坑底材料的位置关系。",
+    credit,
+    width: 1222,
+    height: 859,
+  },
+  Z07: {
+    src: "/exhibition/supplied/pit-basin.webp",
+    alt: "两名工作人员在坑内托持盆具",
+    caption: "协作清理：两名工作人员在坑内托持盆具。",
+    credit,
+    width: 1182,
+    height: 841,
+  },
+  Z08: {
+    src: "/exhibition/supplied/basin-sorting.webp",
+    alt: "工作人员在大盆中整理细长简片",
+    caption: "盆内整理：工作人员在成组的细长简片间操作。",
+    credit,
+    width: 1208,
+    height: 862,
+  },
+  Z09: {
+    src: "/exhibition/supplied/site-black-white.webp",
+    alt: "黑白照片中的发掘场地与多个坑口",
+    caption: "场地全景：发掘区域内可见多个坑口。",
+    credit,
+    width: 606,
+    height: 399,
+  },
+  Z10: {
+    src: "/exhibition/supplied/city-black-white.webp",
+    alt: "黑白俯瞰照片中的发掘场地和城市建筑",
+    caption: "城市与场地：从高处观察发掘区域及周围建筑。",
+    credit,
+    width: 695,
+    height: 470,
+  },
+  Z11: {
+    src: "/exhibition/supplied/soil-section.webp",
+    alt: "带有标记牌的土层剖面照片",
+    caption: "土层剖面：不同颜色的土层及其旁的标记牌。",
+    credit,
+    width: 435,
+    height: 383,
+  },
+  Z12: {
+    src: "/exhibition/supplied/pit-work-detail.webp",
+    alt: "工作人员在深坑内作业的照片",
+    caption: "井坑作业：可见坑壁、工作人员与盆具。",
+    credit,
+    width: 453,
+    height: 424,
+  },
+  Z13: {
+    src: "/exhibition/supplied/pit-bottom.webp",
+    alt: "井坑底部可见方形木构件的照片",
+    caption: "坑底结构：井坑底部可见方形木构件。",
+    credit,
+    width: 442,
+    height: 426,
+  },
+  Z14: {
+    src: "/exhibition/supplied/display-cabinet.webp",
+    alt: "展柜内不同宽窄的简牍实物",
+    caption: "展柜陈列：不同宽窄的简牍分区排列。",
+    credit,
+    width: 605,
+    height: 453,
+  },
+  Z15: {
+    src: "/exhibition/supplied/tray-bundle-one.webp",
+    alt: "白色托盘内横向放置的一组简片",
+    caption: "托盘中的简片：成组材料横向放置于白色托盘内。",
+    credit,
+    width: 670,
+    height: 527,
+  },
+  Z16: {
+    src: "/exhibition/supplied/tray-bundle-two.webp",
+    alt: "白色托盘内纵向放置的一组简片",
+    caption: "另一组托盘材料：成组材料纵向放置于白色托盘内。",
+    credit,
+    width: 677,
+    height: 524,
+  },
+  Z18: {
+    src: "/exhibition/supplied/tablet-text-columns.webp",
+    alt: "宽片实物上分栏书写的文字",
+    caption: "文字分栏：观察较宽的简面、纵向文字与留白。",
+    credit,
+    width: 402,
+    height: 1009,
+  },
+  Z19: {
+    src: "/exhibition/supplied/tablet-text-spacing.webp",
+    alt: "宽片实物上不同位置的文字行",
+    caption: "文字与留白：观察各列文字的起止位置及间距。",
+    credit,
+    width: 314,
+    height: 1048,
+  },
+  Z21: {
+    src: "/exhibition/supplied/peeling-record-two.webp",
+    alt: "多枚简牍的位置、编号和截面记录图",
+    caption: "位置与编号：线图记录各枚简的排列位置，并附有截面示意。",
+    credit,
+    width: 744,
+    height: 1051,
+  },
+  Z23: {
+    src: "/exhibition/supplied/site-machinery.webp",
+    alt: "建筑旁的土坑与工程机械",
+    caption: "场地近景：周围建筑、裸露土层与工程机械。",
+    credit,
+    width: 739,
+    height: 594,
+  },
+  Z24: {
+    src: "/exhibition/supplied/pit-edge.webp",
+    alt: "土坑边缘、坑壁和底部积水",
+    caption: "坑口与边缘：可见土层断面及坑底积水。",
+    credit,
+    width: 759,
+    height: 569,
+  },
+  Z25: {
+    src: "/exhibition/supplied/exposed-deposit.webp",
+    alt: "工程机械旁露出的深色堆积",
+    caption: "堆积近景：土层边缘露出的深色材料与周边环境。",
+    credit,
+    width: 599,
+    height: 728,
+  },
+  Z26: {
+    src: "/exhibition/supplied/bank-worksite.webp",
+    alt: "多名工作人员在岸边作业的照片",
+    caption: "岸边作业：工作人员与岸边土堆的整体环境。",
+    credit,
+    width: 673,
+    height: 478,
+  },
+  Z27: {
+    src: "/exhibition/supplied/pit-section-drawing.webp",
+    alt: "表现坑壁、填土和底部构件的剖面线图",
+    caption: "井坑剖面图：观察坑壁轮廓、填土与底部构件的位置。",
+    credit,
+    width: 478,
+    height: 761,
+  },
+  Z28: {
+    src: "/exhibition/supplied/pit-work-wide.webp",
+    alt: "多名工作人员在井坑内分处不同位置",
+    caption: "坑内协作：不同位置的工作人员与盆具、拉线。",
+    credit,
+    width: 750,
+    height: 531,
+  },
+  Z29: {
+    src: "/exhibition/supplied/basin-deposit.webp",
+    alt: "盆内叠压排列的简牍材料",
+    caption: "盆中堆积：观察简牍材料相互叠压的状态。",
+    credit,
+    width: 711,
+    height: 505,
+  },
+  Z30: {
+    src: "/exhibition/supplied/wrapped-deposit.webp",
+    alt: "布垫与托盘上集中堆放的简牍材料",
+    caption: "托承材料：成组材料放置于布垫和托盘上。",
+    credit,
+    width: 655,
+    height: 505,
+  },
+  Z32: {
+    src: "/exhibition/supplied/close-examination.webp",
+    alt: "两名工作人员近距离查看盆中简牍",
+    caption: "近距离查看：工作人员围绕盆中的简牍材料操作。",
+    credit,
+    width: 695,
+    height: 537,
+  },
+  Z33: {
+    src: "/exhibition/supplied/peeling-record-three.webp",
+    alt: "带编号的简牍排列及多组截面线图",
+    caption: "叠压线图：对照各枚简的位置、编号与下方截面示意。",
+    credit,
+    width: 545,
+    height: 689,
+  },
+  Z34: {
+    src: "/exhibition/supplied/workroom.webp",
+    alt: "多名工作人员在窗边桌面整理材料",
+    caption: "工作室一景：工作人员在桌面分区操作。",
+    credit,
+    width: 621,
+    height: 460,
+  },
+  Z35: {
+    src: "/exhibition/supplied/mesh-tray.webp",
+    alt: "蓝色托盘内网架夹持排列的简片",
+    caption: "网架与托盘：简片并列放置，外侧可见网架。",
+    credit,
+    width: 594,
+    height: 467,
+  },
+  Z36: {
+    src: "/exhibition/supplied/shelved-trays.webp",
+    alt: "多层架子上放置成排的托盘与简片",
+    caption: "托盘分层放置：每层架子摆放多只装有简片的托盘。",
+    credit,
+    width: 635,
+    height: 478,
+  },
+  Z37: {
+    src: "/exhibition/supplied/slip-lineup.webp",
+    alt: "七枚细长简片横向排列的照片",
+    caption: "简片横向排列：比较各枚简的轮廓、宽窄与文字分布。",
+    credit,
+    width: 657,
+    height: 464,
+  },
+  Z38: {
+    src: "/exhibition/supplied/sorting-room.webp",
+    alt: "多名工作人员围坐桌面整理简牍",
+    caption: "桌面整理：桌面上可见托盘、并列简片及操作工具。",
+    credit,
+    width: 639,
+    height: 476,
+  },
+  Z40: {
+    src: "/exhibition/supplied/containers.webp",
+    alt: "工作人员在大型槽体内摆放蓝色容器",
+    caption: "容器分装：工作人员、槽体与蓝色容器的放置关系。",
+    credit,
+    width: 606,
+    height: 477,
+  },
+  Z43: {
+    src: "/exhibition/supplied/tabletop-arrangement.webp",
+    alt: "工作人员在桌面查看分格排列的简牍",
+    caption: "分格放置：桌面上可见透明托槽及其中排列的简牍。",
+    credit,
+    width: 654,
+    height: 488,
+  },
+  W07: {
+    src: "/exhibition/supplied/tag-outline-one.webp",
+    alt: "黑色背景下带有切肩和侧边缺口的短牌状实物",
+    caption: "短牌轮廓：观察顶部切肩、侧边缺口与文字布局。",
+    credit,
+    width: 500,
+    height: 300,
+  },
+  W08: {
+    src: "/exhibition/supplied/tag-outline-two.webp",
+    alt: "黑色背景下较长的切肩牌状实物",
+    caption: "长牌轮廓：比较较长的下部轮廓与纵向文字排列。",
+    credit,
+    width: 500,
+    height: 300,
+  },
+} satisfies Record<string, ExFigure>;
+
+export const DISCOVERY_PHOTO_GROUPS: ExhibitionPhotoGroup[] = [
+  {
+    title: "场地与井坑",
+    description: "从周边环境、坑口和土层，观察发掘场地。",
+    photos: [
+      { label: "场地全景", figure: ARCHIVE_IMAGES.Z09 },
+      { label: "城市与场地", figure: ARCHIVE_IMAGES.Z10 },
+      { label: "场地近景", figure: ARCHIVE_IMAGES.Z23 },
+      { label: "坑口与边缘", figure: ARCHIVE_IMAGES.Z24 },
+      { label: "堆积近景", figure: ARCHIVE_IMAGES.Z25 },
+      { label: "井坑全貌", figure: ARCHIVE_IMAGES.Z03 },
+      { label: "土层剖面", figure: ARCHIVE_IMAGES.Z11 },
+      { label: "坑底结构", figure: ARCHIVE_IMAGES.Z13 },
+    ],
+  },
+  {
+    title: "发掘现场",
+    description: "从不同视角查看工作人员与出土环境。",
+    photos: [
+      { label: "坑内作业", figure: ARCHIVE_IMAGES.Z05 },
+      { label: "协作清理", figure: ARCHIVE_IMAGES.Z07 },
+      { label: "井坑作业", figure: ARCHIVE_IMAGES.Z12 },
+      { label: "岸边作业", figure: ARCHIVE_IMAGES.Z26 },
+      { label: "坑内协作", figure: ARCHIVE_IMAGES.Z28 },
+    ],
+  },
+  {
+    title: "室内整理",
+    description: "观察材料的托承、查看、整理与摄影记录。",
+    photos: [
+      { label: "盆内整理", figure: ARCHIVE_IMAGES.Z08 },
+      { label: "托盘中的简片", figure: ARCHIVE_IMAGES.Z15 },
+      { label: "另一组托盘材料", figure: ARCHIVE_IMAGES.Z16 },
+      { label: "盆中堆积", figure: ARCHIVE_IMAGES.Z29 },
+      { label: "托承材料", figure: ARCHIVE_IMAGES.Z30 },
+      { label: "测量框旁", figure: EXHIBITION_IMAGES.recording },
+      { label: "近距离查看", figure: ARCHIVE_IMAGES.Z32 },
+      { label: "工作室一景", figure: ARCHIVE_IMAGES.Z34 },
+      { label: "桌面整理", figure: ARCHIVE_IMAGES.Z38 },
+      { label: "摄影记录", figure: EXHIBITION_IMAGES.photography },
+    ],
+  },
+  {
+    title: "分装与收藏",
+    description: "观察盆具、托盘、网架、保护槽及展柜中的排列方式。",
+    photos: [
+      { label: "分盆存放", figure: EXHIBITION_IMAGES.basins },
+      { label: "网架与托盘", figure: ARCHIVE_IMAGES.Z35 },
+      { label: "托盘分层放置", figure: ARCHIVE_IMAGES.Z36 },
+      { label: "容器分装", figure: ARCHIVE_IMAGES.Z40 },
+      { label: "分格放置", figure: ARCHIVE_IMAGES.Z43 },
+      { label: "抽屉收藏", figure: EXHIBITION_IMAGES.storage },
+      { label: "展柜陈列", figure: ARCHIVE_IMAGES.Z14 },
+    ],
+  },
+];
+
+export const FORM_PHOTO_GROUPS: ExhibitionPhotoGroup[] = [
+  {
+    title: "宽片文字",
+    description: "观察文字的分栏、间距与留白。",
+    photos: [
+      { label: "文字分栏", figure: ARCHIVE_IMAGES.Z18 },
+      { label: "文字与留白", figure: ARCHIVE_IMAGES.Z19 },
+    ],
+  },
+  {
+    title: "窄长简片",
+    description: "比较成组简片的边缘和文字分布。",
+    photos: [
+      { label: "简片横向排列", figure: ARCHIVE_IMAGES.Z37 },
+    ],
+  },
+  {
+    title: "牌状实物",
+    description: "比较顶部切肩、侧边缺口及整体轮廓。",
+    photos: [
+      { label: "短牌轮廓", figure: ARCHIVE_IMAGES.W07 },
+      { label: "长牌轮廓", figure: ARCHIVE_IMAGES.W08 },
+    ],
+  },
+];
+
+export const RECORD_PHOTO_GROUPS: ExhibitionPhotoGroup[] = [
+  {
+    title: "揭剥记录",
+    description: "对照线图中的位置、编号与截面示意。",
+    photos: [
+      { label: "揭剥记录", figure: EXHIBITION_IMAGES.peeling },
+      { label: "位置与编号", figure: ARCHIVE_IMAGES.Z21 },
+      { label: "叠压线图", figure: ARCHIVE_IMAGES.Z33 },
+    ],
+  },
+  {
+    title: "井坑剖面",
+    description: "从剖面线图观察坑体与底部构件。",
+    photos: [
+      { label: "井坑剖面图", figure: ARCHIVE_IMAGES.Z27 },
+    ],
+  },
+  {
+    title: "整理编号",
+    description: "观察保护槽、编号与实物的对应。",
+    photos: [
+      { label: "整理编号", figure: EXHIBITION_IMAGES.numbering },
+    ],
+  },
+];

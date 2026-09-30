@@ -6,6 +6,24 @@
   margin-top: 32px;
 }
 
+.photo-link {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--wj-cinnabar);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.photo-link:focus-visible {
+  outline: 2px solid var(--wj-cinnabar);
+  outline-offset: 4px;
+}
+
+.photo-archive {
+  scroll-margin-top: 80px;
+}
+
 .story {
   min-width: 0;
   padding-top: 2px;

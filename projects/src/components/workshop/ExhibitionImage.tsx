@@ -9,10 +9,11 @@ import styles from './ExhibitionImage.module.css';
 type Size = { width: number; height: number };
 
 /** 实物保持完整比例；放大阅读只发生在原图弹窗中。 */
-export function ExhibitionImage({ figure, tall = false, layout = 'natural' }: {
+export function ExhibitionImage({ figure, tall = false, layout = 'natural', previewLabel }: {
   figure: ExFigure;
   tall?: boolean;
-  layout?: 'natural' | 'gallery';
+  layout?: 'natural' | 'gallery' | 'collection';
+  previewLabel?: string;
 }) {
   const titleId = useId();
   const captionId = useId();
@@ -129,7 +130,7 @@ export function ExhibitionImage({ figure, tall = false, layout = 'natural' }: {
 
   return (
     <>
-      <figure className={styles.figure}>
+      <figure className={`${styles.figure} ${layout === 'collection' ? styles.collection : ''}`}>
         <button
           ref={triggerRef}
           type="button"
@@ -139,10 +140,12 @@ export function ExhibitionImage({ figure, tall = false, layout = 'natural' }: {
           onClick={openImage}
         >
           <img src={figure.src} alt={figure.alt} width={figure.width} height={figure.height} loading="lazy" />
-          <span className={styles['open-label']}><Expand size={14} aria-hidden="true" />查看原图</span>
+          <span className={styles['open-label']} aria-hidden="true">
+            <Expand size={14} />{layout !== 'collection' && '查看原图'}
+          </span>
         </button>
         <figcaption className={styles.caption}>
-          <p>{figure.caption}</p>
+          <p>{previewLabel ?? figure.caption}</p>
           {figure.credit && (
             <details className={styles.credit}>
               <summary>图片来源</summary>

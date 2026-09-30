@@ -24,7 +24,7 @@ export default function FormsAccordion({ forms }: { forms: ExForm[] }) {
 
   return (
     <div className={`${styles.browser} ${styles.forms}`}>
-      <div className={styles.categories} role="group" aria-label="按形制查看简牍">
+      <div className={`${styles.categories} ${styles['form-categories']}`} role="group" aria-label="按形制查看简牍">
         {forms.map((item) => (
           <button
             key={item.id}
@@ -32,9 +32,12 @@ export default function FormsAccordion({ forms }: { forms: ExForm[] }) {
             onClick={() => setSelectedId(item.id)}
             aria-pressed={item.id === form.id}
             aria-controls="form-detail"
-            className={styles.category}
+            className={`${styles.category} ${styles['form-category']}`}
           >
-            {FORM_LABELS[item.id] ?? item.name}
+            <span className={styles['category-image']}>
+              {item.figures?.[0] ? <img src={item.figures[0].src} alt="" loading="lazy" /> : <span>其他形制</span>}
+            </span>
+            <span>{FORM_LABELS[item.id] ?? item.name}</span>
           </button>
         ))}
       </div>

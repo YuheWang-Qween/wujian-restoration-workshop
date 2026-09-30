@@ -18,7 +18,7 @@ export function ExhibitionGallery({ groups, initialIndex = 0 }: { groups: PhotoG
 
   return (
     <div className={styles.gallery}>
-      <nav className={styles.groups} aria-label="影像分组">
+      {groups.length > 1 && <nav className={styles.groups} aria-label="影像分组">
         {groups.map((item, index) => (
           <button
             type="button"
@@ -29,7 +29,7 @@ export function ExhibitionGallery({ groups, initialIndex = 0 }: { groups: PhotoG
             {item.title}<span>{item.photos.length}</span>
           </button>
         ))}
-      </nav>
+      </nav>}
 
       <ExhibitionImage key={photo.figure.src} figure={photo.figure} layout="gallery" />
 
