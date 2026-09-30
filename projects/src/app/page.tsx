@@ -215,6 +215,7 @@ function WorkshopHallInner() {
               {user && (
                 <button
                   type="button"
+                  data-demo="analytics"
                   onClick={() => router.push(serverTeacher ? '/teacher' : '/learner')}
                   title={serverTeacher ? '查看班级与学生的学习数据' : '查看自己的学习足迹与判定'}
                   className="flex items-center gap-1.5 rounded border border-wj-border bg-wj-raised px-2.5 py-1.5 text-xs text-wj-ink transition-colors hover:border-wj-cinnabar hover:text-wj-cinnabar"

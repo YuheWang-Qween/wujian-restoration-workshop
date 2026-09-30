@@ -85,7 +85,7 @@ const SCENES: DemoScene[] = [
   {
     title: '简牍鉴赏',
     narration:
-      '修复之外，鉴赏页签里展出简牍的形制、主题与关键术语。',
+      '修复之外，鉴赏页签里展出简牍的形制、主题与关键术语，五十余张发掘与整理现场的实景照片，点开还能细读原图。',
     path: '/',
     actions: [
       { delay: 0, type: 'click', selector: 'data:tab-exhibition' },
@@ -151,7 +151,7 @@ const SCENES: DemoScene[] = [
   {
     title: '进度可续',
     narration:
-      '作答自动保存，进度云端同步。每张卡片显示完成情况，一键重做。',
+      '作答自动保存，进度云端同步。首页卡片有通栏进度条，环节内还有实时进度条——答了几题，一眼可见。',
     path: '/',
     actions: [
       { delay: 500, type: 'highlight', selector: 'data:stage-1' },
@@ -165,6 +165,17 @@ const SCENES: DemoScene[] = [
       '全部完成后，解锁成就卡。六枚竹简代表六道工序，可下载保存。',
     path: '/achievement',
     actions: [],
+  },
+  {
+    title: '学情分析',
+    narration:
+      '学情分析入口。教师看到班级概览、高频错误与热点词云；学生看到的，是自己的学习足迹。两边共享同一套判定口径。',
+    path: '/',
+    actions: [
+      { delay: 500, type: 'highlight', selector: 'data:analytics' },
+      { delay: 2500, type: 'scroll', amount: 200 },
+      { delay: 4500, type: 'scroll', amount: -200 },
+    ],
   },
   {
     title: '结尾',

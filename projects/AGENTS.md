@@ -364,6 +364,7 @@ src/
 │   ├── exhibition/case/[id]/page.tsx # 展示篇案例精读页 ×5（服务端组件，字段驱动）
 │   ├── layout.tsx                    # 挂 AuthProvider（未登录访问业务页跳 /login）+ DemoMode（全局演示组件，挂 window.__startDemo）
 │   └── globals.css                   # 纸墨主题令牌（wj-*）
+├── 演示视频脚本.md                    # 宣传视频录制脚本（9 幕 ~5 分钟；场景八学情分析需教师账号+演示数据）——改学情功能时同步此文件与 DemoMode 场景
 ├── components/workshop/
 │   ├── AuthProvider.tsx              # 会话监听 + 路由守卫 + signOut（守卫与渲染闸门都有 __DEMO_MODE__ 旁路，未登录也能看演示）
 │   ├── GuideAvatarGate.tsx           # 小简的出场闸门：仅 /stage 路由动态加载（layout 挂它）
