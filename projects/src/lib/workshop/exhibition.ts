@@ -8,12 +8,19 @@
  * 本篇出自公开资料汇编——所录释文均系转引（长沙简牍博物馆、简帛网及学者论文等），
  * 正式引用请核对文物出版社《长沙走马楼三国吴简》各卷图版与释文。
  *
- * 实物照片：Wikimedia Commons CC0（摄影：Gary Todd / Huangdan2060，摄于长沙简牍博物馆）；
- * 特定简牍图版转引自长沙简牍博物馆官网专文及中央纪委监察部网站专题，版权归原机构所有。
+ * 实物及现场照片采用项目提供的走马楼吴简图片资料，逐图保留来源；
+ * 与特定释文对应的旧图版仍转引自长沙简牍博物馆官网专文，署名随图保留。
  */
+
+import { EXHIBITION_IMAGES } from './exhibition-images';
 
 export interface ExFigure {
   src: string;
+  /** 全尺寸图；省略时使用 src */
+  originalSrc?: string;
+  /** 全尺寸图的宽高，用于保持实物比例与原图缩放 */
+  width?: number;
+  height?: number;
   alt: string;
   /** 图题说明（不含署名） */
   caption: string;
@@ -45,7 +52,8 @@ export const EXH_NAV = [
     href: '/exhibition/discovery',
     desc: 'J22古井出土始末、数量与年代，以及「这批档案属于谁」的四种回答。',
     count: '发现经过 · 四说并列',
-    figure: '/exhibition/well-j22.jpg',
+    figure: EXHIBITION_IMAGES.excavation.src,
+    figureFit: 'cover',
   },
   {
     id: 'forms',
@@ -54,7 +62,8 @@ export const EXH_NAV = [
     href: '/exhibition/forms',
     desc: '从半米长的田家莂大木简，到挂系簿书的签牌、拜谒问安的名刺。',
     count: '六张展签',
-    figure: '/exhibition/form-tianjia-bie.jpg',
+    figure: EXHIBITION_IMAGES.tags.src,
+    figureFit: 'contain',
   },
   {
     id: 'themes',
@@ -63,7 +72,8 @@ export const EXH_NAV = [
     href: '/exhibition/themes',
     desc: '按内容重排这批档案：田租、户籍、口算钱、仓库、司法……一个孙吴县级政权的日常。',
     count: '八类 · 附丘里双轨',
-    figure: '/exhibition/theme-ledger-tablet.jpg',
+    figure: EXHIBITION_IMAGES.bamboo.src,
+    figureFit: 'contain',
   },
   {
     id: 'cases',
@@ -72,7 +82,8 @@ export const EXH_NAV = [
     href: '/exhibition/cases',
     desc: '一枚莂、一户户籍、一类格式、一场贪腐案、一张拜帖——五枚代表简逐句读。',
     count: '五枚简 · 各自一页',
-    figure: '/exhibition/plate-tianjia-bie.jpg',
+    figure: EXHIBITION_IMAGES.callingCard.src,
+    figureFit: 'contain',
   },
   {
     id: 'reference',
@@ -81,7 +92,8 @@ export const EXH_NAV = [
     href: '/exhibition/reference',
     desc: '「莂」「二年常限」「真吏给吏」……查词条、查出版卷次、查资料出处。',
     count: '13 词条 · 出版一览',
-    figure: '/exhibition/form-bamboo.jpg',
+    figure: EXHIBITION_IMAGES.peeling.src,
+    figureFit: 'contain',
   },
 ] as const;
 
@@ -106,13 +118,7 @@ export const DISCOVERY = {
       text: '符券类（嘉禾吏民田家莂）、簿籍类（户籍、赋税、仓库出入簿）、书檄类（官府文书、司法文书）、信札与名刺等。',
     },
   ],
-  figure: {
-    src: '/exhibition/well-j22.jpg',
-    alt: '走马楼J22古井发掘现场原址复原',
-    caption:
-      '走马楼J22古井发掘现场原址复原。1996年10月，编号J22的古井中出土十余万枚孙吴简牍。',
-    credit: '摄影：Huangdan2060（CC0）',
-  } satisfies ExFigure,
+  figure: EXHIBITION_IMAGES.excavation,
   theoriesNote: '据徐畅的综述，学界对吴简的机构归属先后形成四说，目前日益倾向第三说：',
   theories: [
     {
@@ -168,21 +174,7 @@ export const FORMS: ExForm[] = [
         '南彊丘男子聂仪，佃田六町，凡卅八亩。其卅三亩二年常限。其廿二亩旱败不收布。其五亩余力田，为米二斛。定收十一亩，为米十三斛二斗。……凡为米十五斛二斗，亩收布二尺。其米十五斛二斗，六年正月十二日付仓吏张曼、周栋。凡为布三丈二尺，准入米二斛一斗，五年十一月四日付仓吏张曼、周栋。其旱田不收钱。其熟田收钱亩八十，凡为钱一千二百八十，五年十一月七日付库吏潘慎。嘉禾六年二月廿日，田户曹史张惕校。',
       ],
     },
-    figures: [
-      {
-        src: '/exhibition/form-tianjia-bie.jpg',
-        alt: '大木简·嘉禾吏民田家莂',
-        caption: '大木简·嘉禾吏民田家莂：长约50厘米的杉木大简，通体密书佃田租税结算文字。',
-        credit: '长沙简牍博物馆藏。摄影：Gary Todd（CC0）',
-      },
-      {
-        src: '/exhibition/plate-tianjia-bie.jpg',
-        alt: '《嘉禾吏民田家莂》图版：六枚同型大木简',
-        caption:
-          '《嘉禾吏民田家莂》图版：六枚同型大木简，顶端均有剖「同」字留下的墨痕（5500号聂仪莂分段释文对照图版见〔肆〕案例一）。',
-        credit: '图版：长沙简牍博物馆《三国农民的纳税凭证——嘉禾吏民田家莂》配图',
-      },
-    ],
+    figures: [EXHIBITION_IMAGES.groupedSlips],
   },
   {
     id: 'bamboo',
@@ -192,14 +184,7 @@ export const FORMS: ExForm[] = [
     detail: [
       '长约22—23厘米、宽0.5—1.2厘米，是吴简主体，《竹简》九卷共刊6.7万余个简号。内容为临湘侯国的簿籍档案：户籍名籍（吏民人名年纪口食簿）、赋税征收簿、仓米库钱布出入帐、师佐籍、司法文书等，书写有固定格式（如户籍简中户主顶格、家口退格）。',
     ],
-    figures: [
-      {
-        src: '/exhibition/form-bamboo.jpg',
-        alt: '按整理编号陈列的走马楼吴简竹简',
-        caption: '竹简（簿籍类）：按整理编号陈列的走马楼吴简竹简，为赋税、户籍类簿籍，长约22—23厘米。',
-        credit: '长沙简牍博物馆藏。摄影：Gary Todd（CC0）',
-      },
-    ],
+    figures: [EXHIBITION_IMAGES.bamboo],
   },
   {
     id: 'wooden-tablets',
@@ -217,15 +202,7 @@ export const FORMS: ExForm[] = [
       label: '木牍 · 嘉禾二年监长沙邸阁右郎中张儁移私学弟子区小文书（节录）',
       lines: ['私学弟子攸县广阳乡区小，年廿五，能书画，有父兄，温厚，属监刘弈，居在鄱丘。'],
     },
-    figures: [
-      {
-        src: '/exhibition/form-wooden-tablets.jpg',
-        alt: '木牍·签牌·名刺',
-        caption:
-          '木牍·签牌·名刺：左侧两枚圆首小牌为签牌（帐簿标识）；中部宽厚木板为官文书木牍（「一事一牍」）；最右狭长简上可辨「再拜」「问起居」，为名刺。',
-        credit: '长沙简牍博物馆藏。摄影：Gary Todd（CC0）',
-      },
-    ],
+    figures: [EXHIBITION_IMAGES.woodenTablet],
   },
   {
     id: 'tags-seals',
@@ -235,6 +212,7 @@ export const FORMS: ExForm[] = [
     detail: [
       '签牌74件，是挂系于成卷成囊簿书之上的标识简（相当于卷标、索引），均为嘉禾年间长沙地方诸曹、诸乡、仓库统计顷亩、租税、莂萆等帐簿的标签。封检类实分三种：封匣（封泥匣，函盖上有凹槽承封泥）、封缄（公文私信的封面）、封检（与封匣配套的公文）。',
     ],
+    figures: [EXHIBITION_IMAGES.tags],
   },
   {
     id: 'calling-cards',
@@ -244,6 +222,7 @@ export const FORMS: ExForm[] = [
     detail: [
       '狭长木简，仅书投刺人姓名、字号、籍贯与问候语，《竹木牍》收9件，为长沙、武陵等地人士所投。其性质并非近代名片，而类似唐宋的「门状」、明清的「拜帖」，用于拜谒问安（释文见〔肆〕案例五）。',
     ],
+    figures: [EXHIBITION_IMAGES.callingCard],
   },
   {
     id: 'others',
@@ -279,12 +258,7 @@ export const THEMES: ExTheme[] = [
         '专丘县吏邓回，佃田廿町，凡卌四亩，皆二年常限……',
       ],
     },
-    figure: {
-      src: '/exhibition/theme-tianjia-closeup.jpg',
-      alt: '田家莂近观',
-      caption: '田家莂近观：简上可辨「嘉禾五年三月……付仓吏」等租税结算字样，与5500号聂仪莂格式相同。',
-      credit: '长沙简牍博物馆藏。摄影：Gary Todd（CC0）',
-    },
+    figure: EXHIBITION_IMAGES.groupedSlips,
   },
   {
     id: 'household',
@@ -336,12 +310,7 @@ export const THEMES: ExTheme[] = [
         '其廿九斛民先入付三州仓吏谷汉，出付船师车刀、赵益运诣中仓，关邸阁李嵩。',
       ],
     },
-    figure: {
-      src: '/exhibition/theme-ledger-tablet.jpg',
-      alt: '帐簿类木牍',
-      caption: '帐簿类木牍：宽厚木板分栏登记仓米出入斛斗数额，属仓帐簿类，与「承余—新入—领出用—余见」的结算体系相应。',
-      credit: '长沙简牍博物馆藏。摄影：Gary Todd（CC0）',
-    },
+    figure: EXHIBITION_IMAGES.granary,
   },
   {
     id: 'judicial',
@@ -357,6 +326,7 @@ export const THEMES: ExTheme[] = [
     id: 'letters',
     name: '名刺与书信',
     text: '名刺9件、书信12件、封检及封发事目10件。书信为嘉禾年间吏民通信，兼见行书、楷书、草书书体；封检为黄龙二年至嘉禾年间官府文件封缄。名刺格式为「弟子（自谦）＋姓名＋再拜＋问起居＋籍贯＋字」。',
+    figure: EXHIBITION_IMAGES.callingCard,
   },
   {
     id: 'identities',
@@ -523,12 +493,7 @@ export const CASES: ExCase[] = [
       label: '名刺 · J22出土',
       lines: ['弟子黄朝再拜　问起居　长沙益阳　字元宝'],
     },
-    figure: {
-      src: '/exhibition/case5-huangchao.jpg',
-      alt: '黄朝名刺原简',
-      caption: '黄朝名刺原简：隶书「弟子黄朝再拜　问起居　长沙益阳字元宝」。',
-      credit: '图片：中央纪委监察部网站《走进博物馆：长沙简牍博物馆》专题配图',
-    },
+    figure: EXHIBITION_IMAGES.callingCard,
     analysis: [
       '解读：隶书书写。「弟子」为投刺者对尊长的自谦之称；「再拜」是礼敬套语；「问起居」（问候寝食安否）居中大字；左下小字书郡县籍贯与表字。全句意为：学生黄朝恭敬拜见问安，长沙郡益阳人，字元宝。王素、宋少华指出，仅书姓名字号籍贯者为「名刺（名纸）」，另书「再拜」「问起居」者实为「门状」「拜帖」——它是研究三国士人交际礼俗与「名片」制度源流的实物标本。',
     ],
@@ -703,4 +668,4 @@ export const SOURCES: { group: string; items: string[] }[] = [
 ];
 
 export const COLOPHON =
-  '本编为研究资料汇编，2026年8月据公开网络资料整理。所录释文均系转引，正式引用请核对文物出版社《长沙走马楼三国吴简》各卷图版与释文。文中实物照片均取自 Wikimedia Commons，摄影者 Gary Todd 与 Huangdan2060，授权协议 CC0（公有领域贡献），拍摄地点为长沙简牍博物馆。';
+  '本编为研究资料汇编，2026年8月据公开网络资料整理。所录释文均系转引，正式引用请核对文物出版社《长沙走马楼三国吴简》各卷图版与释文。实物及现场照片采用项目提供的走马楼吴简图片资料；与特定释文对应的图版保留原有来源，各幅图片的署名与来源见图片详情。';

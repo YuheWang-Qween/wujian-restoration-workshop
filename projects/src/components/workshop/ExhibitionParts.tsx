@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import type { ExFigure, ExSlipText } from '@/lib/workshop/exhibition';
+import { ExhibitionImage } from './ExhibitionImage';
 
 /**
  * 展示篇共享展示组件（无 'use client'，服务端 / 客户端页面均可引用）。
@@ -33,20 +34,7 @@ export function SectionHeading({
 
 /** 图版卡：照片 + 图题 + 署名。展示篇的照片是真实文物照，署名必须跟着图走 */
 export function FigureCard({ figure, tall = false }: { figure: ExFigure; tall?: boolean }) {
-  return (
-    <figure className="rounded-md border border-wj-border bg-wj-surface p-2">
-      <img
-        src={figure.src}
-        alt={figure.alt}
-        loading="lazy"
-        className={`w-full rounded-sm object-cover ${tall ? 'max-h-105' : 'max-h-80'}`}
-      />
-      <figcaption className="px-1 pt-2 pb-1">
-        <p className="text-xs leading-6 text-wj-ink/85">{figure.caption}</p>
-        <p className="mt-0.5 text-[11px] leading-5 text-wj-muted">{figure.credit}</p>
-      </figcaption>
-    </figure>
-  );
+  return <ExhibitionImage figure={figure} tall={tall} />;
 }
 
 /** 释文引用块：竹青左缘细边 + 纸色底 + serif 释文 */

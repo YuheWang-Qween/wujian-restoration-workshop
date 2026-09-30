@@ -24,25 +24,25 @@ export function ExhibitionHall() {
             className="group relative flex flex-col overflow-hidden rounded-lg border border-wj-border/70 bg-wj-surface transition-all duration-300 hover:-translate-y-1 hover:border-wj-cinnabar/45 hover:shadow-[0_4px_8px_-2px_rgba(30,27,22,0.08),0_16px_40px_-16px_rgba(30,27,22,0.22)] motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3"
             style={{ animationDelay: `${(i + 1) * 80}ms`, animationFillMode: 'backwards' }}
           >
-            <div className="relative h-44 overflow-hidden">
+            <div className="h-52 overflow-hidden border-b border-wj-line bg-wj-raised">
               <img
                 src={board.figure}
                 alt={board.label}
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+                loading="lazy"
+                className={`h-full w-full ${board.figureFit === 'cover' ? 'object-cover' : 'object-contain p-3'}`}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/5" />
-              <div className="absolute bottom-0 left-0 right-0 flex items-center gap-2 p-4">
-                <span className="inline-flex size-6 items-center justify-center rounded-sm border border-white/50 font-serif text-[13px] leading-none font-semibold text-white">
-                  {board.order}
-                </span>
-                <h3 className="font-serif text-xl font-semibold tracking-wide text-white">
-                  {board.label}
-                </h3>
-              </div>
             </div>
 
             <div className="flex flex-1 flex-col justify-between p-5">
               <div>
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="inline-flex size-6 items-center justify-center rounded-sm border border-wj-cinnabar/45 font-serif text-[13px] font-semibold text-wj-cinnabar">
+                    {board.order}
+                  </span>
+                  <h3 className="font-serif text-xl font-semibold tracking-wide text-wj-ink">
+                    {board.label}
+                  </h3>
+                </div>
                 <p className="text-sm leading-relaxed text-wj-muted">{board.desc}</p>
                 <p className="mt-2 font-mono text-[11px] tabular-nums text-wj-water">
                   {board.count}

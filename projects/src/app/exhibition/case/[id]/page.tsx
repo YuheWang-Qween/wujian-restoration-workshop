@@ -74,20 +74,7 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
               {/* 窄屏竖排（上→中→下顺序不变），sm 起三联并排 */}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {current.plates.map((plate) => (
-                  <figure
-                    key={plate.src}
-                    className="rounded-md border border-wj-border bg-wj-surface p-1.5"
-                  >
-                    <img
-                      src={plate.src}
-                      alt={plate.alt}
-                      loading="lazy"
-                      className="w-full rounded-sm object-cover"
-                    />
-                    <figcaption className="pt-1 pb-0.5 text-center text-[11px] text-wj-muted">
-                      {plate.caption}
-                    </figcaption>
-                  </figure>
+                  <FigureCard key={plate.src} figure={plate} tall />
                 ))}
               </div>
               {current.plateNote && (

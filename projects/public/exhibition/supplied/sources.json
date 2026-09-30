@@ -1,0 +1,190 @@
+{
+  "providedOn": "2026-09-29",
+  "credit": "项目提供的走马楼吴简图片资料",
+  "license": "未附单独的许可声明；不沿用被替换图片的 CC0 标注",
+  "matchingNotes": {
+    "grouped-slips.webp": "与原 plate-tianjia-bie.jpg 目视为同组六枚田家莂，不对应案例一的单枚 5500 号图版。",
+    "calling-card.webp": "与原 case5-huangchao.jpg 目视为同一黄朝名刺照片。",
+    "granary.webp": "起首可见出倉，仅作仓储文字观察，不标注具体简号，不对应入米简格式复原。",
+    "peeling.webp": "原图为揭剥记录图；不称古代简册编联复原图。"
+  },
+  "images": [
+    {
+      "asset": "site.webp",
+      "sourceArchive": "走马楼图片.rar",
+      "sourceFile": "22.png",
+      "sourceSha256": "6294f932cb5dc6cf509ba3eeec091000f0a297ee550485e399129aa83be9a4fe",
+      "sourceWidth": 618,
+      "sourceHeight": 698,
+      "displayWidth": 618,
+      "displayHeight": 698,
+      "processing": "仅转换为 WebP；不裁切、不修绘文字；保持源尺寸"
+    },
+    {
+      "asset": "excavation.webp",
+      "sourceArchive": "走马楼图片.rar",
+      "sourceFile": "4.png",
+      "sourceSha256": "0263e27883569be902e38b48154c8af3feb8baf03e50d8117342a0fd161fb230",
+      "sourceWidth": 1205,
+      "sourceHeight": 860,
+      "displayWidth": 1205,
+      "displayHeight": 860,
+      "processing": "仅转换为 WebP；不裁切、不修绘文字；保持源尺寸"
+    },
+    {
+      "asset": "fieldwork.webp",
+      "sourceArchive": "走马楼图片.rar",
+      "sourceFile": "6.png",
+      "sourceSha256": "6e26fb9af25f7407657b4fa5274d290cbaf21ae0ff4be264f45bbecdf0b02d44",
+      "sourceWidth": 1204,
+      "sourceHeight": 821,
+      "displayWidth": 1204,
+      "displayHeight": 821,
+      "processing": "仅转换为 WebP；不裁切、不修绘文字；保持源尺寸"
+    },
+    {
+      "asset": "recovery.webp",
+      "sourceArchive": "走马楼图片.rar",
+      "sourceFile": "1.png",
+      "sourceSha256": "b9dc360874bad763221dda3f717822c657e4450e85f59c6bf904103066a12bca",
+      "sourceWidth": 1182,
+      "sourceHeight": 841,
+      "displayWidth": 1182,
+      "displayHeight": 841,
+      "processing": "仅转换为 WebP；不裁切、不修绘文字；保持源尺寸"
+    },
+    {
+      "asset": "basins.webp",
+      "sourceArchive": "走马楼图片.rar",
+      "sourceFile": "2.png",
+      "sourceSha256": "0859f065a39151c6fde8b2890a4e462ad6a2405c568f06b47d7a6a0ac3093648",
+      "sourceWidth": 1178,
+      "sourceHeight": 862,
+      "displayWidth": 1178,
+      "displayHeight": 862,
+      "processing": "仅转换为 WebP；不裁切、不修绘文字；保持源尺寸"
+    },
+    {
+      "asset": "recording.webp",
+      "sourceArchive": "走马楼图片.rar",
+      "sourceFile": "31.png",
+      "sourceSha256": "280a20c79601c88226e8bafb367ad5758a628f7062112a3038e0fb6780b53d31",
+      "sourceWidth": 716,
+      "sourceHeight": 537,
+      "displayWidth": 716,
+      "displayHeight": 537,
+      "processing": "仅转换为 WebP；不裁切、不修绘文字；保持源尺寸"
+    },
+    {
+      "asset": "photography.webp",
+      "sourceArchive": "走马楼图片.rar",
+      "sourceFile": "39.png",
+      "sourceSha256": "70f9fb2c9010823a169b6b9fb3813bdb8a15ef2d897e29c758f1cfc9c25d97d5",
+      "sourceWidth": 636,
+      "sourceHeight": 476,
+      "displayWidth": 636,
+      "displayHeight": 476,
+      "processing": "仅转换为 WebP；不裁切、不修绘文字；保持源尺寸"
+    },
+    {
+      "asset": "storage.webp",
+      "sourceArchive": "走马楼图片.rar",
+      "sourceFile": "45.png",
+      "sourceSha256": "3ebb043b4df17d7533bf09024009dd44f4eb4bca9cc4954214e0089454956db9",
+      "sourceWidth": 657,
+      "sourceHeight": 484,
+      "displayWidth": 657,
+      "displayHeight": 484,
+      "processing": "仅转换为 WebP；不裁切、不修绘文字；保持源尺寸"
+    },
+    {
+      "asset": "wooden-tablet.webp",
+      "sourceArchive": "三国吴简.rar",
+      "sourceFile": "三国吴简1.jpg",
+      "sourceSha256": "9395eb5764bf320234e87ff7c8e29c7962378e0a40cc9386124ba760ccb283fc",
+      "sourceWidth": 1000,
+      "sourceHeight": 793,
+      "displayWidth": 1000,
+      "displayHeight": 793,
+      "processing": "仅转换为 WebP；不裁切、不修绘文字；保持源尺寸"
+    },
+    {
+      "asset": "tags.webp",
+      "sourceArchive": "三国吴简.rar",
+      "sourceFile": "三国吴简2.jpg",
+      "sourceSha256": "96a466fb2b5099317495a1b57f928898f0637879045807b6e5f802c78961b645",
+      "sourceWidth": 1310,
+      "sourceHeight": 994,
+      "displayWidth": 1310,
+      "displayHeight": 994,
+      "processing": "仅转换为 WebP；不裁切、不修绘文字；保持源尺寸"
+    },
+    {
+      "asset": "bamboo.webp",
+      "sourceArchive": "三国吴简.rar",
+      "sourceFile": "三国吴简3.jpg",
+      "sourceSha256": "e4fb5de4bc8420b060fa1f2ab6f714fa77aa078910c6fba871ef17d02a3bf2cc",
+      "sourceWidth": 1000,
+      "sourceHeight": 793,
+      "displayWidth": 1000,
+      "displayHeight": 793,
+      "processing": "仅转换为 WebP；不裁切、不修绘文字；保持源尺寸"
+    },
+    {
+      "asset": "grouped-slips.webp",
+      "sourceArchive": "走马楼图片.rar",
+      "sourceFile": "17.png",
+      "sourceSha256": "4c1646f005bb973bc33fdd07f6ae81536ef444754d8447b6a57dad32eba520ec",
+      "sourceWidth": 422,
+      "sourceHeight": 715,
+      "displayWidth": 422,
+      "displayHeight": 715,
+      "processing": "仅转换为 WebP；不裁切、不修绘文字；保持源尺寸"
+    },
+    {
+      "asset": "calling-card.webp",
+      "sourceArchive": "三国吴简.rar",
+      "sourceFile": "三国吴简5.jpg",
+      "sourceSha256": "7b81127e13bd3083eb30a57f79007ac2250f89d00288f53e03c23c95ff42ff6f",
+      "sourceWidth": 500,
+      "sourceHeight": 396,
+      "displayWidth": 500,
+      "displayHeight": 396,
+      "processing": "仅转换为 WebP；不裁切、不修绘文字；保持源尺寸"
+    },
+    {
+      "asset": "granary.webp",
+      "sourceArchive": "三国吴简.rar",
+      "sourceFile": "三国吴简4.jpg",
+      "sourceSha256": "f16c8785cadfbdb6d6e8e745e33aa318861aa46d3439e85cd9a181cefe4b79a9",
+      "sourceWidth": 4032,
+      "sourceHeight": 6048,
+      "displayWidth": 1200,
+      "displayHeight": 1800,
+      "processing": "完整画面等比缩小为 1200×1800 WebP；原始 JPEG 另存供放大",
+      "originalAsset": "granary-original.jpg"
+    },
+    {
+      "asset": "numbering.webp",
+      "sourceArchive": "走马楼图片.rar",
+      "sourceFile": "44.png",
+      "sourceSha256": "46a92eb66c7206f6b932a6f1ef9d310eff35adca7a0519050f015b764fbf62d0",
+      "sourceWidth": 459,
+      "sourceHeight": 599,
+      "displayWidth": 459,
+      "displayHeight": 599,
+      "processing": "仅转换为 WebP；不裁切、不修绘文字；保持源尺寸"
+    },
+    {
+      "asset": "peeling.webp",
+      "sourceArchive": "走马楼图片.rar",
+      "sourceFile": "20.png",
+      "sourceSha256": "1484477dbdd9ff3393154dd56c209cb5b5168f797b74b2d978d622fc141c6423",
+      "sourceWidth": 780,
+      "sourceHeight": 1070,
+      "displayWidth": 780,
+      "displayHeight": 1070,
+      "processing": "仅转换为 WebP；不裁切、不修绘文字；保持源尺寸"
+    }
+  ]
+}

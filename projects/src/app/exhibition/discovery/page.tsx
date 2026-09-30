@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { DISCOVERY, EXH_NAV } from '@/lib/workshop/exhibition';
+import { DISCOVERY_SCENES, DISCOVERY_ARCHIVE } from '@/lib/workshop/exhibition-images';
 import { BoardHeader, ExhibitionShell, FigureCard } from '@/components/workshop/ExhibitionParts';
 import { ExhibitVisit } from '@/components/workshop/ExhibitVisit';
 
@@ -22,8 +23,25 @@ export default function DiscoveryPage() {
             </p>
           ))}
         </div>
-        <FigureCard figure={DISCOVERY.figure} />
+        <div><FigureCard figure={DISCOVERY.figure} /></div>
       </div>
+
+      <section className="mt-10 space-y-4" aria-labelledby="field-photos">
+        <h2 id="field-photos" className="font-serif text-lg font-semibold text-wj-ink">出土现场</h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          {DISCOVERY_SCENES.filter((figure) => figure.src !== DISCOVERY.figure.src).map((figure) => (
+            <FigureCard key={figure.src} figure={figure} />
+          ))}
+        </div>
+        <details className="group rounded-md border border-wj-border bg-wj-surface p-4 sm:p-5">
+          <summary className="cursor-pointer font-serif text-base text-wj-ink marker:text-wj-cinnabar">
+            整理与收藏影像
+          </summary>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            {DISCOVERY_ARCHIVE.map((figure) => <FigureCard key={figure.src} figure={figure} />)}
+          </div>
+        </details>
+      </section>
 
       <div className="mt-10">
         <h2 className="font-serif text-base font-semibold text-wj-ink">
