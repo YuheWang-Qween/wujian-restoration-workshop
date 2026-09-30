@@ -1,0 +1,131 @@
+.intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(28px, 4vw, 56px);
+  margin-top: 32px;
+}
+
+.story {
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.story h2,
+.section-heading h2 {
+  margin-bottom: 16px;
+  color: var(--wj-ink);
+  font-family: var(--font-serif);
+  font-size: 23px;
+  font-weight: 600;
+}
+
+.story > p {
+  color: var(--wj-ink);
+  font-size: 14px;
+  line-height: 2.05;
+}
+
+.facts {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--wj-line);
+}
+
+.facts > div {
+  display: grid;
+  grid-template-columns: 4em minmax(0, 1fr);
+  align-items: baseline;
+  gap: 16px;
+  font-size: 12px;
+  line-height: 1.9;
+}
+
+.facts dt {
+  color: var(--wj-ink);
+  font-weight: 500;
+}
+
+.facts dd {
+  color: var(--wj-muted);
+}
+
+.theories {
+  display: grid;
+  grid-template-columns: minmax(0, 0.65fr) minmax(0, 1.35fr);
+  gap: 48px;
+  margin-top: 52px;
+  padding-top: 32px;
+  border-top: 1px solid var(--wj-border);
+}
+
+.section-heading p {
+  max-width: 28em;
+  color: var(--wj-muted);
+  font-size: 12px;
+  line-height: 1.9;
+}
+
+.theory-list {
+  display: grid;
+  gap: 20px;
+  list-style: none;
+}
+
+.theory-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--wj-line);
+}
+
+.theory-list h3 {
+  color: var(--wj-ink);
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.8;
+}
+
+.theory-list p {
+  color: var(--wj-muted);
+  font-size: 12px;
+  line-height: 1.9;
+}
+
+.theory-list .holders {
+  margin-top: 5px;
+  font-size: 11px;
+}
+
+@media (width <= 900px) {
+  .intro {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+
+  .theories {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    margin-top: 36px;
+  }
+}
+
+@media (width <= 480px) {
+  .story h2,
+  .section-heading h2 {
+    font-size: 21px;
+  }
+
+  .theory-list li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .facts > div {
+    gap: 12px;
+  }
+}

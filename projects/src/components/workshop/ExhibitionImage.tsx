@@ -9,7 +9,11 @@ import styles from './ExhibitionImage.module.css';
 type Size = { width: number; height: number };
 
 /** 实物保持完整比例；放大阅读只发生在原图弹窗中。 */
-export function ExhibitionImage({ figure, tall = false }: { figure: ExFigure; tall?: boolean }) {
+export function ExhibitionImage({ figure, tall = false, layout = 'natural' }: {
+  figure: ExFigure;
+  tall?: boolean;
+  layout?: 'natural' | 'gallery';
+}) {
   const titleId = useId();
   const captionId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -129,7 +133,7 @@ export function ExhibitionImage({ figure, tall = false }: { figure: ExFigure; ta
         <button
           ref={triggerRef}
           type="button"
-          className={`${styles.preview} ${tall ? styles.tall : ''}`}
+          className={`${styles.preview} ${tall ? styles.tall : ''} ${layout === 'gallery' ? styles.gallery : ''}`}
           aria-label={`查看原图：${figure.alt}`}
           aria-haspopup="dialog"
           onClick={openImage}

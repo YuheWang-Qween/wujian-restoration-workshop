@@ -141,8 +141,8 @@ function WorkshopHallInner() {
 
       {/* 置顶栏：sticky 自动占位——标题在窄屏折行、头部变高时内容不会被压到底下 */}
       <header className="sticky top-0 z-50 border-b border-wj-line bg-wj-bg/95 backdrop-blur-sm">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-3">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-stretch justify-between gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center">
+          <div className="flex min-w-0 items-center gap-3">
             <span
               aria-hidden
               className="wj-seal hidden size-9 shrink-0 flex-col items-center justify-center rounded bg-wj-cinnabar text-wj-cinnabar-ink sm:flex"
@@ -159,7 +159,7 @@ function WorkshopHallInner() {
           </div>
 
           {/* 页签 + 登出 */}
-          <div className="flex items-end gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 lg:justify-end">
             <div
               role="tablist"
               aria-label="工坊两篇"

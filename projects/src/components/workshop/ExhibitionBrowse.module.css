@@ -1,0 +1,134 @@
+.browser {
+  min-width: 0;
+}
+
+.forms {
+  margin-top: 2rem;
+}
+
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--wj-line);
+}
+
+.category {
+  min-height: 44px;
+  padding: 8px 12px;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--wj-muted);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.category[aria-pressed='true'] {
+  border-bottom-color: var(--wj-cinnabar);
+  color: var(--wj-cinnabar);
+  font-weight: 600;
+}
+
+.category:hover {
+  color: var(--wj-cinnabar);
+}
+
+.category:focus-visible {
+  outline: 2px solid var(--wj-cinnabar);
+  outline-offset: 3px;
+}
+
+.exhibit {
+  min-width: 0;
+  padding: clamp(20px, 3vw, 36px) 0 0;
+}
+
+.illustrated {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  align-items: start;
+  gap: clamp(24px, 4vw, 48px);
+}
+
+.figures {
+  display: grid;
+  min-width: 0;
+  gap: 24px;
+}
+
+.label {
+  min-width: 0;
+  color: var(--wj-ink);
+  overflow-wrap: anywhere;
+}
+
+.title {
+  margin: 0 0 20px;
+  font-family: var(--font-serif), serif;
+  font-size: clamp(21px, 2.2vw, 26px);
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.spec {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin: 0 0 22px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid var(--wj-line);
+  color: var(--wj-muted);
+  font-size: 13px;
+  line-height: 1.9;
+  list-style: none;
+}
+
+.tagline {
+  margin-bottom: 18px;
+  font-family: var(--font-serif), serif;
+  font-size: 16px;
+  line-height: 1.9;
+}
+
+.prose {
+  display: grid;
+  gap: 12px;
+  max-width: 72ch;
+  font-size: 14px;
+  line-height: 2;
+}
+
+.quote {
+  margin-top: 24px;
+}
+
+.note {
+  margin-bottom: 8px;
+  color: var(--wj-muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+@media (width <= 760px) {
+  .categories {
+    gap: 2px 4px;
+  }
+
+  .category {
+    padding-right: 10px;
+    padding-left: 10px;
+    font-size: 13px;
+  }
+
+  .illustrated {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .title {
+    margin-bottom: 16px;
+  }
+}
