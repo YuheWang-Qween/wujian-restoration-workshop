@@ -57,21 +57,6 @@
   overflow-wrap: anywhere;
 }
 
-.credit {
-  margin-top: 3px;
-  color: var(--wj-muted);
-  font-size: 11px;
-}
-
-.credit summary {
-  width: fit-content;
-  cursor: pointer;
-}
-
-.credit p {
-  margin-top: 4px;
-}
-
 .collection .preview {
   height: 160px;
   overflow: hidden;
@@ -243,7 +228,6 @@
 .preview:focus-visible,
 .close:focus-visible,
 .toolbar button:focus-visible,
-.credit summary:focus-visible,
 .viewport:focus-visible {
   outline: 2px solid var(--wj-cinnabar);
   outline-offset: -3px;

@@ -63,8 +63,8 @@ export interface WjStage {
   tagline: string;
   /** 轻量环节只设两道细问，不与其余环节强求对称 */
   light?: boolean;
-  /** 关键数据节的示意图版：AI 生成，图题必须带「示意」，不冒充真实文物照片 */
-  figure?: { src: string; caption: string };
+  /** 用户提供的真实资料照片；图注描述可见内容，不据画面推定具体工序或药剂。来源记录见 supplied/sources.json。 */
+  figure?: { src: string; alt: string; caption: string; width: number; height: number };
   why: string[];
   facts: WjFact[];
   tables: WjTable[];
@@ -120,8 +120,11 @@ export const STAGES: WjStage[] = [
     name: '揭取',
     tagline: '唯一一道不可重来的工序',
     figure: {
-      src: '/fig-stage-1.jpeg',
-      caption: '示意 · J22 井内饱水简牍的叠压状态与分区揭取',
+      src: '/exhibition/supplied/basin-sorting.webp',
+      alt: '工作人员在盆内用工具整理叠压的简牍',
+      caption: '资料照片 · 盆内简牍整理',
+      width: 1208,
+      height: 862,
     },
     why: [
       '揭取是整个工序的起点，也是唯一一道不可重来的工序。简牍一旦从叠压状态中取出，它在井中的位置信息就永久消失了——没有留存的办法，只有记录的办法。揭剥图和盆号在这一刻产生，此后所有工序中简牍的身份都依赖这套编号维系。',
@@ -278,8 +281,11 @@ export const STAGES: WjStage[] = [
     name: '清洗',
     tagline: '让字迹第一次真正可见',
     figure: {
-      src: '/fig-stage-2.jpeg',
-      caption: '示意 · 饱水竹简的清洗：勾线笔蘸清水逐枚清理',
+      src: '/exhibition/supplied/workroom.webp',
+      alt: '工作人员在窗边工作台上整理简牍材料',
+      caption: '资料照片 · 工作室整理现场',
+      width: 621,
+      height: 460,
     },
     why: [
       '清洗是让字迹第一次真正可见的工序。简牍出土时表面覆盖泥污，部分区域连有无文字都无法判断。清洗的目的不只是去除污垢，而是在不损伤字迹的前提下完成这件事——而这两个目标之间存在真实的张力。',
@@ -395,8 +401,11 @@ export const STAGES: WjStage[] = [
     tagline: '身份不能在工序之间掉线',
     light: true,
     figure: {
-      src: '/fig-stage-3.jpeg',
-      caption: '示意 · 绑夹固定与编号核对',
+      src: '/exhibition/supplied/mesh-tray.webp',
+      alt: '蓝色托盘内并列放置的简片与外侧网架',
+      caption: '资料照片 · 网架与简片排列',
+      width: 594,
+      height: 467,
     },
     why: [
       '绑夹是简牍在不同工序之间流转的形态管理，核对是编号与实物的绑定确认——一旦错位，后续所有操作记录都将错指向错误的简。这两件事都不能附带在其他工序里顺手完成。但相对其余五个环节，它的技术内容较轻，作为衔接性模块处理。',
@@ -485,8 +494,11 @@ export const STAGES: WjStage[] = [
     name: '饱水保存',
     tagline: '持续时间最长、失控风险最隐性',
     figure: {
-      src: '/fig-stage-4.jpeg',
-      caption: '示意 · 饱水保存：搪瓷盘浸简、上架存放',
+      src: '/exhibition/supplied/shelved-trays.webp',
+      alt: '装有简片的托盘分层放置在架子上',
+      caption: '资料照片 · 托盘上架存放',
+      width: 635,
+      height: 478,
     },
     why: [
       '饱水保存不是等待，而是一个主动管理的阶段。简牍出土后必须持续浸泡在水中，这一点没有争议；但浸泡的水里放什么、以什么浓度放、多久更换一次，是一套需要根据微生物监测结果做出判断的动态决策。1999 年蚀斑病大规模暴发，正是发生在这个阶段，而不是出土时——保存期是整个修复链条中持续时间最长、失控风险最隐性的环节。',
@@ -638,8 +650,11 @@ export const STAGES: WjStage[] = [
     name: '脱色',
     tagline: '从「能保存」进入「能使用」',
     figure: {
-      src: '/fig-stage-5.jpeg',
-      caption: '示意 · 药液保温脱色（连二亚硫酸钠，45～50℃）',
+      src: '/exhibition/supplied/containers.webp',
+      alt: '工作人员在大型槽体内摆放蓝色容器',
+      caption: '资料照片 · 修复现场的槽体与容器',
+      width: 606,
+      height: 477,
     },
     why: [
       '脱色是让简牍从「能保存」进入「能使用」的关键工序。简牍保存于水中、在泥土严密覆盖或隔绝空气的条件下，颜色可保持较长时间稳定；但只要暴露于空气中，几分钟时间即可使其上的文字无法识别。脱色的目的不是美观，而是让墨迹重新可辨——这是出版、释文和后续研究的前提条件。',
@@ -783,8 +798,11 @@ export const STAGES: WjStage[] = [
     name: '脱水',
     tagline: '不可逆程度最高的一道',
     figure: {
-      src: '/fig-stage-6.jpeg',
-      caption: '示意 · 十六醇填充脱水（熔点 49℃）',
+      src: '/exhibition/supplied/tabletop-arrangement.webp',
+      alt: '工作人员在整理台旁查看分格排列的简牍',
+      caption: '资料照片 · 简牍整理工作台',
+      width: 654,
+      height: 488,
     },
     why: [
       '脱水是整个工序里不可逆程度最高的环节。简牍经历以千年计的地下降解后，纤维素结晶度从天然竹的 72.6% 降至 21.3%，竹简平均相对含水率高达 471%，内部结构已完全依靠水分支撑，给人直观感觉为海绵状。一旦移除水分而不做填充，宽度平均收缩率高达 50.6%，简牍皱缩变形，字迹随之扭曲。脱水的目的，是在撤除水分的同时用固体材料替代水的支撑功能，让简牍在干燥状态下维持原有形态。',
@@ -964,7 +982,7 @@ export const ACT_QUESTIONS = '细问';
 /**
  * 环节的节标题——「一个环节有几节、各叫什么」的唯一口径。
  * 有关键数据内容（facts / tables / figure 任一非空）就有关键数据节
- * （figure 也属于关键数据节：漏了它，只配了示意图的环节会整节丢失）；
+ * （figure 也属于关键数据节：漏了它，只配了图片的环节会整节丢失）；
  * 配了虚拟仿真工作台（lib/workshop/sim.ts 的 SIMS）就有上机操作节，排在细问之前——
  * 先动手，再被追问。
  * 环节页（一节一屏）、GuideChat（当前节透传给后端）、guide-lines（按节选台词）、

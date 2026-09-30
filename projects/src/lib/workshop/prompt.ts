@@ -87,10 +87,10 @@ function stageBlock(stage: WjStage): string {
     );
   }
 
-  // 示意图属于关键数据节（与 content.stageActTitles 的判据同步）：
+  // 资料照片属于关键数据节（与 content.stageActTitles 的判据同步）：
   // 模型看不到图，但图题要进提示词——学生问「这张图」时小简得知道指的是什么
   if (stage.figure) {
-    parts.push(`\n关键数据节配有一张示意图，图题：「${stage.figure.caption}」。`);
+    parts.push(`\n关键数据节配有一张真实资料照片，图注：「${stage.figure.caption}」。只按图注描述画面，不将照片作为具体药剂、操作参数或处理阶段的证据。`);
   }
 
   for (const t of stage.tables) parts.push(`\n${renderTable(t)}`);
@@ -164,4 +164,3 @@ export function buildSystemPrompt(stageId: number, actTitle?: string): string {
   blocks.push(stageBlock(stage), APPENDIX_BLOCK);
   return blocks.join('\n\n---\n\n');
 }
-

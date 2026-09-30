@@ -287,9 +287,11 @@ export function StageContent() {
                   <figure className="mt-4 overflow-hidden rounded-lg border border-wj-border bg-wj-surface">
                     <img
                       src={stage.figure.src}
-                      alt={stage.figure.caption}
+                      alt={stage.figure.alt}
+                      width={stage.figure.width}
+                      height={stage.figure.height}
                       loading="lazy"
-                      className="aspect-video w-full object-cover"
+                      className="block h-auto max-h-[28rem] w-full object-contain"
                     />
                     <figcaption className="flex items-baseline gap-2 border-t border-wj-line px-3 py-2 text-xs text-wj-muted">
                       <span className="shrink-0 font-serif font-semibold text-wj-cinnabar">

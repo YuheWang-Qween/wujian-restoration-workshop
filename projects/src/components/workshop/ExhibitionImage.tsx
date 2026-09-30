@@ -146,12 +146,6 @@ export function ExhibitionImage({ figure, tall = false, layout = 'natural', prev
         </button>
         <figcaption className={styles.caption}>
           <p>{previewLabel ?? figure.caption}</p>
-          {figure.credit && (
-            <details className={styles.credit}>
-              <summary>图片来源</summary>
-              <p>{figure.credit}</p>
-            </details>
-          )}
         </figcaption>
       </figure>
 
