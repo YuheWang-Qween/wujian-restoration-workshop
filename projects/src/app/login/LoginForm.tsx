@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Play, LogIn, GraduationCap, KeyRound, Compass } from 'lucide-react';
+import { LogIn, GraduationCap, KeyRound, Compass } from 'lucide-react';
 import type { ChaoxingLoginOptions } from '@/lib/chaoxing-client';
 import { enterGuestMode, exitGuestMode } from '@/lib/guest-mode';
 import { AuthShell, useAuthPageReady } from '@/components/workshop/AuthShell';
+import { DemoVideo } from './DemoVideo';
 
 const TEACHER_PASSCODE = '123';
 
@@ -165,17 +166,7 @@ export function LoginForm({ chaoxing }: { chaoxing: ChaoxingLoginOptions }) {
             : '首次登录将自动创建账号，学习进度与超星账号绑定'}
         </p>
 
-        {/* 演示按钮：与超星登录并列，访客可不登录先看完整演示 */}
-        <button
-          type="button"
-          onClick={() => window.__startDemo?.()}
-          data-demo="login-demo"
-          className="demo-cta group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-md bg-wj-water py-3 text-sm font-medium tracking-wide text-wj-cinnabar-ink shadow-sm transition-all hover:-translate-y-px hover:brightness-110 hover:shadow-md active:translate-y-0"
-        >
-          <span className="demo-cta-glow" aria-hidden />
-          <Play className="demo-cta-icon h-4 w-4" />
-          观看演示 · 约 3 分钟
-        </button>
+        <DemoVideo />
 
         {/* 游客浏览：跳过登录自由逛，进度只存本机 */}
         <button

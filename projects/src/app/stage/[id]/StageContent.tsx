@@ -291,7 +291,7 @@ export function StageContent() {
                       width={stage.figure.width}
                       height={stage.figure.height}
                       loading="lazy"
-                      className="block h-auto max-h-[28rem] w-full object-cover"
+                      className="block h-auto w-full"
                     />
                     <figcaption className="flex items-baseline gap-2 border-t border-wj-line px-3 py-2 text-xs text-wj-muted">
                       <span className="shrink-0 font-serif font-semibold text-wj-cinnabar">

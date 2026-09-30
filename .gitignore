@@ -110,6 +110,9 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 *.rmvb
 *.vob
 
+# 登录页使用的正式演示成片随项目发布
+!/projects/public/videos/workshop-demo-20260930-male.mp4
+
 # 字体源文件（子集化后的 woff2 在 public/fonts/ 里提交）
 assets/fonts/*.otf
 
