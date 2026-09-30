@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Play, X } from 'lucide-react';
 
-const VIDEO_SRC = '/videos/workshop-demo-20260930-male.mp4';
+const VIDEO_SRC = '/videos/workshop-demo-20260930-male.mp4?v=5';
 
 /** 登录页直接播放成片，不触发自动操作演示或改变学习状态。 */
 export function DemoVideo() {
@@ -28,7 +28,7 @@ export function DemoVideo() {
         >
           <span className="demo-cta-glow" aria-hidden />
           <Play className="demo-cta-icon h-4 w-4" aria-hidden />
-          观看演示 · 约 9 分钟
+          观看演示 · 约 8 分钟
         </button>
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -39,7 +39,7 @@ export function DemoVideo() {
               简牍修复工坊 · 演示
             </Dialog.Title>
             <Dialog.Description className="sr-only">
-              9 分钟了解简牍修复、简牍鉴赏与学情分析，视频配有中文解说和字幕。
+              约 8 分钟了解简牍修复、简牍鉴赏与学情分析，视频配有中文解说和字幕。
             </Dialog.Description>
             <Dialog.Close asChild>
               <button
@@ -55,7 +55,7 @@ export function DemoVideo() {
             <video
               ref={videoRef}
               src={VIDEO_SRC}
-              poster="/videos/workshop-demo-20260930-poster.jpg"
+              poster="/videos/workshop-demo-20260930-poster.jpg?v=5"
               controls
               autoPlay
               playsInline
